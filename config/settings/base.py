@@ -47,6 +47,7 @@ DATABASES = {
         default="postgres:///calmerge",
     ),
 }
+
 DATABASES["default"]["ATOMIC_REQUESTS"] = True
 # https://docs.djangoproject.com/en/stable/ref/settings/#std:setting-DEFAULT_AUTO_FIELD
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
@@ -83,6 +84,7 @@ THIRD_PARTY_APPS = [
 LOCAL_APPS = [
     "calmerge.users",
     # Your stuff: custom apps go here
+    "calmerge.calendars",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
