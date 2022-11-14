@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+<div class="">
+    <div class="">
+        <button type="button" hx-get="{% url 'calendars:create-calendar-form' %}" hx-target="#calendarforms" hx-swap="beforeend"
+            class="">
+            Add Calendar
+        </button>
+    </div>
+</div>
+
+
+<div id="calendarforms" class=""></div>
+
+<div class="">
+    {% for calendar in calendars %}
+
+    {% include "calendars/partials/calendar_detail.html" %}
+
+    {% endfor %}
+</div>
+
+{% endblock %}

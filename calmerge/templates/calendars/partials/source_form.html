@@ -1,0 +1,23 @@
+{% load crispy_forms_tags %}
+
+<div hx-target="this" hx-swap="outerHTML">
+    <form method="POST">
+        {% csrf_token %}
+        {{ form|crispy }}
+        {% if source %}
+        <button type="submit" hx-post="{% url 'calendars:update-source' source.id %}"
+            class="">
+            Submit
+        </button>
+        <button hx-get="{% url 'calendars:detail-source' source.id %}" type="button"
+            class="">
+            Cancel
+        </button>
+        {% else %}
+        <button type="submit" hx-post="."
+            class="">
+            Submit
+        </button>
+        {% endif %}
+    </form>
+</div>
