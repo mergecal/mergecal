@@ -85,6 +85,7 @@ LOCAL_APPS = [
     "calmerge.users",
     # Your stuff: custom apps go here
     "calmerge.calendars",
+    "allauth.socialaccount.providers.google",  # for Google OAuth 2.0
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
