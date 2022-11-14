@@ -1,11 +1,5 @@
 import requests
-from django.core.files.base import ContentFile, File
 from icalendar import Calendar, Timezone
-
-
-def create_calendar_file(calendar_instance):
-    myfile = ContentFile("")
-    return File(myfile, name=f"{calendar_instance.uuid}.ical")
 
 
 def combine_calendar(calendar_instance):

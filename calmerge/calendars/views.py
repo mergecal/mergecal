@@ -1,10 +1,10 @@
 from django.contrib.auth.decorators import login_required
+from django.core.files.base import ContentFile
 from django.http.response import HttpResponse, HttpResponseNotAllowed
 from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import CalendarForm, SourceForm
 from .models import Calendar, Source
-from .utils import create_calendar_file
 
 
 @login_required
@@ -16,7 +16,7 @@ def manage_calendar(request):
         if form.is_valid():
             calendar = form.save(commit=False)
             calendar.owner = request.user
-            calendar.calendar_file = create_calendar_file(calendar)
+            calendar.calendar_file.save(f"{calendar.uuid}.ical", ContentFile(b""))
             calendar.save()
             return redirect("calendars:detail-calendar", pk=calendar.id)
         else:
