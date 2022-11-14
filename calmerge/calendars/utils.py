@@ -15,7 +15,6 @@ def combine_calendar(calendar_instance):
     for source in calendar_instance.source_set.all():
         try:
             r = requests.get(source.url)
-            print(source.url)
             r.raise_for_status()
             cal = Calendar.from_ical(r.text)
             # every part of the file...
@@ -26,6 +25,6 @@ def combine_calendar(calendar_instance):
         except requests.exceptions.HTTPError as err:
             raise SystemExit(err)
 
-    print(calendar_instance.calendar_file.name)
-    with open(calendar_instance.calendar_file.path, "wb") as f:
-        f.write(newcal.to_ical())
+    calendar_instance.calendar_file.open(mode="wb")
+    calendar_instance.calendar_file.write(newcal.to_ical())
+    calendar_instance.calendar_file.close()
