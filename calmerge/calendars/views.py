@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import CalendarForm, SourceForm
 from .models import Calendar, Source
+from .tasks import combine_calendar_task
 
 
 @login_required
@@ -87,6 +88,7 @@ def manage_source(request, pk):
             source = form.save(commit=False)
             source.calendar = calendar
             source.save()
+            combine_calendar_task.delay(pk)
             return redirect("calendars:detail-source", pk=source.id)
         else:
             return render(
@@ -105,6 +107,7 @@ def update_source(request, pk):
 
     if request.method == "POST":
         if form.is_valid():
+            combine_calendar_task.delay(pk)
             form.save()
             return redirect("calendars:detail-source", pk=source.id)
 
