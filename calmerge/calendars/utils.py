@@ -12,7 +12,7 @@ def combine_calendar(calendar_instance):
     newtimezone.add("tzid", calendar_instance.timezone)
     newcal.add_component(newtimezone)
 
-    for source in calendar_instance.source_set.all():
+    for source in calendar_instance.calendarOf.all():
         try:
             r = requests.get(source.url)
             r.raise_for_status()
