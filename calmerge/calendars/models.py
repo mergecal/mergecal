@@ -49,8 +49,7 @@ class Source(models.Model):
     name = models.CharField(max_length=255)
     url = models.URLField(validators=[validate_ical_url])
     calendar = models.ForeignKey(
-        "calendars.Calendar",
-        on_delete=models.CASCADE,
+        "calendars.Calendar", on_delete=models.CASCADE, related_name="calendarOf"
     )
 
     def __str__(self):
