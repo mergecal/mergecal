@@ -153,6 +153,11 @@ LOGGING = {
             "class": "logging.StreamHandler",
             "formatter": "verbose",
         },
+        "file_general": {
+            "class": "logging.FileHandler",
+            "filename": "/var/log/django/general.log",
+            "formatter": "verbose",
+        },
     },
     "root": {"level": "INFO", "handlers": ["console"]},
     "loggers": {
@@ -165,6 +170,12 @@ LOGGING = {
             "level": "ERROR",
             "handlers": ["console", "mail_admins"],
             "propagate": True,
+        },
+        "django": {
+            "handlers": [
+                "console",
+                "file_general",
+            ],
         },
     },
 }
