@@ -1,23 +1,43 @@
 {% load crispy_forms_tags %}
 
-<div hx-target="this" hx-swap="outerHTML">
-    <form method="POST">
-        {% csrf_token %}
-        {{ form|crispy }}
-        {% if calendar %}
-        <button type="submit" hx-post="{% url 'calendars:update-calendar' calendar.id %}"
-            class="">
-            Submit
-        </button>
-        <button hx-get="{% url 'calendars:detail-calendar' calendar.id %}" type="button"
-            class="">
-            Cancel
-        </button>
-        {% else %}
-        <button type="submit" hx-post="."
-            class="">
-            Submit
-        </button>
-        {% endif %}
-    </form>
+<div hx-target="this" hx-swap="outerHTML" class="">
+    <ul class="list-group">
+        <li class="list-group-item list-group-item-dark">
+            <form method="POST">
+                <div class="row">
+                    {% csrf_token %}
+                    {% crispy form form.helper %}
+                    <div class="col-auto text-end">
+                        {% if calendar %}
+                        <button type="submit" hx-post="{% url 'calendars:update-calendar' calendar.id %}"
+                            class="btn btn-primary">
+                            <i class="bi bi-check-square"></i> <span class="d-none d-lg-inline"> Submit </span>
+                        </button>
+                        <button hx-get="{% url 'calendars:detail-calendar' calendar.id %}" type="button"
+                            class="btn btn-secondary">
+                            <i class="bi bi-x-circle"></i> <span class="d-none d-lg-inline"> Cancel </span>
+                        </button>
+                        {% else %}
+                        <button type="submit" hx-post="."
+                            class="btn btn-primary">
+                            <i class="bi bi-check-square"></i> <span class="d-none d-lg-inline"> Submit </span>
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </form>
+        </li>
+        {% for source in calendar.calendarOf.all %}
+            {% include "calendars/partials/source_detail.html" with disabled="disabled" %}
+        {% endfor %}
+        <div id="sourceforms{{calendar.id}}" class=""></div>
+        <li class="list-group-item text-end">
+            <div>
+                <button disabled
+                       class="btn btn-primary">
+                       Add URL
+                   </button>
+            </div>
+        </li>
+    </ul>
 </div>

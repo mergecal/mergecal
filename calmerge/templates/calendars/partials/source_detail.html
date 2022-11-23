@@ -1,16 +1,16 @@
-<div hx-target="this" class="">
-    <h3 class="">
-        Source Name: {{ source.name }}
-    </h3>
-    <p class="">Source URL: {{ source.url }}</p>
-    <div class="mt-2">
-        <button hx-get="{% url 'calendars:update-source' source.id %}" hx-swap="outerHTML"
-            class="">
-            Update
-        </button>
-        <button hx-post="{% url 'calendars:delete-source' source.id %}" hx-swap="outerHTML swap:1s"
-            class="">
-            Delete
-        </button>
+<li hx-target="this" class="list-group-item">
+    <div class="row d-flex">
+        <div class="col-auto col-md-2 align-self-center text-capitalize">{{ source.name }}</div>
+        <div class="col text-truncate align-self-center"><i class="bi bi-link"></i> {{ source.url|urlize }}</div>
+        <div class="col-auto text-end align-self-center">
+            <button hx-get="{% url 'calendars:update-source' source.id %}" hx-swap="outerHTML" {{ disabled }}
+                                                                           class="btn btn-primary" type="button">
+                <i class="bi bi-pencil-square"></i><span class="d-none d-lg-inline"> Update </span>
+            </button>
+            <button hx-post="{% url 'calendars:delete-source' source.id %}" hx-swap="outerHTML swap:1s" {{ disabled }}
+                                                                            class="btn btn-danger" type="button">
+                <i class="bi bi-trash"></i> </i><span class="d-none d-lg-inline"> Delete </span>
+            </button>
+        </div>
     </div>
-</div>
+</li>

@@ -1,23 +1,27 @@
 {% load crispy_forms_tags %}
 
-<div hx-target="this" hx-swap="outerHTML">
+<li hx-target="this" hx-swap="outerHTML" class="list-group-item">
     <form method="POST">
-        {% csrf_token %}
-        {{ form|crispy }}
-        {% if source %}
-        <button type="submit" hx-post="{% url 'calendars:update-source' source.id %}"
-            class="">
-            Submit
-        </button>
-        <button hx-get="{% url 'calendars:detail-source' source.id %}" type="button"
-            class="">
-            Cancel
-        </button>
-        {% else %}
-        <button type="submit" hx-post="."
-            class="">
-            Submit
-        </button>
-        {% endif %}
+        <div class="row d-flex">
+            {% csrf_token %}
+            {% crispy form %}
+            <div class="col-auto align-self-center text-end">
+                {% if source %}
+                <button type="submit" hx-post="{% url 'calendars:update-source' source.id %}"
+                    class="btn btn-primary">
+                    <i class="bi bi-check-square"></i> <span class="d-none d-lg-inline"> Submit </span>
+                </button>
+                <button hx-get="{% url 'calendars:detail-source' source.id %}" type="button"
+                    class="btn btn-secondary">
+                    <i class="bi bi-x-circle"></i> <span class="d-none d-lg-inline"> Cancel </span>
+                </button>
+                {% else %}
+                <button type="submit" hx-post="{% url 'calendars:manage-source' calendar.id %}"
+                    class="btn btn-primary">
+                    <i class="bi bi-check-square"></i> <span class="d-none d-lg-inline"> Submit </span>
+                </button>
+                {% endif %}
+            </div>
+        </div>
     </form>
-</div>
+</li>
