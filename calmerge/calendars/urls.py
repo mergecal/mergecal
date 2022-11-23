@@ -27,5 +27,7 @@ urlpatterns = [
     path("htmx/source/<pk>/", detail_source, name="detail-source"),
     path("htmx/source/<pk>/update/", update_source, name="update-source"),
     path("htmx/source/<pk>/delete/", delete_source, name="delete-source"),
-    path("htmx/create-source-form/", create_source_form, name="create-source-form"),
+    path(
+        "<pk>/htmx/create-source-form/", create_source_form, name="create-source-form"
+    ),
 ]
