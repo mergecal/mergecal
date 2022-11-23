@@ -44,6 +44,9 @@ class Calendar(models.Model):
     def get_absolute_url(self):
         return reverse("calendars:calendar_detail", kwargs={"pk": self.pk})
 
+    class Meta:
+        ordering = ["-pk"]
+
 
 class Source(models.Model):
     name = models.CharField(max_length=255)
