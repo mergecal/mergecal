@@ -107,7 +107,7 @@ def update_source(request, pk):
 
     if request.method == "POST":
         if form.is_valid():
-            combine_calendar_task.delay(pk)
+            combine_calendar_task.delay(source.calendar.id)
             form.save()
             return redirect("calendars:detail-source", pk=source.id)
 
@@ -139,7 +139,8 @@ def detail_source(request, pk):
 
 
 @login_required
-def create_source_form(request):
+def create_source_form(request, pk):
+    calendar = get_object_or_404(Calendar.objects.filter(owner=request.user), pk=pk)
     form = SourceForm()
-    context = {"form": form}
+    context = {"form": form, "calendar": calendar}
     return render(request, "calendars/partials/source_form.html", context)
