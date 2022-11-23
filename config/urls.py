@@ -4,9 +4,10 @@ from django.contrib import admin
 from django.urls import include, path
 from django.views import defaults as default_views
 from django.views.generic import TemplateView
+from django.views.generic.base import RedirectView
 
 urlpatterns = [
-    path("", TemplateView.as_view(template_name="pages/home.html"), name="home"),
+    path("", RedirectView.as_view(url="calendars"), name="home"),
     path(
         "about/", TemplateView.as_view(template_name="pages/about.html"), name="about"
     ),
@@ -16,7 +17,11 @@ urlpatterns = [
     path("users/", include("calmerge.users.urls", namespace="users")),
     path("accounts/", include("allauth.urls")),
     # Your stuff: custom urls includes go here
-    path("calendars/", include("calmerge.calendars.urls", namespace="calendars")),
+    path(
+        "calendars/",
+        include("calmerge.calendars.urls", namespace="calendars"),
+        name="home",
+    ),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
