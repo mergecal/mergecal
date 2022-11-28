@@ -1,7 +1,8 @@
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.files.base import ContentFile
 from django.http.response import HttpResponse, HttpResponseNotAllowed
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, render
 
 from .forms import CalendarForm, SourceForm
 from .models import Calendar, Source
@@ -19,7 +20,12 @@ def manage_calendar(request):
             calendar.owner = request.user
             calendar.calendar_file.save(f"{calendar.uuid}.ical", ContentFile(b""))
             calendar.save()
-            return redirect("calendars:detail-calendar", pk=calendar.id)
+            messages.success(request, "Your calendar has been created")
+            return render(
+                request,
+                "calendars/partials/calendar_detail.html",
+                context={"calendar": calendar},
+            )
         else:
             return render(
                 request, "calendars/partials/calendar_form.html", context={"form": form}
@@ -41,7 +47,12 @@ def update_calendar(request, pk):
     if request.method == "POST":
         if form.is_valid():
             form.save()
-            return redirect("calendars:detail-calendar", pk=calendar.id)
+            messages.success(request, "Your calendar has been updated")
+            return render(
+                request,
+                "calendars/partials/calendar_detail.html",
+                context={"calendar": calendar},
+            )
 
     context = {"form": form, "calendar": calendar}
 
@@ -54,6 +65,7 @@ def delete_calendar(request, pk):
 
     if request.method == "POST":
         calendar.delete()
+        messages.error(request, "Your calendar has been deleted")
         return HttpResponse("")
 
     return HttpResponseNotAllowed(
@@ -61,13 +73,6 @@ def delete_calendar(request, pk):
             "POST",
         ]
     )
-
-
-@login_required
-def detail_calendar(request, pk):
-    calendar = get_object_or_404(Calendar, id=pk)
-    context = {"calendar": calendar}
-    return render(request, "calendars/partials/calendar_detail.html", context)
 
 
 @login_required
@@ -89,7 +94,12 @@ def manage_source(request, pk):
             source.calendar = calendar
             source.save()
             combine_calendar_task.delay(pk)
-            return redirect("calendars:detail-source", pk=source.id)
+            messages.success(request, "Your calendar link has been added")
+            return render(
+                request,
+                "calendars/partials/source_detail.html",
+                context={"source": source},
+            )
         else:
             return render(
                 request, "calendars/partials/source_form.html", context={"form": form}
@@ -109,7 +119,12 @@ def update_source(request, pk):
         if form.is_valid():
             combine_calendar_task.delay(source.calendar.id)
             form.save()
-            return redirect("calendars:detail-source", pk=source.id)
+            messages.success(request, "Your calendar link has been updated")
+            return render(
+                request,
+                "calendars/partials/source_detail.html",
+                context={"source": source},
+            )
 
     context = {"form": form, "source": source}
 
@@ -122,6 +137,7 @@ def delete_source(request, pk):
 
     if request.method == "POST":
         source.delete()
+        messages.error(request, "Your calendar link has been deleted")
         return HttpResponse("")
 
     return HttpResponseNotAllowed(
@@ -129,13 +145,6 @@ def delete_source(request, pk):
             "POST",
         ]
     )
-
-
-@login_required
-def detail_source(request, pk):
-    source = get_object_or_404(Source, id=pk)
-    context = {"source": source}
-    return render(request, "calendars/partials/source_detail.html", context)
 
 
 @login_required
