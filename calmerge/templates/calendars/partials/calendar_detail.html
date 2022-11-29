@@ -13,7 +13,7 @@
                     </a>
                 </div>
                 <div class="col align-self-center text-end">
-                    <button hx-post="{% url 'calendars:update-calendar' calendar.id %}" hx-swap="outerHTML"
+                    <button hx-get="{% url 'calendars:update-calendar' calendar.id %}" hx-swap="outerHTML"
                         class="btn btn-primary" type="button">
                         <i class="bi bi-pencil-square"></i><span class="d-none d-lg-inline"> Update </span>
                     </button>
