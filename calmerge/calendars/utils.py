@@ -26,5 +26,5 @@ def combine_calendar(calendar_instance):
             raise SystemExit(err)
 
     cal_bye_str = newcal.to_ical()
-    calendar_instance.calendar_file_str = cal_bye_str.decode("ascii")
+    calendar_instance.calendar_file_str = cal_bye_str.decode("utf8")
     calendar_instance.save()
