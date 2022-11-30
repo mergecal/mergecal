@@ -1,6 +1,7 @@
 from django.urls import path
 
 from .views import (
+    calendar_file,
     create_calendar_form,
     create_source_form,
     delete_calendar,
@@ -30,4 +31,5 @@ urlpatterns = [
     path(
         "<pk>/htmx/create-source-form/", create_source_form, name="create-source-form"
     ),
+    path("<uuid>.ical", calendar_file, name="calendar_file"),
 ]

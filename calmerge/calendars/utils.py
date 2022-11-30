@@ -1,5 +1,4 @@
 import requests
-from django.core.files.storage import default_storage
 from icalendar import Calendar, Timezone
 
 
@@ -26,6 +25,6 @@ def combine_calendar(calendar_instance):
         except requests.exceptions.HTTPError as err:
             raise SystemExit(err)
 
-    f = default_storage.open(calendar_instance.calendar_file.name, "wb")
-    f.write(newcal.to_ical())
-    f.close()
+    cal_bye_str = newcal.to_ical()
+    calendar_instance.calendar_file_str = cal_bye_str.decode("ascii")
+    calendar_instance.save()

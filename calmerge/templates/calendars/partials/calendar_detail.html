@@ -8,7 +8,7 @@
                         {{ calendar.name }}
                     </strong>
                     {{ calendar.timezone }}
-                    <a href="{{ calendar.calendar_file.url }}">
+                    <a href="{% url 'calendars:calendar_file' calendar.uuid %}">
                        copy
                     </a>
                 </div>
