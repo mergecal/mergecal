@@ -2,7 +2,6 @@ from functools import wraps
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.core.files.base import ContentFile
 from django.http.response import (
     HttpResponse,
     HttpResponseForbidden,
@@ -46,7 +45,6 @@ def manage_calendar(request):
         if form.is_valid():
             calendar = form.save(commit=False)
             calendar.owner = request.user
-            calendar.calendar_file.save(f"{calendar.uuid}.ical", ContentFile(b""))
             calendar.save()
             messages.success(request, "Your calendar has been created")
             return render(
@@ -200,3 +198,12 @@ def create_source_form(request, pk):
     form = SourceForm()
     context = {"form": form, "calendar": calendar}
     return render(request, "calendars/partials/source_form.html", context)
+
+
+def calendar_file(request, uuid):
+    calendar = get_object_or_404(Calendar.objects.filter(uuid=uuid))
+    calendar_str = calendar.calendar_file_str
+    response = HttpResponse(calendar_str, content_type="application/octet-stream")
+    response["Content-Disposition"] = f'attachment; filename="{uuid}.ical"'
+
+    return response
