@@ -8,14 +8,14 @@
         <h1 class="display-4">My Calendars:</h1>
     </div>
     <div class="col text-end">
-        <button type="button" hx-get="{% url 'calendars:create-calendar-form' %}" hx-target="#calendarforms" hx-swap="beforeend"
+        <button type="button" title="Create a new shareable calendar" hx-get="{% url 'calendars:create-calendar-form' %}" hx-target="#calendarforms" hx-swap="beforeend"
                                                                                                              class="btn btn-primary">
             Add Calendar
         </button>
     </div>
 </div>
 
-<div id="calendarforms" class="mb-1"></div>
+<div id="calendarforms" class="mb-4"></div>
 
 {% for calendar in calendars %}
     <div class="mb-4">
