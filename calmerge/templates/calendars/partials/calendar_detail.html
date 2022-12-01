@@ -8,9 +8,11 @@
                         {{ calendar.name }}
                     </strong>
                     {{ calendar.timezone }}
-                    <a href="{% url 'calendars:calendar_file' calendar.uuid %}">
+                    <input hidden id="calendar_file_url{{calendar.id}}" value="https://{{domain_name}}{% url 'calendars:calendar_file' calendar.uuid %}">
+                    <button onclick="copyFileUrl({{calendar.id}})" class="btn btn-info" type="button">
                        copy
                     </a>
+                    </button>
                 </div>
                 <div class="col align-self-center text-end">
                     <button hx-get="{% url 'calendars:update-calendar' calendar.id %}" hx-swap="outerHTML"
