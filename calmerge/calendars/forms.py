@@ -1,7 +1,7 @@
 from crispy_forms.bootstrap import Div
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Field, Layout
-from django.forms import ModelForm
+from django.forms import ModelForm, Select, TextInput
 
 from .models import Calendar, Source
 
@@ -25,12 +25,13 @@ class CalendarForm(ModelForm):
             "name",
             "timezone",
         )
-        help_texts = {
-            "name": "Name you calendar.",
-        }
 
         labels = {
             "timezone": False,
+        }
+        widgets = {
+            "name": TextInput(attrs={"title": "Give your calendar a name"}),
+            "timezone": Select(attrs={"title": "Choose a timezone for your calendar"}),
         }
 
 
@@ -51,3 +52,7 @@ class SourceForm(ModelForm):
             "name",
             "url",
         )
+        widgets = {
+            "name": TextInput(attrs={"title": "The name of the external calendar"}),
+            "url": TextInput(attrs={"title": "The url to the external calendar"}),
+        }

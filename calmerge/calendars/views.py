@@ -2,6 +2,7 @@ from functools import wraps
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.sites.models import Site
 from django.http.response import (
     HttpResponse,
     HttpResponseForbidden,
@@ -60,6 +61,7 @@ def manage_calendar(request):
     context = {
         "form": form,
         "calendars": calendars,
+        "domain_name": Site.objects.get_current().domain,
     }
 
     return render(request, "calendars/manage_calendar.html", context)

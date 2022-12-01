@@ -8,16 +8,18 @@
                         {{ calendar.name }}
                     </strong>
                     {{ calendar.timezone }}
-                    <a href="{% url 'calendars:calendar_file' calendar.uuid %}">
+                    <input hidden id="calendar_file_url{{calendar.id}}" value="https://{{domain_name}}{% url 'calendars:calendar_file' calendar.uuid %}">
+                    <button onclick="copyFileUrl({{calendar.id}})" class="btn btn-info" type="button">
                        copy
                     </a>
+                    </button>
                 </div>
                 <div class="col align-self-center text-end">
                     <button hx-get="{% url 'calendars:update-calendar' calendar.id %}" hx-swap="outerHTML"
                         class="btn btn-primary" type="button">
                         <i class="bi bi-pencil-square"></i><span class="d-none d-lg-inline"> Update </span>
                     </button>
-                    <button hx-post="{% url 'calendars:delete-calendar' calendar.id %}" hx-swap="outerHTML swap:1s"
+                    <button hx-post="{% url 'calendars:delete-calendar' calendar.id %}" hx-confirm="Are you sure you'd like to delete {{calendar.name}}?" hx-swap="outerHTML swap:1s"
                         class="btn btn-danger" type="button">
                         <i class="bi bi-trash"></i> </i><span class="d-none d-lg-inline"> Delete </span>
                     </button>
@@ -32,7 +34,7 @@
             <div>
                 <button type="button" hx-get="{% url 'calendars:create-source-form' calendar.id %}" hx-target="#sourceforms{{calendar.id}}" hx-swap="beforeend"
                        class="btn btn-primary">
-                       Add URL
+                       Add External Calendar
                    </button>
             </div>
         </li>
