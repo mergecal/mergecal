@@ -2,19 +2,24 @@
     <ul class="list-group">
         <li class="list-group-item list-group-item-dark">
             <div class="row d-flex">
-                <div class="col align-self-center">
-                    <i class="bi bi-calendar3"></i>
-                    <strong>
-                        {{ calendar.name }}
-                    </strong>
-                    {{ calendar.timezone }}
+                <div class="col-auto align-self-center">
                     <input hidden id="calendar_file_url{{calendar.id}}" value="https://{{domain_name}}{% url 'calendars:calendar_file' calendar.uuid %}">
-                    <button onclick="copyFileUrl({{calendar.id}})" class="btn btn-info" type="button">
-                       copy
-                    </a>
+                    <button onclick="copyFileUrl({{calendar.id}})" class="btn btn-info" type="button" title="https://{{domain_name}}{% url 'calendars:calendar_file' calendar.uuid %}">
+                        <i class="bi bi-clipboard-check"></i>
+                        Copy
                     </button>
                 </div>
-                <div class="col align-self-center text-end">
+                <div class="col align-self-center">
+                    <strong title="Calendar name">
+                        <i class="bi bi-calendar3"></i>
+                        {{ calendar.name }}
+                    </strong>
+                    &middot;
+                    <span title="Timezone">
+                        {{ calendar.timezone }}
+                    </span>
+                </div>
+                <div class="col-auto align-self-center">
                     <button hx-get="{% url 'calendars:update-calendar' calendar.id %}" hx-swap="outerHTML"
                         class="btn btn-primary" type="button">
                         <i class="bi bi-pencil-square"></i><span class="d-none d-lg-inline"> Update </span>
