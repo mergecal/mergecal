@@ -1,26 +1,27 @@
+const toastOptions = { delay: 2000 }
+
+function createToast(message) {
+  // Clone the template
+  const element = htmx.find("[data-toast-template]").cloneNode(true)
+
+  // Remove the data-toast-template attribute
+  delete element.dataset.toastTemplate
+
+  // Set the CSS class
+  element.className += " " + message.tags
+
+  // Set the text
+  htmx.find(element, "[data-toast-body]").innerText = message.message
+
+  // Add the new element to the container
+  htmx.find("[data-toast-container]").appendChild(element)
+
+  // Show the toast using Bootstrap's API
+  const toast = new bootstrap.Toast(element, toastOptions)
+  toast.show()
+}
+
 ;(function () {
-  const toastOptions = { delay: 2000 }
-
-  function createToast(message) {
-    // Clone the template
-    const element = htmx.find("[data-toast-template]").cloneNode(true)
-
-    // Remove the data-toast-template attribute
-    delete element.dataset.toastTemplate
-
-    // Set the CSS class
-    element.className += " " + message.tags
-
-    // Set the text
-    htmx.find(element, "[data-toast-body]").innerText = message.message
-
-    // Add the new element to the container
-    htmx.find("[data-toast-container]").appendChild(element)
-
-    // Show the toast using Bootstrap's API
-    const toast = new bootstrap.Toast(element, toastOptions)
-    toast.show()
-  }
 
   htmx.on("messages", (event) => {
     event.detail.value.forEach(createToast)
@@ -46,5 +47,6 @@ function copyFileUrl(pk) {
   navigator.clipboard.writeText(copyText.value);
 
   // Alert the copied text
-  alert("Copied the text: " + copyText.value);
+  createToast({message: "Copied the text:\n" + copyText.value, tags: "text-white bg-success"})
+  //alert("Copied the text: " + copyText.value);
 }
