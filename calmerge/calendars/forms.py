@@ -53,6 +53,6 @@ class SourceForm(ModelForm):
             "url",
         )
         widgets = {
-            "name": TextInput(attrs={"title": "The name of the external calendar"}),
-            "url": TextInput(attrs={"title": "The url to the external calendar"}),
+            "name": TextInput(attrs={"title": "Name the external calendar"}),
+            "url": TextInput(attrs={"title": "Add Link to the external calendar"}),
         }
