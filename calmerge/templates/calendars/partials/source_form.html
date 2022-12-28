@@ -8,16 +8,16 @@
             <div class="col-auto align-self-center text-end">
                 {% if source %}
                 <button type="submit" hx-post="{% url 'calendars:update-source' source.id %}"
-                    class="btn btn-primary">
+                    class="btn btn-outline-secondary">
                     <i class="bi bi-check-square"></i> <span class="d-none d-lg-inline"> Submit </span>
                 </button>
                 <button hx-get="{% url 'calendars:detail-source' source.id %}" type="button"
-                    class="btn btn-secondary">
+                    class="btn btn-outline-danger">
                     <i class="bi bi-x-circle"></i> <span class="d-none d-lg-inline"> Cancel </span>
                 </button>
                 {% else %}
                 <button type="submit" hx-post="{% url 'calendars:manage-source' calendar.id %}"
-                    class="btn btn-primary">
+                    class="btn btn-outline-secondary">
                     <i class="bi bi-check-square"></i> <span class="d-none d-lg-inline"> Submit </span>
                 </button>
                 {% endif %}
