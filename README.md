@@ -1,28 +1,51 @@
 # Calmerge
-a Django app to merge ical feeds
+Welcome to calmerge, a Django webapp that allows you to merge multiple iCalendar feeds into a single feed. With calmerge, you can easily keep track of events from multiple sources in one place.
 
 Available at https://calmerge.habet.dev/
 
+## Using calmerge
+
+To use calmerge, you'll need to create an account and log in. Once you're logged in, you can create a calendar and add iCalendar feeds to your calendar by entering the URL of the feed and clicking "Add Feed".
+
 ### Explanation
-Every so often the web-app fetch's the events from all the given ical feeds, merges them into a single calendar and saves it to the database
+1. When a user adds an iCalendar feed to their account, calmerge stores the URL of the feed in the database.
 
-The web-app then exposes a copy-able link which leads to a downloadable file containing the merged events from the database
+2. The webapp has a background task that runs every so often to fetch the events from all of the iCalendar feeds associated with a user's calendar.
 
-The magic happens when you put that link in your calendar client like google calendar
-where the events simply show up
+3. The events are then merged into a single calendar and stored in the database.
+
+4. To view the events from all of your added iCalendar feeds in one place, click on the "Subscribe" button and copy the provided URL.
+
+5. Add the URL to your calendar client (e.g. Google Calendar) to view all of the events from the merged feeds in one place.
 
 Here's a [blog post](https://happyandeffective.notion.site/Blog-Post-Draft-Community-Calendars-897779ae1fb041d3a2e4a6b8829b1deb) written by [Casey Watts](https://github.com/caseywatts) detailing the problem and multiple approaches how to solve it.
-### Deployment
+
+### Deployment Diagram
 
 ![Project-Diagram](https://user-images.githubusercontent.com/82916197/205155655-4371301d-b5f7-42dc-a210-518e161c314e.png)
 
 
-The following details how to deploy this application.
 
+## Local Development
 
-### Development
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
 
-Fork and clone this repo
+### Prerequisites
+
+ - Python 3.9 or higher
+ - Django 4.0 or higher
+
+### Installing
+
+Clone the repository to your local machine:
+```
+git clone https://github.com/abe-101/calmerge.git
+```
+
+Navigate to the project directory:
+```
+cd calmerge
+```
 
 Create a virtual environment:
 ```
@@ -32,18 +55,19 @@ Activate the environment:
 ```
 source env/bin/activate
 ```
-Install the dependencies:
+Install the required dependencies:
 ```
 pip install -r requirements/local.txt
 ```
-Run the migrations:
+Run the Django migrations:
 ```
 python manage.py migrate
 ```
-Start the server:
+Start the development server:
 ```
 python manage.py runserver
 ```
+The app should now be running at http://localhost:8000/.
 
 This app comes with Celery.
 
