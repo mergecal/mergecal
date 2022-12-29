@@ -51,7 +51,10 @@ def manage_calendar(request):
             return render(
                 request,
                 "calendars/partials/calendar_detail.html",
-                context={"calendar": calendar},
+                context={
+                    "calendar": calendar,
+                    "domain_name": Site.objects.get_current().domain,
+                },
             )
         else:
             return render(
@@ -108,7 +111,10 @@ def delete_calendar(request, pk):
 @login_required
 def detail_calendar(request, pk):
     calendar = get_object_or_404(Calendar, id=pk)
-    context = {"calendar": calendar}
+    context = {
+        "calendar": calendar,
+        "domain_name": Site.objects.get_current().domain,
+    }
     return render(request, "calendars/partials/calendar_detail.html", context)
 
 
