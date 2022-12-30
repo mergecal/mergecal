@@ -5,7 +5,13 @@
 
 <div class="row align-items-center">
     <div class="col">
-        <h1 class="display-4">{{ user.name|title }}'s Calendars:</h1>
+        <h1 class="display-4">
+            {% if user.name %}
+            {{ user.name|title }}'s Calendars:
+            {% else %}
+            My Calendars:
+            {% endif %}
+        </h1>
     </div>
     <div class="col text-end">
         <button type="button" title="Create a new shareable calendar" hx-get="{% url 'calendars:create-calendar-form' %}" hx-target="#calendarforms" hx-swap="beforeend"
