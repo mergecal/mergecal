@@ -1,1 +1,34 @@
 {% extends "base.html" %}
+{% load static %}
+{% block content %}
+<div class="container mt-5">
+    <h2>About Calmerge</h2>
+<p class="lead">Calmerge is a Django webapp that allows you to merge multiple iCalendar feeds into a single feed. With calmerge, you can easily keep track of events from multiple sources in one place. Simply add your iCalendar feeds to your calmerge account, and then subscribe to the merged feed using your calendar client (e.g. Google Calendar).</p>
+<p>I created Calmerge to solve the problem of having to keep track of multiple iCalendar feeds, which can be time-consuming and confusing. I hope that calmerge will make it easier for you to stay organized and never miss an important event again.</p>
+<p class="font-weight-bold">Thank you for using calmerge! I welcome any feedback or suggestions for improvement. Please don't hesitate to reach out to me with your thoughts.</p>
+
+
+    <h2>About the Creator</h2>
+    <p class="lead">Calmerge was created by Abe Hanoka, a software engineer with a passion for solving real-world problems through technology. Abe has a strong background in Python and Django, and has a keen interest in data analysis and machine learning.</p>
+    <p>Abe was inspired to create Calmerge while volunteering at <a href="https://codeandcoffee.org">Code and Coffee</a>, where he saw firsthand the difficulties of keeping track of events from multiple iCalendar feeds. He hopes that Calmerge will make it easier for others to stay organized and never miss an important event again.</p>
+    <p>In his spare time, Abe enjoys reading, a good cup of coffee and listening to classical music. He is always looking for new challenges and opportunities to learn and grow as a developer.</p>
+
+
+    <div class="row mt-5">
+        <div class="col-auto m-1">
+            <script type="text/javascript" src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js" data-name="bmc-button" data-slug="abe101" data-color="#FFDD00" data-emoji=""  data-font="Cookie" data-text="Buy me a coffee" data-outline-color="#000000" data-font-color="#000000" data-coffee-color="#ffffff" ></script>
+        </div>
+        <div class="col-auto m-1">
+            <a class="btn btn-outline-secondary" href="mailto:info@calmerge.com?subject=Feedback%20on%20Calmerge">
+                <i class="bi bi-envelope"></i>
+                Get in touch
+            </a>
+        </div>
+        <div class="col-auto m-1">
+            <a class="btn btn-outline-secondary" href="https://github.com/abe-101/calmerge">
+                <i class="bi bi-github"></i> GitHub
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

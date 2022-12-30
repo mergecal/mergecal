@@ -88,6 +88,14 @@
                 </li>
               {% endif %}
             </ul>
+            <ul class="navbar-nav flex-row flex-wrap ms-md-auto">
+              <li class="nav-item col-6 col-lg-auto">
+                <a class="nav-link" href="mailto:info@calmerge.com?subject=Feedback%20on%20Calmerge"><i class="bi bi-envelope"></i></a>
+              </li>
+              <li class="nav-item col-6 col-lg-auto">
+                <a class="nav-link" href="https://github.com/abe-101/calmerge"><i class="bi bi-github"></i></a>
+              </li>
+            </ul>
           </div>
         </div>
       </nav>
@@ -133,6 +141,7 @@
         event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
         })
     </script>
+    <script data-name="BMC-Widget" data-cfasync="false" src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js" data-id="abe101" data-description="Support me on Buy me a coffee!" data-message="" data-color="#ff813f" data-position="Right" data-x_margin="18" data-y_margin="18"></script>
     {% endblock inline_javascript %}
   </body>
 </html>
