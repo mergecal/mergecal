@@ -67,6 +67,9 @@
                 <a class="nav-link" href="{% url 'about' %}">About</a>
               </li>
               {% if request.user.is_authenticated %}
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'calendars:manage-calendar' %}">Calendars</a>
+              </li>
                 <li class="nav-item">
                   {# URL provided by django-allauth/account/urls.py #}
                   <a class="nav-link" href="{% url 'users:detail' request.user.username  %}">{% translate "My Profile" %}</a>
@@ -90,7 +93,7 @@
             </ul>
             <ul class="navbar-nav flex-row flex-wrap ms-md-auto">
               <li class="nav-item col-6 col-lg-auto">
-                <a class="nav-link" href="mailto:info@calmerge.com?subject=Feedback%20on%20Calmerge"><i class="bi bi-envelope"></i></a>
+                <a class="nav-link" href="mailto:calmerge@habet.dev?subject=Feedback%20on%20Calmerge"><i class="bi bi-envelope"></i></a>
               </li>
               <li class="nav-item col-6 col-lg-auto">
                 <a class="nav-link" href="https://github.com/abe-101/calmerge"><i class="bi bi-github"></i></a>
