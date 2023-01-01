@@ -1,4 +1,5 @@
 from django.urls import path
+from django.views.generic import TemplateView
 
 from .views import (
     calendar_file,
@@ -18,6 +19,11 @@ app_name = "calendars"
 
 urlpatterns = [
     path("", manage_calendar, name="manage-calendar"),
+    path(
+        "instructions/",
+        TemplateView.as_view(template_name="calendars/instructions.html"),
+        name="instructions",
+    ),
     path("htmx/calendar/<pk>/", detail_calendar, name="detail-calendar"),
     path("htmx/calendar/<pk>/update/", update_calendar, name="update-calendar"),
     path("htmx/calendar/<pk>/delete/", delete_calendar, name="delete-calendar"),

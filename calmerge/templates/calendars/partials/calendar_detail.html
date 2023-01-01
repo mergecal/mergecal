@@ -4,13 +4,17 @@
             <div class="row d-flex">
                 <div class="col-auto align-self-center">
                     <input hidden id="calendar_file_url{{calendar.id}}" value="https://{{domain_name}}{% url 'calendars:calendar_file' calendar.uuid %}">
-                    <button onclick="copyFileUrl({{calendar.id}})" class="btn btn-primary" type="button" title="https://{{domain_name}}{% url 'calendars:calendar_file' calendar.uuid %}">
+                    <button onclick="copyFileUrl({{calendar.id}})" class="btn btn-primary" type="button" title="Add this link to your calendar client">
                         <i class="bi bi-clipboard-check"></i>
                         Subscribe
                     </button>
+                    <a href={% url 'calendars:instructions' %} class="btn" type="button" data-toggle="tooltip" data-placement="bottom" title="How to Add a Calendar Feed to Google Calendar">
+                        <i class="bi bi-info-circle"></i>
+                    </a>
+
                 </div>
                 <div class="col align-self-center text-center lead">
-                    <strong title="Calendar name">
+                    <strong title="The calendar name that will show up in your calendar client">
                         <i class="bi bi-calendar3"></i>
                         {{ calendar.name }}
                     </strong>
@@ -38,7 +42,7 @@
         <li class="list-group-item text-end">
             <div>
                 <button type="button" hx-get="{% url 'calendars:create-source-form' calendar.id %}" hx-target="#sourceforms{{calendar.id}}" hx-swap="beforeend"
-                       class="btn btn-outline-secondary">
+                       class="btn btn-outline-secondary" title="add a calendar feed">
                        Add Calendar Feed
                    </button>
             </div>
