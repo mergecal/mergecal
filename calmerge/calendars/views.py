@@ -146,9 +146,10 @@ def manage_source(request, pk):
             )
         else:
             return render(
-                request, "calendars/partials/source_form.html", context={"form": form}
+                request,
+                "calendars/partials/source_form.html",
+                context={"form": form, "calendar": calendar},
             )
-
     context = {"form": form, "calendar": calendar, "sources": sources}
 
     return render(request, "calendars/manage_source.html", context)
