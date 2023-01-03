@@ -17,9 +17,9 @@ def validate_ical_url(url):
         r.raise_for_status()
         cal = ical.from_ical(r.text)  # noqa: F841
     except requests.exceptions.RequestException:
-        raise ValidationError(f"{url} is not a valid url")
+        raise ValidationError("Enter a valid URL")
     except ValueError:
-        raise ValidationError(f"{url} is not a valid calendar file")
+        raise ValidationError("Enter a valid icalendar feed")
 
 
 class Calendar(models.Model):
