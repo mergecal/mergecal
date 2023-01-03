@@ -1,4 +1,4 @@
-# Calmerge  <a href="https://www.buymeacoffee.com/abe101" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" align="right" height="41" width="174"></a>  
+# Calmerge  <a href="https://www.buymeacoffee.com/abe101" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" align="right" height="41" width="174"></a>
 Welcome to calmerge, a Django webapp that allows you to merge multiple iCalendar feeds into a single feed. With calmerge, you can easily keep track of events from multiple sources in one place.
 
 Available at https://calmerge.habet.dev/
