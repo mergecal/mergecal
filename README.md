@@ -17,9 +17,9 @@ To use calmerge, you'll need to create an account and log in. Once you're logged
 4. To view the events from all of your added iCalendar feeds in one place, click on the "Subscribe" button and copy the provided URL.
 
 5. Add the URL to your calendar client (e.g. Google Calendar) to view all of the events from the merged feeds in one place.
-
+<!--
 Here's a [blog post](https://happyandeffective.notion.site/Blog-Post-Draft-Community-Calendars-897779ae1fb041d3a2e4a6b8829b1deb) written by [Casey Watts](https://github.com/caseywatts) detailing the problem and multiple approaches how to solve it.
-
+-->
 ### Deployment Diagram
 
 ![Project-Diagram](https://user-images.githubusercontent.com/82916197/205155655-4371301d-b5f7-42dc-a210-518e161c314e.png)
