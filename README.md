@@ -29,7 +29,7 @@ Here's a [blog post](https://happyandeffective.notion.site/Blog-Post-Draft-Commu
 
 We welcome contributions to Calmerge! If you have ideas for new features, bug fixes, or other improvements, please feel free to open an issue or pull request on our [GitHub repository](https://github.com/abe-101/calmerge).
 
-If you'd like to discuss the project or get more involved, join us on our [Discord channel](https://discord.gg/aFE3DjSKSU). We'd love to have you as part of the Calmerge community!
+If you'd like to discuss the project or get more involved, join us on our [Discord channel](https://discord.gg/2vqUzSpt6N). We'd love to have you as part of the Calmerge community!
 
 
 ## Local Development
