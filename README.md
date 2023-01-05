@@ -25,6 +25,12 @@ Here's a [blog post](https://happyandeffective.notion.site/Blog-Post-Draft-Commu
 ![Project-Diagram](https://user-images.githubusercontent.com/82916197/205155655-4371301d-b5f7-42dc-a210-518e161c314e.png)
 
 
+## Contributing
+
+We welcome contributions to Calmerge! If you have ideas for new features, bug fixes, or other improvements, please feel free to open an issue or pull request on our [GitHub repository](https://github.com/abe-101/calmerge).
+
+If you'd like to discuss the project or get more involved, join us on our [Discord channel](https://discord.gg/aFE3DjSKSU). We'd love to have you as part of the Calmerge community!
+
 
 ## Local Development
 
