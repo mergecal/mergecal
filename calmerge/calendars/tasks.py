@@ -11,7 +11,7 @@ calendars = Calendar.objects.all()
 @celery_app.task()
 def combine_all_calendar_task():
     for cal in calendars:
-        combine_calendar(cal)
+        combine_calendar_task.delay(cal.id)
 
 
 @shared_task
