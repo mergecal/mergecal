@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}mergecal | About{% endblock %}
+{% load static %}
+{% block content %}
+<div class="container mt-5">
+    <h2>About mergecal</h2>
+<p class="lead">mergecal is a Django webapp that allows you to merge multiple iCalendar feeds into a single feed. With mergecal, you can easily keep track of events from multiple sources in one place. Simply add your iCalendar feeds to your mergecal account, and then subscribe to the merged feed using your calendar client (e.g. Google Calendar).</p>
+<p>I created mergecal to solve the problem of having to keep track of multiple iCalendar feeds, which can be time-consuming and confusing. I hope that mergecal will make it easier for you to stay organized and never miss an important event again.</p>
+<p class="font-weight-bold">Thank you for using mergecal! I welcome any feedback or suggestions for improvement. Please don't hesitate to reach out to me with your thoughts.</p>
+
+
+    <h2>About the Creator</h2>
+    <p class="lead">mergecal was created by Abe Hanoka, a software engineer with a passion for solving real-world problems through technology. Abe has a strong background in Python and Django, and has a keen interest in data analysis and machine learning.</p>
+    <p>Abe was inspired to create mergecal while volunteering at <a href="https://codeandcoffee.org">Code and Coffee</a>, where he saw firsthand the difficulties of keeping track of events from multiple iCalendar feeds. He hopes that mergecal will make it easier for others to stay organized and never miss an important event again.</p>
+    <p>In his spare time, Abe enjoys reading, a good cup of coffee and listening to classical music. He is always looking for new challenges and opportunities to learn and grow as a developer.</p>
+
+
+    <div class="row mt-5">
+        <div class="col-auto m-1">
+            <script type="text/javascript" src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js" data-name="bmc-button" data-slug="abe101" data-color="#FFDD00" data-emoji=""  data-font="Cookie" data-text="Buy me a coffee" data-outline-color="#000000" data-font-color="#000000" data-coffee-color="#ffffff" ></script>
+        </div>
+        <div class="col-auto m-1">
+            <a class="btn btn-outline-secondary" href="mailto:mergecal@habet.dev?subject=Feedback%20on%20mergecal">
+                <i class="bi bi-envelope"></i>
+                Get in touch
+            </a>
+        </div>
+        <div class="col-auto m-1">
+            <a class="btn btn-outline-secondary" href="https://github.com/abe-101/mergecal">
+                <i class="bi bi-github"></i> GitHub
+            </a>
+        </div>
+        <div class="col-auto m-1">
+            <a class="btn btn-outline-secondary" href="https://discord.gg/2vqUzSpt6N">
+                <i class="bi bi-discord"></i> Discord
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

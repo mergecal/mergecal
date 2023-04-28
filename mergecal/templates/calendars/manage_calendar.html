@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}mergecal | My Calendars{% endblock %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+<div class="row align-items-center">
+    <div class="col">
+        <h1 class="display-4">
+            {% if user.name %}
+            {{ user.name|title }}'s Calendars:
+            {% else %}
+            My Calendars:
+            {% endif %}
+        </h1>
+    </div>
+    <div class="col text-end">
+        <button type="button" title="Create a new calendar feed" hx-get="{% url 'calendars:create-calendar-form' %}" hx-target="#calendarforms" hx-swap="beforeend"
+                                                                                                             class="btn btn-outline-secondary">
+            Create Calendar
+        </button>
+    </div>
+</div>
+
+<div id="calendarforms" class="mb-4"></div>
+
+{% for calendar in calendars %}
+    <div class="mb-4">
+        {% include "calendars/partials/calendar_detail.html" %}
+    </div>
+{% endfor %}
+
+{% endblock %}

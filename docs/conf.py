@@ -28,7 +28,7 @@ django.setup()
 
 # -- Project information -----------------------------------------------------
 
-project = "calmerge"
+project = "mergecal"
 copyright = """2022, Abe Hanoka"""
 author = "Abe Hanoka"
 

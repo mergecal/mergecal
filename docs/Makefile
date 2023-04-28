@@ -7,7 +7,7 @@ SPHINXOPTS    ?=
 SPHINXBUILD   ?= sphinx-build
 SOURCEDIR     = .
 BUILDDIR      = ./_build
-APP = ../calmerge
+APP = ../mergecal
 
 
 .PHONY: help livehtml apidocs Makefile

@@ -7,8 +7,8 @@ import environ
 from django.contrib import messages
 
 ROOT_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
-# calmerge/
-APPS_DIR = ROOT_DIR / "calmerge"
+# mergecal/
+APPS_DIR = ROOT_DIR / "mergecal"
 env = environ.Env()
 
 READ_DOT_ENV_FILE = env.bool("DJANGO_READ_DOT_ENV_FILE", default=True)
@@ -45,7 +45,7 @@ LOCALE_PATHS = [str(ROOT_DIR / "locale")]
 DATABASES = {
     "default": env.db(
         "DATABASE_URL",
-        default="postgres:///calmerge",
+        default="postgres:///mergecal",
     ),
 }
 
@@ -83,9 +83,9 @@ THIRD_PARTY_APPS = [
 ]
 
 LOCAL_APPS = [
-    "calmerge.users",
+    "mergecal.users",
     # Your stuff: custom apps go here
-    "calmerge.calendars",
+    "mergecal.calendars",
     "allauth.socialaccount.providers.google",  # for Google OAuth 2.0
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
@@ -94,7 +94,7 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 # MIGRATIONS
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#migration-modules
-MIGRATION_MODULES = {"sites": "calmerge.contrib.sites.migrations"}
+MIGRATION_MODULES = {"sites": "mergecal.contrib.sites.migrations"}
 
 # AUTHENTICATION
 # ------------------------------------------------------------------------------
@@ -144,13 +144,13 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.common.BrokenLinkEmailsMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "calmerge.calendars.middleware.HtmxMessageMiddleware",
+    "mergecal.calendars.middleware.HtmxMessageMiddleware",
 ]
 
 # STATIC
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#static-root
-STATIC_ROOT = "/var/www/calmerge/staticfiles"
+STATIC_ROOT = "/var/www/mergecal/staticfiles"
 # https://docs.djangoproject.com/en/dev/ref/settings/#static-url
 STATIC_URL = "/static/"
 # https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#std:setting-STATICFILES_DIRS
@@ -190,7 +190,7 @@ TEMPLATES = [
                 "django.template.context_processors.static",
                 "django.template.context_processors.tz",
                 "django.contrib.messages.context_processors.messages",
-                "calmerge.users.context_processors.allauth_settings",
+                "mergecal.users.context_processors.allauth_settings",
             ],
         },
     }
@@ -295,13 +295,13 @@ ACCOUNT_EMAIL_REQUIRED = True
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
-ACCOUNT_ADAPTER = "calmerge.users.adapters.AccountAdapter"
+ACCOUNT_ADAPTER = "mergecal.users.adapters.AccountAdapter"
 # https://django-allauth.readthedocs.io/en/latest/forms.html
-ACCOUNT_FORMS = {"signup": "calmerge.users.forms.UserSignupForm"}
+ACCOUNT_FORMS = {"signup": "mergecal.users.forms.UserSignupForm"}
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
-SOCIALACCOUNT_ADAPTER = "calmerge.users.adapters.SocialAccountAdapter"
+SOCIALACCOUNT_ADAPTER = "mergecal.users.adapters.SocialAccountAdapter"
 # https://django-allauth.readthedocs.io/en/latest/forms.html
-SOCIALACCOUNT_FORMS = {"signup": "calmerge.users.forms.UserSocialSignupForm"}
+SOCIALACCOUNT_FORMS = {"signup": "mergecal.users.forms.UserSocialSignupForm"}
 
 
 # Your stuff...

@@ -271,6 +271,6 @@ Session.vim
 tags
 
 ### Project template
-calmerge/media/
+mergecal/media/
 
 .pytest_cache/

@@ -13,12 +13,12 @@ urlpatterns = [
     # Django Admin, use {% url 'admin:index' %}
     path(settings.ADMIN_URL, admin.site.urls),
     # User management
-    path("users/", include("calmerge.users.urls", namespace="users")),
+    path("users/", include("mergecal.users.urls", namespace="users")),
     path("accounts/", include("allauth.urls")),
     # Your stuff: custom urls includes go here
     path(
         "calendars/",
-        include("calmerge.calendars.urls", namespace="calendars"),
+        include("mergecal.calendars.urls", namespace="calendars"),
         name="calendars",
     ),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
