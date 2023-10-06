@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("calendars", "0004_remove_calendar_calendar_file_and_more"),
     ]

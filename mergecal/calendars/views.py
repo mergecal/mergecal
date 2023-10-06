@@ -9,10 +9,13 @@ from django.http.response import (
     HttpResponseNotAllowed,
 )
 from django.shortcuts import get_object_or_404, render
+from django.views.decorators.cache import cache_page
 
 from .forms import CalendarForm, SourceForm
 from .models import Calendar, Source
-from .tasks import combine_calendar_task
+from .utils import combine_calendar
+
+# from .tasks import combine_calendar_task
 
 
 def check_for_demo_account(
@@ -137,7 +140,7 @@ def manage_source(request, pk):
             source = form.save(commit=False)
             source.calendar = calendar
             source.save()
-            combine_calendar_task.delay(pk)
+            # combine_calendar_task.delay(pk)
             messages.success(request, "Your calendar link has been added")
             return render(
                 request,
@@ -163,7 +166,7 @@ def update_source(request, pk):
 
     if request.method == "POST":
         if form.is_valid():
-            combine_calendar_task.delay(source.calendar.id)
+            # combine_calendar_task.delay(source.calendar.id)
             form.save()
             messages.success(request, "Your calendar link has been updated")
             return render(
@@ -209,8 +212,10 @@ def create_source_form(request, pk):
     return render(request, "calendars/partials/source_form.html", context)
 
 
+@cache_page(60 * 15)  # Cache for 15 minutes
 def calendar_file(request, uuid):
     calendar = get_object_or_404(Calendar.objects.filter(uuid=uuid))
+    combine_calendar(calendar)
     calendar_str = calendar.calendar_file_str
     response = HttpResponse(calendar_str, content_type="application/octet-stream")
     response["Content-Disposition"] = f'attachment; filename="{uuid}.ical"'
