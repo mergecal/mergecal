@@ -144,6 +144,7 @@ MIDDLEWARE = [
     "django.middleware.common.BrokenLinkEmailsMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "mergecal.calendars.middleware.HtmxMessageMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
 ]
 
 # STATIC
