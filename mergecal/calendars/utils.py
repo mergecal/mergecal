@@ -29,6 +29,8 @@ def combine_calendar(calendar_instance):
                     newcal.add_component(component)
         except requests.exceptions.HTTPError as err:
             logger.error(f"Error fetching URL {source.url}: {err}")
+        except Exception as err:
+            logger.error(f"Error parsing URL {source.url}: {err}")
 
     cal_bye_str = newcal.to_ical()
     calendar_instance.calendar_file_str = cal_bye_str.decode("utf8")
