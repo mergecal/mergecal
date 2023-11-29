@@ -155,7 +155,7 @@ LOGGING = {
         },
         "file_general": {
             "class": "logging.FileHandler",
-            "filename": "/var/log/django/general.log",
+            "filename": "/var/log/django/mergecal/general.log",
             "formatter": "verbose",
         },
     },

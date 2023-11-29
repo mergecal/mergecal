@@ -7,12 +7,12 @@ env:
 
 on:
   pull_request:
-    branches: [ "master", "main" ]
-    paths-ignore: [ "docs/**" ]
+    branches: ['master', 'main']
+    paths-ignore: ['docs/**']
 
   push:
-    branches: [ "master", "main" ]
-    paths-ignore: [ "docs/**" ]
+    branches: ['master', 'main']
+    paths-ignore: ['docs/**']
 
 concurrency:
   group: ${{ github.head_ref || github.run_id }}
@@ -22,14 +22,13 @@ jobs:
   linter:
     runs-on: ubuntu-latest
     steps:
-
       - name: Checkout Code Repository
         uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.10"
+          python-version: '3.10'
           cache: pip
           cache-dependency-path: |
             requirements/base.txt
@@ -55,19 +54,18 @@ jobs:
           POSTGRES_PASSWORD: postgres
 
     env:
-      CELERY_BROKER_URL: "redis://localhost:6379/0"
+      CELERY_BROKER_URL: 'redis://localhost:6379/0'
       # postgres://user:password@host:port/database
-      DATABASE_URL: "postgres://postgres:postgres@localhost:5432/postgres"
+      DATABASE_URL: 'postgres://postgres:postgres@localhost:5432/postgres'
 
     steps:
-
       - name: Checkout Code Repository
         uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.10"
+          python-version: '3.10'
           cache: pip
           cache-dependency-path: |
             requirements/base.txt
@@ -79,4 +77,4 @@ jobs:
           pip install -r requirements/local.txt
 
       - name: Test with pytest
-        run:  pytest
+        run: pytest
