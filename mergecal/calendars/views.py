@@ -214,7 +214,7 @@ def create_source_form(request, pk):
 
 @cache_page(60 * 15)  # Cache for 15 minutes
 def calendar_file(request, uuid):
-    calendar = get_object_or_404(Calendar.objects.filter(uuid=uuid))
+    calendar = get_object_or_404(Calendar, uuid=uuid)
     combine_calendar(calendar)
     calendar_str = calendar.calendar_file_str
     response = HttpResponse(calendar_str, content_type="application/octet-stream")
