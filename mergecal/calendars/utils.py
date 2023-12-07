@@ -57,6 +57,7 @@ def combine_calendar(calendar_instance):
 def fetch_calendar_data(url):
     try:
         response = requests.get(url)
+        response.encoding = "utf-8"
         response.raise_for_status()
         return Calendar.from_ical(response.text)
     except requests.exceptions.HTTPError as err:

@@ -44,6 +44,9 @@ class Calendar(models.Model):
     def get_absolute_url(self):
         return reverse("calendars:calendar_detail", kwargs={"pk": self.pk})
 
+    def get_calendar_file_url(self):
+        return reverse("calendars:calendar_file", kwargs={"uuid": self.uuid})
+
     class Meta:
         ordering = ["-pk"]
 
