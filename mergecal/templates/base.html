@@ -4,12 +4,16 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>{% block title %}mergecal{% endblock title %}</title>
+    <title>{% block title %}Mergecal{% endblock title %}</title>
+    <meta property="og:title" content="Mergecal">
+    <meta property="og:description" content="{% block og_description %}Mergecal is a Django webapp that allows you to easily merge multiple iCalendar feeds into a single feed. Stay organized and never miss an important event again with Mergecal{% endblock og_description %}">
+    <meta property="og:image" content="{% static 'images/favicon.png' %}">
+    <meta property="og:url" content="https://mergecal.habet.dev/">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="mergecal is a Django webapp that allows you to easily merge multiple iCalendar feeds into a single feed. Stay organized and never miss an important event again with mergecal">
     <meta name="author" content="Abe Hanoka">
 
-    <link rel="shortcut icon" href="{% static 'images/favicons/favicon.ico' %}">
+    <link rel="icon" href="{% static 'images/favicons/favicon.ico' %}">
 
     {% block css %}
     <!-- Latest compiled and minified Bootstrap CSS -->
