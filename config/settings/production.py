@@ -162,7 +162,7 @@ LOGGING = {
     "root": {"level": "INFO", "handlers": ["console"]},
     "loggers": {
         "django.request": {
-            "handlers": ["mail_admins"],
+            "handlers": ["file_request"],
             "level": "ERROR",
             "propagate": True,
         },
