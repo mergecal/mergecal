@@ -3,6 +3,7 @@ from django.views.generic import TemplateView
 
 from .views import (
     calendar_file,
+    calendar_view,
     create_calendar_form,
     create_source_form,
     delete_calendar,
@@ -38,4 +39,5 @@ urlpatterns = [
         "<pk>/htmx/create-source-form/", create_source_form, name="create-source-form"
     ),
     path("<uuid>.ical", calendar_file, name="calendar_file"),
+    path("<uuid>/calendar/", calendar_view, name="calendar-view"),
 ]

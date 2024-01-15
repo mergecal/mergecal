@@ -3,6 +3,7 @@ from functools import wraps
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.sites.models import Site
+from django.http.request import HttpRequest
 from django.http.response import (
     HttpResponse,
     HttpResponseForbidden,
@@ -221,3 +222,10 @@ def calendar_file(request, uuid):
     response["Content-Disposition"] = f'attachment; filename="{uuid}.ical"'
 
     return response
+
+
+def calendar_view(request: HttpRequest, uuid: str) -> HttpResponse:
+    calendar = get_object_or_404(Calendar, uuid=uuid)
+    return render(
+        request, "calendars/calendar_view.html", context={"calendar": calendar}
+    )
