@@ -15,8 +15,10 @@
                 </div>
                 <div class="col align-self-center text-center lead">
                     <strong title="The calendar name that will show up in your calendar client">
-                        <i class="bi bi-calendar3"></i>
-                        {{ calendar.name }}
+                        <a href="{% url 'calendars:calendar-view' uuid=calendar.uuid %}" title="View Calendar">
+                          <i class="bi bi-calendar3"></i>
+                            {{ calendar.name }}
+                        </a>
                     </strong>
                     &middot;
                     <span title="Timezone">
