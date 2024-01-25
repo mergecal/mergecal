@@ -27,10 +27,8 @@ def validate_ical_url(url):
         return
     try:
         r = requests.get(url, headers=headers)
-        print(r.status_code)
         r.raise_for_status()
         cal = ical.from_ical(r.text)  # noqa: F841
-        print(cal)
     except requests.exceptions.RequestException:
         raise ValidationError("Enter a valid URL")
     except ValueError:
