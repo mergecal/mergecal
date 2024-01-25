@@ -20,6 +20,7 @@ def combine_calendar(calendar_instance):
     newtimezone.add("tzid", calendar_instance.timezone)
     newcal.add_component(newtimezone)
 
+    existing_uids = set()
     for source in calendar_instance.calendarOf.all():
         if is_meetup_url(source.url):
             logger.info(f"Meetup URL detected: {source.url}")
@@ -42,7 +43,7 @@ def combine_calendar(calendar_instance):
             try:
                 cal_data = fetch_calendar_data(source.url)
                 if cal_data:
-                    process_calendar_data(cal_data, newcal)
+                    process_calendar_data(cal_data, newcal, existing_uids)
             except Exception as err:
                 logger.error(f"Unexpected error with URL {source.url}: {err}")
 
@@ -69,10 +70,15 @@ def fetch_calendar_data(url):
     return None
 
 
-def process_calendar_data(cal, newcal):
+def process_calendar_data(cal, newcal, existing_uids):
     for component in cal.subcomponents:
         if component.name == "VEVENT":
-            newcal.add_component(component)
+            uid = component.get("uid")
+            # Add the event if it has a unique UID or if it doesn't have a UID at all
+            if uid is None or uid not in existing_uids:
+                newcal.add_component(component)
+                if uid is not None:
+                    existing_uids.add(uid)
 
 
 def is_meetup_url(url):
