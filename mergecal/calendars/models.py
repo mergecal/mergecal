@@ -12,6 +12,9 @@ from icalendar import Calendar as ical
 def validate_ical_url(url):
     # if url[-5:] != ".ical":
     #    raise ValidationError(f'{url[-4:]} is not a valid calendar file extenstion')
+    # if url is meetup.com skip Validation
+    if "meetup.com" in url:
+        return
     try:
         r = requests.get(url)
         r.raise_for_status()
