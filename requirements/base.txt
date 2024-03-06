@@ -3,19 +3,19 @@ python-slugify==8.0.1  # https://github.com/un33k/python-slugify
 Pillow==10.2.0  # https://github.com/python-pillow/Pillow
 argon2-cffi==21.3.0  # https://github.com/hynek/argon2_cffi
 whitenoise==6.3.0  # https://github.com/evansd/whitenoise
-redis==5.0.1  # https://github.com/redis/redis-py
+redis==5.0.2  # https://github.com/redis/redis-py
 hiredis==2.2.3  # https://github.com/redis/hiredis-py
 celery==5.3.6  # pyup: < 6.0  # https://github.com/celery/celery
-django-celery-beat==2.4.0  # https://github.com/celery/django-celery-beat
+django-celery-beat==2.6.0  # https://github.com/celery/django-celery-beat
 icalendar==5.0.11  # https://github.com/collective/icalendar
 
 # Django
 # ------------------------------------------------------------------------------
-django==4.1.5  # pyup: < 4.1  # https://www.djangoproject.com/
-django-environ==0.9.0  # https://github.com/joke2k/django-environ
+django==5.0.3  # pyup: < 5.0  # https://www.djangoproject.com/
+django-environ==0.11.2  # https://github.com/joke2k/django-environ
 django-model-utils==4.3.1  # https://github.com/jazzband/django-model-utils
-django-allauth==0.58.2  # https://github.com/pennersr/django-allauth
-django-crispy-forms==1.14.0  # https://github.com/django-crispy-forms/django-crispy-forms
-crispy-bootstrap5==0.7  # https://github.com/django-crispy-forms/crispy-bootstrap5
-django-redis==5.2.0  # https://github.com/jazzband/django-redis
+django-allauth==0.61.0  # https://github.com/pennersr/django-allauth
+django-crispy-forms==2.1  # https://github.com/django-crispy-forms/django-crispy-forms
+crispy-bootstrap5==2023.10  # https://github.com/django-crispy-forms/crispy-bootstrap5
+django-redis==5.4.0  # https://github.com/jazzband/django-redis
 django-extensions==3.2.3  # https://github.com/django-extensions/django-extensions
