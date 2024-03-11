@@ -4,6 +4,7 @@ from django.contrib import admin
 from django.urls import include, path
 from django.views import defaults as default_views
 from django.views.generic import TemplateView
+from django.views.generic.base import RedirectView
 
 urlpatterns = [
     path("", TemplateView.as_view(template_name="pages/home.html"), name="home"),
@@ -20,6 +21,18 @@ urlpatterns = [
         "calendars/",
         include("mergecal.calendars.urls", namespace="calendars"),
         name="calendars",
+    ),
+    path(
+        "robots.txt",
+        TemplateView.as_view(template_name="robots.txt", content_type="text/plain"),
+    ),  # add the robots.txt file
+    path(
+        "favicon.png",
+        RedirectView.as_view(url="/static/images/favicon.png", permanent=True),
+    ),
+    path(
+        "favicon.ico",
+        RedirectView.as_view(url="static/images/favicons/favicon.ico", permanent=True),
     ),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
