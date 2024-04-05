@@ -16,7 +16,7 @@ class CalendarAdmin(admin.ModelAdmin):
     ]  # Enable search by name and owner's username
     inlines = [CommentInline]
     fieldsets = (
-        (None, {"fields": ("name", "uuid", "owner", "timezone")}),
+        (None, {"fields": ("name", "uuid", "owner", "timezone", "include_source")}),
         (
             "Advanced options",
             {

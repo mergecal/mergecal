@@ -20,6 +20,8 @@ def combine_calendar(calendar_instance):
     newtimezone.add("tzid", calendar_instance.timezone)
     newcal.add_component(newtimezone)
 
+    INCLUDE_SOURCE = calendar_instance.include_source
+
     existing_uids = set()
     for source in calendar_instance.calendarOf.all():
         if is_meetup_url(source.url):
@@ -36,14 +38,18 @@ def combine_calendar(calendar_instance):
                     cal_data = create_calendar_from_meetup_api_respone(meetup_events)
                     if cal_data:
                         logger.info(f"Meetup events fetched: {len(meetup_events)}")
-                        process_calendar_data(cal_data, newcal)
+                        process_calendar_data(
+                            cal_data, newcal, existing_uids, INCLUDE_SOURCE, source.name
+                        )
             except Exception as err:
                 logger.error(f"Unexpected error with URL {source.url}: {err}")
         else:
             try:
                 cal_data = fetch_calendar_data(source.url)
                 if cal_data:
-                    process_calendar_data(cal_data, newcal, existing_uids)
+                    process_calendar_data(
+                        cal_data, newcal, existing_uids, INCLUDE_SOURCE, source.name
+                    )
             except Exception as err:
                 logger.error(f"Unexpected error with URL {source.url}: {err}")
 
@@ -80,10 +86,13 @@ def fetch_calendar_data(url):
     return None
 
 
-def process_calendar_data(cal, newcal, existing_uids):
+def process_calendar_data(cal, newcal, existing_uids, INCLUDE_SOURCE, source_name):
     for component in cal.subcomponents:
         if component.name == "VEVENT":
             uid = component.get("uid")
+            if INCLUDE_SOURCE:
+                original_summary = component.get("summary")
+                component["summary"] = f"{source_name}: {original_summary}"
             # Add the event if it has a unique UID or if it doesn't have a UID at all
             if uid is None or uid not in existing_uids:
                 newcal.add_component(component)

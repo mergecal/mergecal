@@ -50,6 +50,10 @@ class Calendar(models.Model):
         "Timezone", choices=TIMEZONE_CHOICES, max_length=250, default="America/New_York"
     )
     calendar_file_str = models.TextField(blank=True, null=True)
+    # a boolean weather to include the source name in the event title
+    include_source = models.BooleanField(
+        default=False, help_text="Include source name in event title"
+    )
 
     def __str__(self):
         return self.name
