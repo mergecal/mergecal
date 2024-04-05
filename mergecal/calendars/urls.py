@@ -12,6 +12,7 @@ from .views import (
     detail_source,
     manage_calendar,
     manage_source,
+    toggle_include_source,
     update_calendar,
     update_source,
 )
@@ -40,4 +41,5 @@ urlpatterns = [
     ),
     path("<uuid>.ical", calendar_file, name="calendar_file"),
     path("<uuid>/calendar/", calendar_view, name="calendar-view"),
+    path("<uuid>/toggle-include/", toggle_include_source, name="toggle-include"),
 ]
