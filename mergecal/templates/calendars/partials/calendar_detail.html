@@ -44,6 +44,7 @@
               <div class="form-check form-switch me-auto">
                 <input class="form-check-input" type="checkbox" id="annotateEventsSwitch{{calendar.id}}"
                 hx-get="{% url 'calendars:toggle-include' uuid=calendar.uuid %}"
+                {% if calendar.include_source %}checked{% endif %}
                 hx-trigger="change"
                 hx-target="#dummyResponse{{calendar.id}}"
                 data-bs-toggle="tooltip" data-bs-placement="top"
