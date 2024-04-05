@@ -213,6 +213,18 @@ def create_source_form(request, pk):
     return render(request, "calendars/partials/source_form.html", context)
 
 
+@login_required
+def toggle_include_source(request: HttpRequest, uuid: str) -> HttpResponse:
+    calendar: Calendar = get_object_or_404(Calendar, uuid=uuid, owner=request.user)
+    calendar.include_source = not calendar.include_source
+    calendar.save()
+    messages.success(
+        request,
+        f"Your calendar now {'includes' if calendar.include_source else 'excludes'} the source in event title",
+    )
+    return HttpResponse("")
+
+
 @cache_page(60 * 15)  # Cache for 15 minutes
 def calendar_file(request, uuid):
     calendar = get_object_or_404(Calendar, uuid=uuid)
