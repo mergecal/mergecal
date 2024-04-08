@@ -40,6 +40,7 @@
         {% for source in calendar.calendarOf.all %}
             {% include "calendars/partials/source_detail.html" %}
             {% endfor %}
+            <div id="sourceforms{{calendar.id}}" class=""></div>
             <li class="list-group-item d-flex justify-content-end align-items-center">
               <div class="form-check form-switch me-auto">
                 <input class="form-check-input" type="checkbox" id="annotateEventsSwitch{{calendar.id}}"
