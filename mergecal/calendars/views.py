@@ -230,8 +230,8 @@ def calendar_file(request, uuid):
     calendar = get_object_or_404(Calendar, uuid=uuid)
     combine_calendar(calendar)
     calendar_str = calendar.calendar_file_str
-    response = HttpResponse(calendar_str, content_type="application/octet-stream")
-    response["Content-Disposition"] = f'attachment; filename="{uuid}.ical"'
+    response = HttpResponse(calendar_str, content_type="text/calendar")
+    response["Content-Disposition"] = f'attachment; filename="{uuid}.ics"'
 
     return response
 
