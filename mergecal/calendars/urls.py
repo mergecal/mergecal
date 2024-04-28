@@ -40,7 +40,7 @@ urlpatterns = [
         "<pk>/htmx/create-source-form/", create_source_form, name="create-source-form"
     ),
     path("<uuid>.ical", calendar_file, name="calendar_file"),
-    path("<uuid>.ics", calendar_file, name="calendar_file"),
+    path("<uuid>.ics", calendar_file, name="calendar_file_ics"),
     path("<uuid>/calendar/", calendar_view, name="calendar-view"),
     path("<uuid>/toggle-include/", toggle_include_source, name="toggle-include"),
 ]
