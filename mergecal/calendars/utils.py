@@ -29,9 +29,7 @@ def combine_calendar(calendar_instance):
             try:
                 meetup_group_name = extract_meetup_group_name(source.url)
                 if meetup_group_name:
-                    meetup_api_url = (
-                        f"https://api.meetup.com/{meetup_group_name}/events"
-                    )
+                    meetup_api_url = f"https://api.meetup.com/{meetup_group_name}/events"  # noqa: E231
                     response = requests.get(meetup_api_url)
                     response.raise_for_status()
                     meetup_events = response.json()

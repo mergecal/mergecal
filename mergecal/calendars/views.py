@@ -231,7 +231,7 @@ def calendar_file(request, uuid):
     combine_calendar(calendar)
     calendar_str = calendar.calendar_file_str
     response = HttpResponse(calendar_str, content_type="text/calendar")
-    response["Content-Disposition"] = f'attachment; filename="{uuid}.ics"'
+    response["Content-Disposition"] = f'attachment; filename="{uuid}.ics"'  # noqa E702
 
     return response
 

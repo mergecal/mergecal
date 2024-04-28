@@ -70,7 +70,7 @@ class Calendar(models.Model):
 
 class Source(models.Model):
     name = models.CharField(max_length=255)
-    url = models.URLField(validators=[validate_ical_url])
+    url = models.URLField(max_length=400, validators=[validate_ical_url])
     calendar = models.ForeignKey(
         "calendars.Calendar", on_delete=models.CASCADE, related_name="calendarOf"
     )
