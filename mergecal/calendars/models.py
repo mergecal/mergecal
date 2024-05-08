@@ -43,9 +43,12 @@ class Calendar(models.Model):
         on_delete=models.CASCADE,
     )
     # https://stackoverflow.com/a/70251235
-    TIMEZONE_CHOICES = (
-        (x, x) for x in sorted(zoneinfo.available_timezones(), key=str.lower)
+    TIMEZONE_CHOICES = tuple(
+        (x, x)
+        for x in sorted(zoneinfo.available_timezones(), key=str.lower)
+        if x != "localtime"  # Exclude 'localtime' from the choices
     )
+
     timezone = models.CharField(
         "Timezone", choices=TIMEZONE_CHOICES, max_length=250, default="America/New_York"
     )
