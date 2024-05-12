@@ -2,15 +2,15 @@
 With these settings, tests run faster.
 """
 
-from .base import *  # noqa
-from .base import env
+from .base import *  # noqa: F403, F401
+from .base import TEMPLATES, env
 
 # GENERAL
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#secret-key
 SECRET_KEY = env(
     "DJANGO_SECRET_KEY",
-    default="2EPVNpIfVUL3cOJQlpEyBALL5FtAssFRbQkrnil4pAn22SZekcR6b3eMJyQCjB4r",
+    default="Uf1vAGUEO2kfToGGdclGD0AyGe9awaISLtkxl7ReUrCD7cQrBSVpUyhceWZ4J9qj",
 )
 # https://docs.djangoproject.com/en/dev/ref/settings/#test-runner
 TEST_RUNNER = "django.test.runner.DiscoverRunner"
@@ -25,9 +25,13 @@ PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]
 # https://docs.djangoproject.com/en/dev/ref/settings/#email-backend
 EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
 
-# DEBUGING FOR TEMPLATES
+# DEBUGGING FOR TEMPLATES
 # ------------------------------------------------------------------------------
-TEMPLATES[0]["OPTIONS"]["debug"] = True  # type: ignore # noqa F405
+TEMPLATES[0]["OPTIONS"]["debug"] = True  # type: ignore[index]
 
+# MEDIA
+# ------------------------------------------------------------------------------
+# https://docs.djangoproject.com/en/dev/ref/settings/#media-url
+MEDIA_URL = "http://media.testserver"
 # Your stuff...
 # ------------------------------------------------------------------------------
