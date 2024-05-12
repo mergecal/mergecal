@@ -1,3 +1,4 @@
+# ruff: noqa
 # Configuration file for the Sphinx documentation builder.
 #
 # This file only contains a selection of the most common options. For a full
@@ -12,7 +13,6 @@
 
 import os
 import sys
-
 import django
 
 if os.getenv("READTHEDOCS", default=False) == "True":
@@ -28,8 +28,8 @@ django.setup()
 
 # -- Project information -----------------------------------------------------
 
-project = "mergecal"
-copyright = """2022, Abe Hanoka"""
+project = "MergeCal"
+copyright = """2024, Abe Hanoka"""
 author = "Abe Hanoka"
 
 
