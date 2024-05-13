@@ -160,6 +160,7 @@ COMPRESS_FILTERS = {
 # https://docs.djangoproject.com/en/dev/ref/settings/#logging
 # See https://docs.djangoproject.com/en/dev/topics/logging for
 # more details on how to customize your logging configuration.
+LOG_FILE_LOCATION = env("LOG_FILE_LOCATION", default="/path/to/django/")
 
 LOGGING = {
     "version": 1,
@@ -170,28 +171,43 @@ LOGGING = {
         },
     },
     "handlers": {
-        "console": {
+        "file": {
             "level": "DEBUG",
-            "class": "logging.StreamHandler",
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": LOG_FILE_LOCATION + "/django.log",
+            "maxBytes": 1024 * 1024 * 5,  # 5 MB
+            "backupCount": 5,  # Keep 5 old files
+            "formatter": "verbose",
+        },
+        "error_file": {
+            "level": "ERROR",
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": LOG_FILE_LOCATION + "/django_error.log",
+            "maxBytes": 1024 * 1024 * 5,  # 5 MB
+            "backupCount": 5,  # Keep 5 old files
             "formatter": "verbose",
         },
     },
-    "root": {"level": "INFO", "handlers": ["console"]},
+    "root": {"level": "INFO", "handlers": ["file"]},
     "loggers": {
         "django.db.backends": {
             "level": "ERROR",
-            "handlers": ["console"],
+            "handlers": ["error_file"],
             "propagate": False,
         },
-        # Errors logged by the SDK itself
-        "sentry_sdk": {"level": "ERROR", "handlers": ["console"], "propagate": False},
+        "sentry_sdk": {
+            "level": "ERROR",
+            "handlers": ["error_file"],
+            "propagate": False,
+        },
         "django.security.DisallowedHost": {
             "level": "ERROR",
-            "handlers": ["console"],
+            "handlers": ["error_file"],
             "propagate": False,
         },
     },
 }
+
 
 # Sentry
 # ------------------------------------------------------------------------------
