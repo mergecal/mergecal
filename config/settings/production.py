@@ -102,8 +102,9 @@ STORAGES = {
     },
 }
 MEDIA_URL = f"https://{aws_s3_domain}/media/"  # noqa: E231
-COLLECTFAST_STRATEGY = "collectfast.strategies.boto3.Boto3Strategy"
-STATIC_URL = f"https://{aws_s3_domain}/static/"  # noqa: E231
+# COLLECTFAST_STRATEGY = "collectfast.strategies.boto3.Boto3Strategy"
+# STATIC_URL = f"https://{aws_s3_domain}/static/"  # noqa: E231
+STATIC_URL = "/static/"
 
 # EMAIL
 # ------------------------------------------------------------------------------
