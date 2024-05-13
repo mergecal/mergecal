@@ -37,6 +37,13 @@ urlpatterns = [
         "favicon.ico",
         RedirectView.as_view(url="static/images/favicons/favicon.ico", permanent=True),
     ),
+    path(
+        "cc091514c16021fa4fcd472803a63e5f.txt",
+        TemplateView.as_view(
+            template_name="cc091514c16021fa4fcd472803a63e5f.txt",
+            content_type="text/plain",
+        ),
+    ),
     # Media files
     *static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT),
 ]
