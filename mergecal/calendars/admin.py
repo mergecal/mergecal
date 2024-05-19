@@ -34,6 +34,7 @@ class SourceAdmin(admin.ModelAdmin):
     search_fields = [
         "name",
         "calendar__name",
+        "url",
     ]  # Enable search by name and calendar name
     list_filter = ("calendar",)  # Filter by calendar
 
