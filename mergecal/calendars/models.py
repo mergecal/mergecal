@@ -67,6 +67,9 @@ class Calendar(models.Model):
     def get_calendar_file_url(self):
         return reverse("calendars:calendar_file", kwargs={"uuid": self.uuid})
 
+    def get_calendar_view_url(self):
+        return reverse("calendars:calendar-view", kwargs={"uuid": self.uuid})
+
     class Meta:
         ordering = ["-pk"]
 

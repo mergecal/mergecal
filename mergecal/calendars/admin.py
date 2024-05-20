@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils.html import format_html
 
 from .models import Calendar, Source
 
@@ -9,12 +10,16 @@ class CommentInline(admin.TabularInline):
 
 @admin.register(Calendar)
 class CalendarAdmin(admin.ModelAdmin):
-    list_display = ("name", "owner", "timezone", "uuid")  # Adjust the fields as needed
+    list_display = ("name", "owner_email", "timezone", "uuid_link")
+
     search_fields = [
         "name",
         "owner__username",
-    ]  # Enable search by name and owner's username
+        "owner__email",
+    ]
+
     inlines = [CommentInline]
+
     fieldsets = (
         (None, {"fields": ("name", "uuid", "owner", "timezone", "include_source")}),
         (
@@ -25,7 +30,19 @@ class CalendarAdmin(admin.ModelAdmin):
             },
         ),
     )
-    readonly_fields = ("uuid",)  # UUID should be readonly
+    readonly_fields = ("uuid",)
+
+    @admin.display(
+        description="Owner Email",
+        ordering="owner__email",
+    )
+    def owner_email(self, obj):
+        return obj.owner.email if obj.owner else None
+
+    @admin.display(description="UUID")
+    def uuid_link(self, obj):
+        url = obj.get_calendar_view_url()
+        return format_html('<a href="{}">{}</a>', url, obj.uuid)
 
 
 @admin.register(Source)
@@ -36,7 +53,6 @@ class SourceAdmin(admin.ModelAdmin):
         "calendar__name",
         "url",
     ]  # Enable search by name and calendar name
-    list_filter = ("calendar",)  # Filter by calendar
+    list_filter = ("calendar",)
 
-    # If you want to customize form fields
     fieldsets = ((None, {"fields": ("name", "url", "calendar")}),)
