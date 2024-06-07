@@ -20,3 +20,8 @@ crispy-bootstrap5==2024.2  # https://github.com/django-crispy-forms/crispy-boots
 django-compressor==4.4  # https://github.com/django-compressor/django-compressor
 django-redis==5.4.0  # https://github.com/jazzband/django-redis
 django-extensions==3.2.3  # https://github.com/django-extensions/django-extensions
+DRF-API-Logger @ git+https://github.com/abe-101/DRF-API-Logger.git@patch-1
+#drf-api-logger
+
+# Django REST Framework
+djangorestframework==3.15.1  # https://github.com/encode/django-rest-framework

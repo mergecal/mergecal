@@ -2,7 +2,7 @@ from django.urls import path
 from django.views.generic import TemplateView
 
 from .views import (
-    calendar_file,
+    CalendarFileAPIView,
     calendar_view,
     create_calendar_form,
     create_source_form,
@@ -39,8 +39,8 @@ urlpatterns = [
     path(
         "<pk>/htmx/create-source-form/", create_source_form, name="create-source-form"
     ),
-    path("<uuid>.ical", calendar_file, name="calendar_file"),
-    path("<uuid>.ics", calendar_file, name="calendar_file_ics"),
+    path("<uuid>.ical", CalendarFileAPIView.as_view(), name="calendar_file"),
+    path("<uuid>.ics", CalendarFileAPIView.as_view(), name="calendar_file_ics"),
     path("<uuid>/calendar/", calendar_view, name="calendar-view"),
     path("<uuid>/toggle-include/", toggle_include_source, name="toggle-include"),
 ]

@@ -3,6 +3,7 @@ from functools import wraps
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.sites.models import Site
+from django.http import Http404
 from django.http.request import HttpRequest
 from django.http.response import (
     HttpResponse,
@@ -10,7 +11,9 @@ from django.http.response import (
     HttpResponseNotAllowed,
 )
 from django.shortcuts import get_object_or_404, render
-from django.views.decorators.cache import cache_page
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from .forms import CalendarForm, SourceForm
 from .models import Calendar, Source
@@ -225,15 +228,35 @@ def toggle_include_source(request: HttpRequest, uuid: str) -> HttpResponse:
     return HttpResponse("")
 
 
-@cache_page(60 * 15)  # Cache for 15 minutes
-def calendar_file(request, uuid):
-    calendar = get_object_or_404(Calendar, uuid=uuid)
-    combine_calendar(calendar)
-    calendar_str = calendar.calendar_file_str
-    response = HttpResponse(calendar_str, content_type="text/calendar")
-    response["Content-Disposition"] = f'attachment; filename="{uuid}.ics"'  # noqa E702
+class CalendarFileAPIView(APIView):
+    def get(self, request, uuid):
+        return self.process_calendar_request(uuid)
 
-    return response
+    def post(self, request, uuid):
+        return self.process_calendar_request(uuid)
+
+    def process_calendar_request(self, uuid):
+        try:
+            calendar = get_object_or_404(Calendar, uuid=uuid)
+        except Http404:
+            return Response(
+                {"error": "Calendar not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+
+        combine_calendar(calendar)  # Assuming this method modifies the calendar object
+
+        calendar_str = calendar.calendar_file_str
+        if not calendar_str:
+            return Response(
+                {"error": "Failed to generate calendar data"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        response = HttpResponse(calendar_str, content_type="text/calendar")
+        response[
+            "Content-Disposition"
+        ] = f'attachment; filename="{uuid}.ics"'  # noqa E702
+        return response
 
 
 def calendar_view(request: HttpRequest, uuid: str) -> HttpResponse:
