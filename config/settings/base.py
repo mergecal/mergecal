@@ -86,6 +86,8 @@ THIRD_PARTY_APPS = [
     "allauth.socialaccount",
     "django_celery_beat",
     "django_extensions",
+    "drf_api_logger",
+    "rest_framework",
 ]
 
 LOCAL_APPS = [
@@ -151,6 +153,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "mergecal.calendars.middleware.HtmxMessageMiddleware",
     "allauth.account.middleware.AccountMiddleware",
+    "drf_api_logger.middleware.api_logger_middleware.APILoggerMiddleware",
 ]
 
 # STATIC
@@ -334,3 +337,12 @@ MESSAGE_TAGS = {
     messages.WARNING: "text-dark bg-warning",
     messages.ERROR: "text-white bg-danger",
 }
+
+
+# https://github.com/vishalanandl177/DRF-API-Logger#store-logs-into-the-database
+DRF_API_LOGGER_DATABASE = True  # Default to False
+DRF_API_LOGGER_CONTENT_TYPES = [
+    "application/json",
+    "text/calendar",
+    "Content-Disposition",
+]
