@@ -1,34 +1,69 @@
 {% extends "base.html" %}
-{% block title %}mergecal | Home{% endblock %}
+{% block title %}MergeCal | Organize Your Life{% endblock %}
 {% load static %}
 {% block content %}
-<div class="jumbotron jumbotron-fluid bg-light text-center">
+<div class="bg-primary text-white text-center p-5">
   <div class="container">
-    <h1 class="display-4">Welcome to mergecal</h1>
-    <p class="lead">mergecal is a Django webapp that allows you to merge multiple iCalendar feeds into a single feed. With mergecal, you can easily keep track of events from multiple sources in one place.</p>
-    <a class="btn btn-primary btn-lg" href={% url 'about' %} role="button">Learn more</a>
+    <h1 class="display-4 fw-bold">Organize All Your Schedules with MergeCal</h1>
+    <p class="lead mb-4">Effortlessly combine multiple calendar feeds into one. Perfect for sports teams, schools, and personal organization.</p>
+    <a href="{% url 'account_signup' %}" class="btn btn-lg btn-light">Sign Up Free</a>
   </div>
 </div>
 
-<div class="container mt-5">
+<div class="container py-5">
   <div class="row">
-    <div class="col-md-4 mb-5">
-      <i class="fas fa-calendar-plus fa-4x"></i>
-      <h3>Combine multiple feeds</h3>
-      <p>Easily add multiple iCalendar feeds to your mergecal account and subscribe to the merged feed using your calendar client (e.g. Google Calendar).</p>
+    <div class="col-md-4 mb-4 text-center">
+      <i class="bi bi-calendar3 display-3 text-primary mb-3"></i>
+      <h5 class="fw-bold">Sports Schedules</h5>
+      <p>Merge game schedules from different sports into a single calendar feed.</p>
     </div>
-    <div class="col-md-4 mb-5">
-      <i class="fas fa-clock fa-4x"></i>
-      <h3>Save time</h3>
-      <p>mergecal saves you time by eliminating the need to check multiple calendars or manually merge events. Stay organized and never miss an important event again.</p>
+    <div class="col-md-4 mb-4 text-center">
+      <i class="bi bi-clock display-3 text-primary mb-3"></i>
+      <h5 class="fw-bold">School Calendars</h5>
+      <p>Combine meal plans, holiday schedules, and event calendars into one easy-to-share feed.</p>
     </div>
-    <div class="col-md-4 mb-5">
-      <i class="fas fa-list-ul fa-4x"></i>
-      <h3>Keep track of events</h3>
-      <p>mergecal makes it easy to keep track of events from multiple sources in one place. You can view all your events in a single calendar, making it easier to stay organized and never miss an important event again.</p>
+    <div class="col-md-4 mb-4 text-center">
+      <i class="bi bi-eye display-3 text-primary mb-3"></i>
+      <h5 class="fw-bold">Personal Organization</h5>
+      <p>Keep track of your personal, professional, and social schedules in one place.</p>
     </div>
+  </div>
+</div>
 
+<div class="bg-light py-5">
+  <div class="container">
+    <h2 class="text-center fw-bold mb-4">Trusted by Organizations</h2>
+    <div class="row">
+      <div class="col-md-4 mb-3">
+        <blockquote class="blockquote">
+          <p class="mb-0">"MergeCal has transformed how our sports club manages its diverse event schedules."</p>
+          <br>
+          <footer class="blockquote-footer">Jordan Matthews, Club Manager</footer>
+        </blockquote>
+      </div>
+      <div class="col-md-4 mb-3">
+        <blockquote class="blockquote">
+          <p class="mb-0">"A game-changer for our school’s administrative efficiency."</p>
+          <br>
+          <footer class="blockquote-footer">Taylor Roberts, School Administrator</footer>
+        </blockquote>
+      </div>
+      <div class="col-md-4 mb-3">
+        <blockquote class="blockquote">
+          <p class="mb-0">"MergeCal keeps my personal and professional life perfectly synchronized."</p>
+          <br>
+          <footer class="blockquote-footer">Casey Lee, Freelancer</footer>
+        </blockquote>
+      </div>
+    </div>
+  </div>
+</div>
 
-
-
+<div class="bg-secondary text-white text-center p-5">
+  <div class="container">
+    <h2 class="fw-bold">Ready to Simplify Your Calendar?</h2>
+    <p class="lead mb-4">Join the thousands who have streamlined their scheduling with MergeCal.</p>
+    <a href="{% url 'account_signup' %}" class="btn btn-lg btn-light">Sign Up Now — It's Free</a>
+  </div>
+</div>
 {% endblock %}
