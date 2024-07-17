@@ -11,8 +11,6 @@ from django.http.response import (
     HttpResponseNotAllowed,
 )
 from django.shortcuts import get_object_or_404, render
-from django.utils.decorators import method_decorator
-from django.views.decorators.cache import cache_page
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -21,6 +19,8 @@ from .forms import CalendarForm, SourceForm
 from .models import Calendar, Source
 from .utils import combine_calendar
 
+# from django.utils.decorators import method_decorator
+# from django.views.decorators.cache import cache_page
 # from .tasks import combine_calendar_task
 
 
@@ -231,7 +231,7 @@ def toggle_include_source(request: HttpRequest, uuid: str) -> HttpResponse:
 
 
 class CalendarFileAPIView(APIView):
-    @method_decorator(cache_page(60 * 15))
+    # @method_decorator(cache_page(60 * 15))
     def get(self, request, uuid):
         return self.process_calendar_request(uuid)
 
@@ -246,7 +246,9 @@ class CalendarFileAPIView(APIView):
                 {"error": "Calendar not found"}, status=status.HTTP_404_NOT_FOUND
             )
 
-        combine_calendar(calendar)  # Assuming this method modifies the calendar object
+        origin_domain = self.request.GET.get("origin", "")
+
+        combine_calendar(calendar, origin_domain)
 
         calendar_str = calendar.calendar_file_str
         if not calendar_str:

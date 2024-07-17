@@ -10,7 +10,7 @@ from icalendar import Calendar, Event, Timezone
 logger = logging.getLogger(__name__)
 
 
-def combine_calendar(calendar_instance):
+def combine_calendar(calendar_instance, origin_domain):
     newcal = Calendar()
     newcal.add("prodid", "-//" + calendar_instance.name + "//mergecal.org//")
     newcal.add("version", "2.0")
@@ -23,6 +23,13 @@ def combine_calendar(calendar_instance):
     INCLUDE_SOURCE = calendar_instance.include_source
 
     existing_uids = set()
+
+    warning_text = ""
+    if origin_domain in ["calmerge.habet.dev", "mergecal.habet.dev"]:
+        warning_text = (
+            " Note: You are using an outdated domain. Please update to mergecal.org."
+        )
+
     for source in calendar_instance.calendarOf.all():
         if is_meetup_url(source.url):
             logger.info(f"Meetup URL detected: {source.url}")
@@ -46,7 +53,12 @@ def combine_calendar(calendar_instance):
                 cal_data = fetch_calendar_data(source.url)
                 if cal_data:
                     process_calendar_data(
-                        cal_data, newcal, existing_uids, INCLUDE_SOURCE, source.name
+                        cal_data,
+                        newcal,
+                        existing_uids,
+                        INCLUDE_SOURCE,
+                        source.name,
+                        warning_text,
                     )
             except Exception as err:
                 logger.error(f"Unexpected error with URL {source.url}: {err}")
@@ -84,13 +96,18 @@ def fetch_calendar_data(url):
     return None
 
 
-def process_calendar_data(cal, newcal, existing_uids, INCLUDE_SOURCE, source_name):
+def process_calendar_data(
+    cal, newcal, existing_uids, INCLUDE_SOURCE, source_name, warning_text=""
+):
     for component in cal.subcomponents:
         if component.name == "VEVENT":
             uid = component.get("uid")
             if INCLUDE_SOURCE:
                 original_summary = component.get("summary")
                 component["summary"] = f"{source_name}: {original_summary}"
+            if warning_text != "":
+                description = component.get("description")
+                component["description"] = f"{warning_text}\n\n{description}"
             # Add the event if it has a unique UID or if it doesn't have a UID at all
             if uid is None or uid not in existing_uids:
                 newcal.add_component(component)
