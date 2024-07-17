@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 def combine_calendar(calendar_instance):
     newcal = Calendar()
-    newcal.add("prodid", "-//" + calendar_instance.name + "//mergecal.habet.dev//")
+    newcal.add("prodid", "-//" + calendar_instance.name + "//mergecal.org//")
     newcal.add("version", "2.0")
     newcal.add("x-wr-calname", calendar_instance.name)
 
