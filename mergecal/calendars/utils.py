@@ -105,9 +105,14 @@ def process_calendar_data(
             if INCLUDE_SOURCE:
                 original_summary = component.get("summary")
                 component["summary"] = f"{source_name}: {original_summary}"
-            if warning_text != "":
-                description = component.get("description")
-                component["description"] = f"{warning_text}\n\n{description}"
+            # if warning_text != "":
+            # component["description"] = f"{warning_text}\n\n{description}"
+            advertisement = "\n This event is brought to you by https://mergecal.org."
+            if component.get("description"):
+                component["description"] = component["description"] + advertisement
+            else:
+                component.add("description", advertisement)
+
             # Add the event if it has a unique UID or if it doesn't have a UID at all
             if uid is None or uid not in existing_uids:
                 newcal.add_component(component)
