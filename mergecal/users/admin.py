@@ -4,7 +4,8 @@ from django.contrib.auth import admin as auth_admin
 from django.contrib.auth.decorators import login_required
 from django.utils.translation import gettext_lazy as _
 
-from .forms import UserAdminChangeForm, UserAdminCreationForm
+from .forms import UserAdminChangeForm
+from .forms import UserAdminCreationForm
 from .models import User
 
 if settings.DJANGO_ADMIN_FORCE_ALLAUTH:

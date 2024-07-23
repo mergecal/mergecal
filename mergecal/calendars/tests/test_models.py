@@ -1,11 +1,15 @@
+# ruff: noqa: S106
+import http.client
 from unittest.mock import patch
 
+import pytest
 import requests
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from requests.exceptions import RequestException
 
-from mergecal.calendars.models import Calendar, Source
+from mergecal.calendars.models import Calendar
+from mergecal.calendars.models import Source
 from mergecal.calendars.utils import (
     combine_calendar,  # Assuming combine_calendar is in utils.py
 )
@@ -16,7 +20,8 @@ class BaseTest(TestCase):
     def setUp(self):
         # Common setup tasks
         self.user = User.objects.create(
-            email="testuser@example.com", password="testpassword"
+            email="testuser@example.com",
+            password="testpassword",
         )
         self.calendar = Calendar.objects.create(name="Test Calendar", owner=self.user)
 
@@ -26,21 +31,21 @@ class CalendarModelTest(BaseTest):
         super().setUp()
 
     def test_calendar_creation(self):
-        self.assertEqual(self.calendar.name, "Test Calendar")
-        self.assertIsNotNone(self.calendar.uuid)
+        assert self.calendar.name == "Test Calendar"
+        assert self.calendar.uuid is not None
 
     def test_string_representation(self):
-        self.assertEqual(str(self.calendar), "Test Calendar")
+        assert str(self.calendar) == "Test Calendar"
 
     def test_timezone_field(self):
         # Test the default timezone
-        self.assertEqual(self.calendar.timezone, "America/New_York")
+        assert self.calendar.timezone == "America/New_York"
 
     def test_get_calendar_file_url(self):
         # Test the get_calendar_file_url method
-        self.assertEqual(
-            self.calendar.get_calendar_file_url(),
-            f"/calendars/{self.calendar.uuid}.ical",
+        assert (
+            self.calendar.get_calendar_file_url()
+            == f"/calendars/{self.calendar.uuid}.ical"
         )
 
 
@@ -54,11 +59,11 @@ class SourceModelTest(BaseTest):
         )
 
     def test_source_creation(self):
-        self.assertEqual(self.source.name, "Test Source")
-        self.assertEqual(self.source.url, "http://example.com/test.ical")
+        assert self.source.name == "Test Source"
+        assert self.source.url == "http://example.com/test.ical"
 
     def test_string_representation(self):
-        self.assertEqual(str(self.source), "Test Source")
+        assert str(self.source) == "Test Source"
 
     def test_url_validation_success(self):
         with patch("requests.get") as mock_get:
@@ -80,7 +85,7 @@ class SourceModelTest(BaseTest):
             )
 
             # Assert that ValidationError is raised
-            with self.assertRaises(ValidationError):
+            with pytest.raises(ValidationError):
                 invalid_source.full_clean()  # Use full_clean to trigger validation
 
     def test_get_absolute_url(self):
@@ -91,10 +96,12 @@ class SourceModelTest(BaseTest):
 class CombineCalendarTest(TestCase):
     def setUp(self):
         self.user = User.objects.create(
-            email="testuser@example.com", password="testpassword"
+            email="testuser@example.com",
+            password="testpassword",
         )
         self.calendar = Calendar.objects.create(
-            name="Aggregated Calendar", owner=self.user
+            name="Aggregated Calendar",
+            owner=self.user,
         )
 
         # Create mock calendar data
@@ -107,10 +114,14 @@ class CombineCalendarTest(TestCase):
 
         # Create sources
         Source.objects.create(
-            name="Source 1", url="http://example.com/cal1.ical", calendar=self.calendar
+            name="Source 1",
+            url="http://example.com/cal1.ical",
+            calendar=self.calendar,
         )
         Source.objects.create(
-            name="Source 2", url="http://example.com/cal2.ical", calendar=self.calendar
+            name="Source 2",
+            url="http://example.com/cal2.ical",
+            calendar=self.calendar,
         )
 
     @patch("requests.get")
@@ -122,11 +133,11 @@ class CombineCalendarTest(TestCase):
         ]
 
         # Call the combine_calendar function
-        combine_calendar(self.calendar)
+        combine_calendar(self.calendar, "http://example.com/agg.ical")
 
         # Check if the aggregated calendar contains events from both sources
-        self.assertIn("Event 1", self.calendar.calendar_file_str)
-        self.assertIn("Event 2", self.calendar.calendar_file_str)
+        assert "Event 1" in self.calendar.calendar_file_str
+        assert "Event 2" in self.calendar.calendar_file_str
 
 
 class MockResponse:
@@ -135,5 +146,5 @@ class MockResponse:
         self.status_code = status_code
 
     def raise_for_status(self):
-        if self.status_code != 200:
-            raise requests.HTTPError()
+        if self.status_code != http.client.OK:
+            raise requests.HTTPError

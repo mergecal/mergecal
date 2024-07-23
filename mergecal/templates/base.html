@@ -1,30 +1,34 @@
-{% load static i18n compress %}<!DOCTYPE html>
+{% load static i18n compress %}
+
+<!DOCTYPE html>
 {% get_current_language as LANGUAGE_CODE %}
 <html lang="{{ LANGUAGE_CODE }}">
   <head>
-    <meta charset="utf-8">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>{% block title %}Mergecal{% endblock title %}</title>
-
-    <meta property="og:title" content="Mergecal">
-    <meta property="og:description" content="{% block og_description %}MergeCal is a Django webapp that allows you to easily merge multiple iCalendar feeds into a single feed. Stay organized and never miss an important event again with Mergecal{% endblock og_description %}">
-    <meta property="og:image" content="https://mergecal.org{% static 'images/favicon.png' %}">
-    <meta property="og:url" content="https://MergeCal.org/">
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <title>
+      {% block title %}
+        Mergecal
+      {% endblock title %}
+    </title>
+    <meta property="og:title" content="Mergecal" />
+    <meta property="og:description"
+          content="{% block og_description %}MergeCal is a Django webapp that allows you to easily merge multiple iCalendar feeds into a single feed. Stay organized and never miss an important event again with Mergecal{% endblock og_description %}" />
+    <meta property="og:image"
+          content="https://mergecal.org{% static 'images/favicon.png' %}" />
+    <meta property="og:url" content="https://MergeCal.org/" />
     <meta property="og:type" content="website" />
-
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="MergeCal" />
     <meta name="twitter:description"
           content="MergeCal is a Django webapp that allows you to easily merge multiple iCalendar feeds into a single feed. Stay organized and never miss an important event again with Mergecal" />
-    <meta name="twitter:image" content="https://mergecal.org{% static 'images/favicon.png' %}" />
-
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="MergeCal is a Django webapp that allows you to easily merge multiple iCalendar feeds into a single feed. Stay organized and never miss an important event again with mergecal">
-    <meta name="author" content="Abe Hanoka">
-
-    <link rel="icon" href="{% static 'images/favicons/favicon.ico' %}">
-
+    <meta name="twitter:image"
+          content="https://mergecal.org{% static 'images/favicon.png' %}" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description"
+          content="MergeCal is a Django webapp that allows you to easily merge multiple iCalendar feeds into a single feed. Stay organized and never miss an important event again with mergecal" />
+    <meta name="author" content="Abe Hanoka" />
+    <link rel="icon" href="{% static 'images/favicons/favicon.ico' %}" />
     {% block css %}
       <link rel="stylesheet"
             href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css"
@@ -36,11 +40,10 @@
             integrity="sha512-dPXYcDub/aeb08c63jRq/k6GaKccl256JQy/AnOq7CAnEZ9FzSL9wSbcZkMp4R26vBsMLFYH4kQ67/bbV8XaCQ=="
             crossorigin="anonymous"
             referrerpolicy="no-referrer" />
-
-    {% compress css %}
-    <!-- This file stores project-specific CSS -->
-    <link href="{% static 'css/project.css' %}" rel="stylesheet">
-    {% endcompress %}
+      {% compress css %}
+        <!-- This file stores project-specific CSS -->
+        <link href="{% static 'css/project.css' %}" rel="stylesheet" />
+      {% endcompress %}
     {% endblock css %}
     <!-- Le javascript
     ================================================== -->
@@ -50,13 +53,15 @@
       <!-- Google tag (gtag.js) -->
       <script async src="https://www.googletagmanager.com/gtag/js?id=G-1TQF9JJ9Z3"></script>
       <script>
-            window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-                      gtag('js', new Date());
+        window.dataLayer = window.dataLayer || [];
 
-              gtag('config', 'G-1TQF9JJ9Z3');
+        function gtag() {
+          dataLayer.push(arguments);
+        }
+        gtag('js', new Date());
+
+        gtag('config', 'G-1TQF9JJ9Z3');
       </script>
-
       <!-- place project specific Javascript in this file -->
       <!-- Bootstrap JS -->
       <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
@@ -72,119 +77,153 @@
               integrity="sha512-9qpauSP4+dDIldsrdNEZ2Z7JoyLZGfJsAP2wfXnc3drOh+5NXOBxjlq3sGXKdulmN9W+iwLxRt42zKMa8AHEeg=="
               crossorigin="anonymous"
               referrerpolicy="no-referrer"></script>
-      <script src="https://cdn.jsdelivr.net/npm/ical.js@1.5.0/build/ical.min.js" integrity="sha256-uotVKltUv5neKsIlZxrxUccba0PaptusFj6p+w8Sons=" crossorigin="anonymous"></script>
-      <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js" integrity="sha256-J37ZtjEw94oWBNZ9w/XC73raGXE9t10//XHJfKz2QCM=" crossorigin="anonymous"></script>
-      <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/icalendar@6.1.10/index.global.min.js" integrity="sha256-io4G+JpruJtt8SoSUOgLQrhBj/YtQXFgIvkGzBxQAUQ=" crossorigin="anonymous"></script>
+      <script src="https://cdn.jsdelivr.net/npm/ical.js@1.5.0/build/ical.min.js"
+              integrity="sha256-uotVKltUv5neKsIlZxrxUccba0PaptusFj6p+w8Sons="
+              crossorigin="anonymous"></script>
+      <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"
+              integrity="sha256-J37ZtjEw94oWBNZ9w/XC73raGXE9t10//XHJfKz2QCM="
+              crossorigin="anonymous"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/icalendar@6.1.10/index.global.min.js"
+              integrity="sha256-io4G+JpruJtt8SoSUOgLQrhBj/YtQXFgIvkGzBxQAUQ="
+              crossorigin="anonymous"></script>
       {% compress js %}
-      <script defer src="{% static 'js/project.js' %}"></script>
+        <script defer src="{% static 'js/project.js' %}"></script>
       {% endcompress %}
-
     {% endblock javascript %}
-
   </head>
-
   <body class="{% block bodyclass %}{% endblock bodyclass %}">
     {% block body %}
-    <div class="mb-1">
-      <nav class="navbar navbar-expand-md navbar-light bg-light">
-        <div class="container-fluid">
-          <button class="navbar-toggler navbar-toggler-right" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-          <a class="navbar-brand" href="{% url 'home' %}">MergeCal</a>
-
-          <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav mr-auto">
-              <li class="nav-item active">
-                <a class="nav-link" href="{% url 'home' %}">Home <span class="visually-hidden">(current)</span></a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{% url 'about' %}">About</a>
-              </li>
-              {% if request.user.is_authenticated %}
-              <li class="nav-item">
-                <a class="nav-link" href="{% url 'calendars:manage-calendar' %}">Calendars</a>
-              </li>
-                <li class="nav-item">
-                  {# URL provided by django-allauth/account/urls.py #}
-                  <a class="nav-link" href="{% url 'users:detail' request.user.username  %}">{% translate "My Profile" %}</a>
+      <div class="mb-1">
+        <nav class="navbar navbar-expand-md navbar-light bg-light">
+          <div class="container-fluid">
+            <button class="navbar-toggler navbar-toggler-right"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent"
+                    aria-controls="navbarSupportedContent"
+                    aria-expanded="false"
+                    aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+            <a class="navbar-brand" href="{% url 'home' %}">MergeCal</a>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+              <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                  <a class="nav-link" href="{% url 'home' %}">Home <span class="visually-hidden">(current)</span></a>
                 </li>
                 <li class="nav-item">
-                  {# URL provided by django-allauth/account/urls.py #}
-                  <a class="nav-link" href="{% url 'account_logout' %}">{% translate "Sign Out" %}</a>
+                  <a class="nav-link" href="{% url 'about' %}">About</a>
                 </li>
-              {% else %}
-                {% if ACCOUNT_ALLOW_REGISTRATION %}
-              <li class="nav-item">
-                {# URL provided by django-allauth/account/urls.py #}
-                <a id="sign-up-link" class="nav-link" href="{% url 'account_signup' %}">{% translate "Sign Up" %}</a>
-              </li>
-              {% endif %}
-                <li class="nav-item">
-                  {# URL provided by django-allauth/account/urls.py #}
-                  <a id="log-in-link" class="nav-link" href="{% url 'account_login' %}">{% translate "Sign In" %}</a>
-                </li>
-              {% endif %}
-            </ul>
-            <ul class="navbar-nav flex-row flex-wrap ms-md-auto">
-              <li class="nav-item col-6 col-lg-auto">
+                {% if request.user.is_authenticated %}
+                  <li class="nav-item">
+                    <a class="nav-link" href="{% url 'calendars:manage-calendar' %}">Calendars</a>
+                  </li>
+                  <li class="nav-item">
+                    {# URL provided by django-allauth/account/urls.py #}
+                    <a class="nav-link"
+                       href="{% url 'users:detail' request.user.username %}">{% translate "My Profile" %}</a>
+                  </li>
+                  <li class="nav-item">
+                    {# URL provided by django-allauth/account/urls.py #}
+                    <a class="nav-link" href="{% url 'account_logout' %}">{% translate "Sign Out" %}</a>
+                  </li>
+                {% else %}
+                  {% if ACCOUNT_ALLOW_REGISTRATION %}
+                    <li class="nav-item">
+                      {# URL provided by django-allauth/account/urls.py #}
+                      <a id="sign-up-link" class="nav-link" href="{% url 'account_signup' %}">{% translate "Sign Up" %}</a>
+                    </li>
+                  {% endif %}
+                  <li class="nav-item">
+                    {# URL provided by django-allauth/account/urls.py #}
+                    <a id="log-in-link" class="nav-link" href="{% url 'account_login' %}">{% translate "Sign In" %}</a>
+                  </li>
+                {% endif %}
+              </ul>
+              <ul class="navbar-nav flex-row flex-wrap ms-md-auto">
+                <li class="nav-item col-6 col-lg-auto">
                   <a class="nav-link" href="https://discord.gg/2vqUzSpt6N"><i class="bi bi-discord"></i></a>
-              </li>
-              <li class="nav-item col-6 col-lg-auto">
-                <a class="nav-link" href="mailto:feedback@mergecal.org?subject=Feedback%20on%20mergecal"><i class="bi bi-envelope"></i></a>
-              </li>
-              <li class="nav-item col-6 col-lg-auto">
-                <a class="nav-link" href="https://github.com/abe-101/mergecal"><i class="bi bi-github"></i></a>
-              </li>
-            </ul>
+                </li>
+                <li class="nav-item col-6 col-lg-auto">
+                  <a class="nav-link"
+                     href="mailto:feedback@mergecal.org?subject=Feedback%20on%20mergecal"><i class="bi bi-envelope"></i></a>
+                </li>
+                <li class="nav-item col-6 col-lg-auto">
+                  <a class="nav-link" href="https://github.com/abe-101/mergecal"><i class="bi bi-github"></i></a>
+                </li>
+              </ul>
+            </div>
           </div>
-        </div>
-      </nav>
-
-    </div>
-
-    <div class="container mt-2" style="max-width: 960px;">
-      <div data-toast-container class="toast-container position-fixed top-0 end-0 p-3">
-        <div data-toast-template class="toast align-items-center border-0" role="alert" aria-live="assertive" aria-atomic="true">
-          <div class="d-flex">
-            <div data-toast-body class="toast-body"></div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-          </div>
-        </div>
-        {% for message in messages %}
-        <div class="toast align-items-center border-0 {{ message.tags }}" role="alert" aria-live="assertive" aria-atomic="true">
-          <div class="d-flex">
-            <div data-toast-body class="toast-body">{{ message.message }}</div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-          </div>
-        </div>
-        {% endfor %}
+        </nav>
       </div>
-
-      {% block main %}
-      {% block content %}
-        <p>Use this document as a way to quick start any new project.</p>
-      {% endblock content %}
-      {% endblock main %}
-
-    </div> <!-- /container -->
+      {# djlint:off H021 #}
+      <div class="container mt-2" style="max-width: 960px;">
+        {# djlint:on #}
+        <div data-toast-container
+             class="toast-container position-fixed top-0 end-0 p-3">
+          <div data-toast-template
+               class="toast align-items-center border-0"
+               role="alert"
+               aria-live="assertive"
+               aria-atomic="true">
+            <div class="d-flex">
+              <div data-toast-body class="toast-body"></div>
+              <button type="button"
+                      class="btn-close btn-close-white me-2 m-auto"
+                      data-bs-dismiss="toast"
+                      aria-label="Close"></button>
+            </div>
+          </div>
+          {% for message in messages %}
+            <div class="toast align-items-center border-0 {{ message.tags }}"
+                 role="alert"
+                 aria-live="assertive"
+                 aria-atomic="true">
+              <div class="d-flex">
+                <div data-toast-body class="toast-body">{{ message.message }}</div>
+                <button type="button"
+                        class="btn-close btn-close-white me-2 m-auto"
+                        data-bs-dismiss="toast"
+                        aria-label="Close"></button>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+        {% block main %}
+          {% block content %}
+            <p>Use this document as a way to quick start any new project.</p>
+          {% endblock content %}
+        {% endblock main %}
+      </div>
+      <!-- /container -->
     {% endblock body %}
-    {% block modal %}{% endblock modal %}
-
+    {% block modal %}
+    {% endblock modal %}
     {% block inline_javascript %}
-    {% comment %}
+      {% comment %}
     Script tags with only code, no src (defer by default). To run
     with a "defer" so that you run inline code:
     <script>
-      window.addEventListener('DOMContentLoaded', () => {/* Run whatever you want */});
+      window.addEventListener('DOMContentLoaded', () => {
+        /* Run whatever you want */
+      });
     </script>
-    {% endcomment %}
-    <script>
+      {% endcomment %}
+      <script>
         document.body.addEventListener('htmx:configRequest', (event) => {
-        event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
+          event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
         })
-    </script>
-    <script data-name="BMC-Widget" data-cfasync="false" src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js" data-id="abe101" data-description="Support me on Buy me a coffee!" data-message="" data-color="#ff813f" data-position="Right" data-x_margin="18" data-y_margin="18"></script>
+      </script>
+      <script data-name="BMC-Widget"
+              data-cfasync="false"
+              src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js"
+              data-id="abe101"
+              data-description="Support me on Buy me a coffee!"
+              data-message=""
+              data-color="#ff813f"
+              data-position="Right"
+              data-x_margin="18"
+              data-y_margin="18"></script>
     {% endblock inline_javascript %}
   </body>
 </html>

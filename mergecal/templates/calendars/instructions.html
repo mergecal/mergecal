@@ -1,18 +1,27 @@
 {% extends "base.html" %}
-{% load static %}
-{% block title %}Adding a Calendar Feed to Google Calendar{% endblock %}
-{% block content %}
-<div class="container mt-5">
-  <h1>How to Add a Calendar Feed to Google Calendar</h1>
-  <ol>
-    <li>Open Google Calendar on your computer or mobile device.</li>
-    <li>Click the plus sign (+) in the lower right corner of the calendar view.</li>
-    <li>From the menu that appears, select "From URL."</li>
-    <li>In the "Link to the calendar" field, paste the URL of the calendar feed you want to add. This URL should be provided by the calendar owner or obtained through the calendar's website.</li>
-    <li>Give the calendar a name and choose a color for the events to appear on your calendar.</li>
-    <li>Click "Add Calendar." The calendar should now appear in your list of calendars on the left side of the screen.</li>
-    <li>If you want to change the way the calendar is displayed (e.g., hide it from view or change the name or color), click the three dots next to the calendar's name on the left side of the screen and select "Calendar settings."</li>
-  </ol>
-</div>
 
-{% endblock %}
+{% load static %}
+
+{% block title %}
+  Adding a Calendar Feed to Google Calendar
+{% endblock title %}
+{% block content %}
+  <div class="container mt-5">
+    <h1>How to Add a Calendar Feed to Google Calendar</h1>
+    <ol>
+      <li>Open Google Calendar on your computer or mobile device.</li>
+      <li>Click the plus sign (+) in the lower right corner of the calendar view.</li>
+      <li>From the menu that appears, select "From URL."</li>
+      <li>
+        In the "Link to the calendar" field, paste the URL of the calendar feed you want to add. This URL should be provided by the calendar owner or obtained through the calendar's website.
+      </li>
+      <li>Give the calendar a name and choose a color for the events to appear on your calendar.</li>
+      <li>
+        Click "Add Calendar." The calendar should now appear in your list of calendars on the left side of the screen.
+      </li>
+      <li>
+        If you want to change the way the calendar is displayed (e.g., hide it from view or change the name or color), click the three dots next to the calendar's name on the left side of the screen and select "Calendar settings."
+      </li>
+    </ol>
+  </div>
+{% endblock content %}

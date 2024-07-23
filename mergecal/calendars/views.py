@@ -5,27 +5,25 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.sites.models import Site
 from django.http import Http404
 from django.http.request import HttpRequest
-from django.http.response import (
-    HttpResponse,
-    HttpResponseForbidden,
-    HttpResponseNotAllowed,
-)
-from django.shortcuts import get_object_or_404, render
+from django.http.response import HttpResponse
+from django.http.response import HttpResponseForbidden
+from django.http.response import HttpResponseNotAllowed
+from django.shortcuts import get_object_or_404
+from django.shortcuts import render
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .forms import CalendarForm, SourceForm
-from .models import Calendar, Source
+from .forms import CalendarForm
+from .forms import SourceForm
+from .models import Calendar
+from .models import Source
 from .utils import combine_calendar
-
-# from django.utils.decorators import method_decorator
-# from django.views.decorators.cache import cache_page
-# from .tasks import combine_calendar_task
 
 
 def check_for_demo_account(
-    redirect_to="calendars.manage_calendar", error_flash_message=None
+    redirect_to="calendars.manage_calendar",
+    error_flash_message=None,
 ):
     def inner_render(fn):
         @wraps(fn)  # Ensure the wrapped function keeps the same name as the view
@@ -33,12 +31,13 @@ def check_for_demo_account(
             if request.method == "POST" and request.user.email == "demo@example.com":
                 if error_flash_message:
                     messages.add_message(
-                        request, messages.ERROR, error_flash_message
+                        request,
+                        messages.ERROR,
+                        error_flash_message,
                     )  # Replace by your own implementation
 
                 return HttpResponseForbidden()
-            else:
-                return fn(request, *args, **kwargs)
+            return fn(request, *args, **kwargs)
 
         return wrapped
 
@@ -65,10 +64,11 @@ def manage_calendar(request):
                     "domain_name": Site.objects.get_current().domain,
                 },
             )
-        else:
-            return render(
-                request, "calendars/partials/calendar_form.html", context={"form": form}
-            )
+        return render(
+            request,
+            "calendars/partials/calendar_form.html",
+            context={"form": form},
+        )
 
     context = {
         "form": form,
@@ -113,7 +113,7 @@ def delete_calendar(request, pk):
     return HttpResponseNotAllowed(
         [
             "POST",
-        ]
+        ],
     )
 
 
@@ -146,19 +146,17 @@ def manage_source(request, pk):
             source = form.save(commit=False)
             source.calendar = calendar
             source.save()
-            # combine_calendar_task.delay(pk)
             messages.success(request, "Your calendar link has been added")
             return render(
                 request,
                 "calendars/partials/source_detail.html",
                 context={"source": source},
             )
-        else:
-            return render(
-                request,
-                "calendars/partials/source_form.html",
-                context={"form": form, "calendar": calendar},
-            )
+        return render(
+            request,
+            "calendars/partials/source_form.html",
+            context={"form": form, "calendar": calendar},
+        )
     context = {"form": form, "calendar": calendar, "sources": sources}
 
     return render(request, "calendars/manage_source.html", context)
@@ -172,7 +170,6 @@ def update_source(request, pk):
 
     if request.method == "POST":
         if form.is_valid():
-            # combine_calendar_task.delay(source.calendar.id)
             form.save()
             messages.success(request, "Your calendar link has been updated")
             return render(
@@ -199,7 +196,7 @@ def delete_source(request, pk):
     return HttpResponseNotAllowed(
         [
             "POST",
-        ]
+        ],
     )
 
 
@@ -225,13 +222,12 @@ def toggle_include_source(request: HttpRequest, uuid: str) -> HttpResponse:
     calendar.save()
     messages.success(
         request,
-        f"Your calendar now {'includes' if calendar.include_source else 'excludes'} the source in event title",
+        f"Your calendar now {'includes' if calendar.include_source else 'excludes'} the source in event title",  # noqa: E501
     )
     return HttpResponse("")
 
 
 class CalendarFileAPIView(APIView):
-    # @method_decorator(cache_page(60 * 15))
     def get(self, request, uuid):
         return self.process_calendar_request(uuid)
 
@@ -243,7 +239,8 @@ class CalendarFileAPIView(APIView):
             calendar = get_object_or_404(Calendar, uuid=uuid)
         except Http404:
             return Response(
-                {"error": "Calendar not found"}, status=status.HTTP_404_NOT_FOUND
+                {"error": "Calendar not found"},
+                status=status.HTTP_404_NOT_FOUND,
             )
 
         origin_domain = self.request.GET.get("origin", "")
@@ -258,14 +255,14 @@ class CalendarFileAPIView(APIView):
             )
 
         response = HttpResponse(calendar_str, content_type="text/calendar")
-        response[
-            "Content-Disposition"
-        ] = f'attachment; filename="{uuid}.ics"'  # noqa E702
+        response["Content-Disposition"] = f'attachment; filename="{uuid}.ics"'  # E702
         return response
 
 
 def calendar_view(request: HttpRequest, uuid: str) -> HttpResponse:
     calendar = get_object_or_404(Calendar, uuid=uuid)
     return render(
-        request, "calendars/calendar_view.html", context={"calendar": calendar}
+        request,
+        "calendars/calendar_view.html",
+        context={"calendar": calendar},
     )
