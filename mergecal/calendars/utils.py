@@ -1,9 +1,12 @@
+# ruff: noqa: PLR0912
+
 import logging
 from datetime import datetime
 from urllib.parse import urlparse
 
 import pytz
 import requests
+from django.core.cache import cache
 from icalendar import Calendar
 from icalendar import Event
 from icalendar import Timezone
@@ -12,69 +15,79 @@ logger = logging.getLogger(__name__)
 
 
 def combine_calendar(calendar_instance, origin_domain):
-    newcal = Calendar()
-    newcal.add("prodid", "-//" + calendar_instance.name + "//mergecal.org//")
-    newcal.add("version", "2.0")
-    newcal.add("x-wr-calname", calendar_instance.name)
+    cal_bye_str = cache.get(f"calendar_str_{calendar_instance.uuid}")
+    logger.info(
+        "Calendar data not found in cache, generating new for UUID: %s",
+        calendar_instance.uuid,
+    )
+    if not cal_bye_str:
+        newcal = Calendar()
+        newcal.add("prodid", "-//" + calendar_instance.name + "//mergecal.org//")
+        newcal.add("version", "2.0")
+        newcal.add("x-wr-calname", calendar_instance.name)
 
-    newtimezone = Timezone()
-    newtimezone.add("tzid", calendar_instance.timezone)
-    newcal.add_component(newtimezone)
+        newtimezone = Timezone()
+        newtimezone.add("tzid", calendar_instance.timezone)
+        newcal.add_component(newtimezone)
 
-    include_source = calendar_instance.include_source
+        include_source = calendar_instance.include_source
 
-    existing_uids = set()
+        existing_uids = set()
 
-    warning_text = ""
-    if origin_domain in ["calmerge.habet.dev", "mergecal.habet.dev"]:
-        warning_text = (
-            " Note: You are using an outdated domain. Please update to mergecal.org."
-        )
+        warning_text = ""
+        if origin_domain in ["calmerge.habet.dev", "mergecal.habet.dev"]:
+            warning_text = " Note: You are using an outdated domain. Please update to mergecal.org."  # noqa: E501
 
-    for source in calendar_instance.calendarOf.all():
-        if is_meetup_url(source.url):
-            logger.info("Meetup URL detected: %s", source.url)
-            try:
-                meetup_group_name = extract_meetup_group_name(source.url)
-                if meetup_group_name:
-                    meetup_api_url = (
-                        f"https://api.meetup.com/{meetup_group_name}/events"
-                    )
-                    response = requests.get(meetup_api_url, timeout=10)
-                    response.raise_for_status()
-                    meetup_events = response.json()
-                    cal_data = create_calendar_from_meetup_api_respone(meetup_events)
+        for source in calendar_instance.calendarOf.all():
+            if is_meetup_url(source.url):
+                logger.info("Meetup URL detected: %s", source.url)
+                try:
+                    meetup_group_name = extract_meetup_group_name(source.url)
+                    if meetup_group_name:
+                        meetup_api_url = (
+                            f"https://api.meetup.com/{meetup_group_name}/events"
+                        )
+                        response = requests.get(meetup_api_url, timeout=10)
+                        response.raise_for_status()
+                        meetup_events = response.json()
+                        cal_data = create_calendar_from_meetup_api_respone(
+                            meetup_events,
+                        )
+                        if cal_data:
+                            logger.info("Meetup events fetched: %s", len(meetup_events))
+                            process_calendar_data(
+                                cal_data,
+                                newcal,
+                                existing_uids,
+                                include_source,
+                                source.name,
+                            )
+                except Exception:
+                    logger.exception("Meetup: Unexpected error with URL %s", source.url)
+            else:
+                try:
+                    cal_data = fetch_calendar_data(source.url)
                     if cal_data:
-                        logger.info("Meetup events fetched: %s", len(meetup_events))
                         process_calendar_data(
                             cal_data,
                             newcal,
                             existing_uids,
                             include_source,
                             source.name,
+                            warning_text,
                         )
-            except Exception:
-                logger.exception("Meetup: Unexpected error with URL %s", source.url)
-        else:
-            try:
-                cal_data = fetch_calendar_data(source.url)
-                if cal_data:
-                    process_calendar_data(
-                        cal_data,
-                        newcal,
-                        existing_uids,
-                        include_source,
-                        source.name,
-                        warning_text,
+                except Exception:
+                    logger.exception(
+                        "Fetching Cal: Unexpected error with URL %s",
+                        source.url,
                     )
-            except Exception:
-                logger.exception(
-                    "Fetching Cal: Unexpected error with URL %s",
-                    source.url,
-                )
 
-    cal_bye_str = newcal.to_ical()
-    calendar_instance.calendar_file_str = cal_bye_str.decode("utf8")
+        cal_bye_str = newcal.to_ical().decode("utf8")
+        cache.set(f"calendar_str_{calendar_instance.uuid}", cal_bye_str, 60 * 60 * 24)
+    else:
+        logger.info("Calendar data found in cache for UUID: %s", calendar_instance.uuid)
+
+    calendar_instance.calendar_file_str = cal_bye_str
     calendar_instance.save()
     logger.info(
         "Calendar for instance %s (%s) combined and saved.",

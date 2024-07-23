@@ -92,7 +92,7 @@ THIRD_PARTY_APPS = [
 LOCAL_APPS = [
     "mergecal.users",
     # Your stuff: custom apps go here
-    "mergecal.calendars",
+    "mergecal.calendars.apps.CalendarsConfig",
     "allauth.socialaccount.providers.google",  # for Google OAuth 2.0
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
