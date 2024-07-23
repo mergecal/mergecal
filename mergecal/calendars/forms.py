@@ -1,9 +1,13 @@
 from crispy_forms.bootstrap import Div
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Field, Layout
-from django.forms import ModelForm, Select, TextInput
+from crispy_forms.layout import Field
+from crispy_forms.layout import Layout
+from django.forms import ModelForm
+from django.forms import Select
+from django.forms import TextInput
 
-from .models import Calendar, Source
+from .models import Calendar
+from .models import Source
 
 
 class CalendarForm(ModelForm):
@@ -15,7 +19,8 @@ class CalendarForm(ModelForm):
         self.helper.layout = Layout(
             Div("name", css_class="col"),
             Div(
-                Field("timezone", wrapper_class="text-capitalize"), css_class="col-sm-3"
+                Field("timezone", wrapper_class="text-capitalize"),
+                css_class="col-sm-3",
             ),
         )
 

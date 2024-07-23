@@ -1,4 +1,4 @@
-# ruff: noqa: E501
+# ruff: noqa: E501 ERA001
 import logging
 
 import sentry_sdk
@@ -7,8 +7,10 @@ from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.logging import LoggingIntegration
 from sentry_sdk.integrations.redis import RedisIntegration
 
-from .base import *  # noqa: F403, F401
-from .base import DATABASES, INSTALLED_APPS, env
+from .base import *  # noqa: F403
+from .base import DATABASES
+from .base import INSTALLED_APPS
+from .base import env
 
 # GENERAL
 # ------------------------------------------------------------------------------
@@ -101,9 +103,9 @@ STORAGES = {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
-MEDIA_URL = f"https://{aws_s3_domain}/media/"  # noqa: E231
+MEDIA_URL = f"https://{aws_s3_domain}/media/"
 # COLLECTFAST_STRATEGY = "collectfast.strategies.boto3.Boto3Strategy"
-# STATIC_URL = f"https://{aws_s3_domain}/static/"  # noqa: E231
+# STATIC_URL = f"https://{aws_s3_domain}/static/"
 STATIC_URL = "/static/"
 
 # EMAIL

@@ -1,35 +1,37 @@
 {% extends "base.html" %}
-{% block title %}mergecal | My Calendar{% endblock %}
+
+{% block title %}
+  mergecal | My Calendar
+{% endblock title %}
 {% block content %}
-<div class="container">
+  <div class="container">
     <div class="card">
       <div class="card-body">
-          <div id='calendar'></div>
+        <div id="calendar"></div>
       </div>
     </div>
-
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var calendarEl = document.getElementById('calendar');
-            var calendar = new FullCalendar.Calendar(calendarEl, {
-                themeSystem: 'bootstrap5',
-                headerToolbar: {
-                  left: 'prev,next today',
-                  center: 'title',
-                  right: 'dayGridMonth,timeGridWeek,listYear'
-                },
-                dayMaxEvents: true,
-                initialView: 'listYear',
-                eventSources: [
-                    {
-                        url: "{% url 'calendars:calendar_file' calendar.uuid %}",
-                        format: 'ics',
-                    },
-                ]
-                // Additional FullCalendar options can go here
-            });
-            calendar.render();
-        });
-    </script>
-{% endblock %}
+  </div>
+{% endblock content %}
+{% block inline_javascript %}
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      var calendarEl = document.getElementById('calendar');
+      var calendar = new FullCalendar.Calendar(calendarEl, {
+        themeSystem: 'bootstrap5',
+        headerToolbar: {
+          left: 'prev,next today',
+          center: 'title',
+          right: 'dayGridMonth,timeGridWeek,listYear'
+        },
+        dayMaxEvents: true,
+        initialView: 'listYear',
+        eventSources: [{
+          url: "{% url 'calendars:calendar_file' calendar.uuid %}",
+          format: 'ics',
+        }, ]
+        // Additional FullCalendar options can go here
+      });
+      calendar.render();
+    });
+  </script>
+{% endblock inline_javascript %}

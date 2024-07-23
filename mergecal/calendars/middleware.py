@@ -6,7 +6,8 @@ from django.utils.deprecation import MiddlewareMixin
 
 class HtmxMessageMiddleware(MiddlewareMixin):
     """
-    Middleware that moves messages into the HX-Trigger header when request is made with HTMX
+    Middleware that moves messages into the HX-Trigger
+    header when request is made with HTMX
     """
 
     def process_response(self, request, response):

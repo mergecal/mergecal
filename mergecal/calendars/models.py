@@ -6,12 +6,11 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
-from icalendar import Calendar as ical
+from icalendar import Calendar as Ical
+from requests.exceptions import RequestException
 
 
 def validate_ical_url(url):
-    # if url[-5:] != ".ical":
-    #    raise ValidationError(f'{url[-4:]} is not a valid calendar file extenstion')
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",  # noqa: E501
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",  # noqa: E501
@@ -22,17 +21,20 @@ def validate_ical_url(url):
         "Upgrade-Insecure-Requests": "1",
     }
 
-    # if url is meetup.com skip Validation
+    # if url is meetup.com, skip validation
     if "meetup.com" in url:
         return
+
     try:
-        r = requests.get(url, headers=headers)
-        r.raise_for_status()
-        cal = ical.from_ical(r.text)  # noqa: F841
-    except requests.exceptions.RequestException:
-        raise ValidationError("Enter a valid URL")
-    except ValueError:
-        raise ValidationError("Enter a valid icalendar feed")
+        response = requests.get(url, headers=headers, timeout=10)
+        response.raise_for_status()
+        cal = Ical.from_ical(response.text)  # noqa: F841
+    except RequestException as err:
+        msg = "Enter a valid URL"
+        raise ValidationError(msg) from err
+    except ValueError as err:
+        msg = "Enter a valid iCalendar feed"
+        raise ValidationError(msg) from err
 
 
 class Calendar(models.Model):
@@ -50,13 +52,20 @@ class Calendar(models.Model):
     )
 
     timezone = models.CharField(
-        "Timezone", choices=TIMEZONE_CHOICES, max_length=250, default="America/New_York"
+        "Timezone",
+        choices=TIMEZONE_CHOICES,
+        max_length=250,
+        default="America/New_York",
     )
-    calendar_file_str = models.TextField(blank=True, null=True)
+    calendar_file_str = models.TextField(blank=True, null=True)  # noqa: DJ001
     # a boolean weather to include the source name in the event title
     include_source = models.BooleanField(
-        default=False, help_text="Include source name in event title"
+        default=False,
+        help_text="Include source name in event title",
     )
+
+    class Meta:
+        ordering = ["-pk"]
 
     def __str__(self):
         return self.name
@@ -70,15 +79,14 @@ class Calendar(models.Model):
     def get_calendar_view_url(self):
         return reverse("calendars:calendar-view", kwargs={"uuid": self.uuid})
 
-    class Meta:
-        ordering = ["-pk"]
-
 
 class Source(models.Model):
     name = models.CharField(max_length=255)
     url = models.URLField(max_length=400, validators=[validate_ical_url])
     calendar = models.ForeignKey(
-        "calendars.Calendar", on_delete=models.CASCADE, related_name="calendarOf"
+        "calendars.Calendar",
+        on_delete=models.CASCADE,
+        related_name="calendarOf",
     )
 
     def __str__(self):
