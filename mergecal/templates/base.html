@@ -31,11 +31,6 @@
     <link rel="icon" href="{% static 'images/favicons/favicon.ico' %}" />
     {% block css %}
       <link rel="stylesheet"
-            href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css"
-            integrity="sha512-b2QcS5SsA8tZodcDtGRELiGv5SaKSk1vDHDaQRda0htPYWZ6046lr3kJ5bAAQdpV2mmA/4v0wQF9MyU6/pDIAg=="
-            crossorigin="anonymous"
-            referrerpolicy="no-referrer" />
-      <link rel="stylesheet"
             href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css"
             integrity="sha512-dPXYcDub/aeb08c63jRq/k6GaKccl256JQy/AnOq7CAnEZ9FzSL9wSbcZkMp4R26vBsMLFYH4kQ67/bbV8XaCQ=="
             crossorigin="anonymous"
@@ -43,6 +38,7 @@
       {% compress css %}
         <!-- This file stores project-specific CSS -->
         <link href="{% static 'css/project.css' %}" rel="stylesheet" />
+        <link href="{% static 'css/bootstrap.css' %}" rel="stylesheet" />
       {% endcompress %}
     {% endblock css %}
     <!-- Le javascript
@@ -64,14 +60,6 @@
       </script>
       <!-- place project specific Javascript in this file -->
       <!-- Bootstrap JS -->
-      <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
-              integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
-              crossorigin="anonymous"></script>
-      <script defer
-              src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.min.js"
-              integrity="sha512-WW8/jxkELe2CAiE4LvQfwm1rajOS8PHasCCx+knHG0gBHt8EXxS6T6tJRTGuDQVnluuAvMxWF4j8SNFDKceLFg=="
-              crossorigin="anonymous"
-              referrerpolicy="no-referrer"></script>
       <script defer
               src="https://cdnjs.cloudflare.com/ajax/libs/htmx/1.9.10/htmx.min.js"
               integrity="sha512-9qpauSP4+dDIldsrdNEZ2Z7JoyLZGfJsAP2wfXnc3drOh+5NXOBxjlq3sGXKdulmN9W+iwLxRt42zKMa8AHEeg=="
@@ -88,6 +76,7 @@
               crossorigin="anonymous"></script>
       {% compress js %}
         <script defer src="{% static 'js/project.js' %}"></script>
+        <script defer src="{% static 'js/bootstrap.bundle.js' %}"></script>
       {% endcompress %}
     {% endblock javascript %}
   </head>
