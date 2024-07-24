@@ -15,6 +15,7 @@ class CalendarAdmin(admin.ModelAdmin):
 
     search_fields = [
         "name",
+        "uuid",
         "owner__username",
         "owner__email",
     ]
