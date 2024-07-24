@@ -47,7 +47,7 @@ def check_for_demo_account(
 @login_required
 @check_for_demo_account(error_flash_message="Oops, create an account to do that. 🤐")
 def manage_calendar(request):
-    calendars = Calendar.objects.filter(owner=request.user)
+    calendars = Calendar.objects.filter(owner=request.user).defer("calendar_file_str")
     form = CalendarForm(request.POST or None)
 
     if request.method == "POST":
