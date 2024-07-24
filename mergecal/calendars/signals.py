@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 @receiver(post_save, sender=Source)
 @receiver(post_delete, sender=Source)
-def clear_calendar_cache(sender, instance, **kwargs):
+def clear_calendar_cache_on_source(sender, instance, **kwargs):
     # Construct the cache key similar to how you set it
     cache_key = f"calendar_str_{instance.calendar.uuid}"
     # Check if the cache exists and delete it
@@ -23,7 +23,7 @@ def clear_calendar_cache(sender, instance, **kwargs):
 
 @receiver(post_save, sender=Calendar)
 @receiver(post_delete, sender=Calendar)
-def clear_source_cache(sender, instance, **kwargs):
+def clear_calendar_cache_on_calendar(sender, instance, **kwargs):
     # Construct the cache key similar to how you set it
     cache_key = f"calendar_str_{instance.uuid}"
     # Check if the cache exists and delete it

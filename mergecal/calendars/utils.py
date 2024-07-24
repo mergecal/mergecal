@@ -2,19 +2,23 @@
 
 import logging
 from datetime import datetime
+from datetime import timedelta
 from urllib.parse import urlparse
+from zoneinfo import ZoneInfo
 
 import pytz
 import requests
 from django.core.cache import cache
+from django.utils import timezone
 from icalendar import Calendar
 from icalendar import Event
 from icalendar import Timezone
+from icalendar import TimezoneStandard
 
 logger = logging.getLogger(__name__)
 
 
-def combine_calendar(calendar_instance, origin_domain):
+def combine_calendar(calendar_instance, origin_domain):  # noqa: PLR0915
     cal_bye_str = cache.get(f"calendar_str_{calendar_instance.uuid}")
     logger.info(
         "Calendar data not found in cache, generating new for UUID: %s",
@@ -26,8 +30,22 @@ def combine_calendar(calendar_instance, origin_domain):
         newcal.add("version", "2.0")
         newcal.add("x-wr-calname", calendar_instance.name)
 
+        # Create and add the timezone component
+        tzinfo = ZoneInfo(calendar_instance.timezone)
         newtimezone = Timezone()
-        newtimezone.add("tzid", calendar_instance.timezone)
+        newtimezone.add("tzid", tzinfo.key)
+
+        # Using Django's timezone.now() to get a timezone-aware datetime object
+        now = timezone.now()
+        std = TimezoneStandard()
+        std.add(
+            "dtstart",
+            now - timedelta(days=1),
+        )  # Setting dtstart to the previous day
+        std.add("tzoffsetfrom", timedelta(seconds=-now.utcoffset().total_seconds()))
+        std.add("tzoffsetto", timedelta(seconds=-now.utcoffset().total_seconds()))
+        newtimezone.add_component(std)
+
         newcal.add_component(newtimezone)
 
         include_source = calendar_instance.include_source
@@ -137,7 +155,7 @@ def process_calendar_data(  # noqa: PLR0913
                 component["summary"] = f"{source_name}: {original_summary}"
             # if warning_text != "":
             # component["description"] = f"{warning_text}\n\n{description}" # noqa: ERA001, E501
-            advertisement = "\n This event is brought to you by https://mergecal.org."
+            advertisement = "\nThis event is brought to you by https://mergecal.org."
             if component.get("description"):
                 component["description"] = component["description"] + advertisement
             else:

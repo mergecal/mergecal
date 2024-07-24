@@ -6,5 +6,4 @@ class CalendarsConfig(AppConfig):
     name = "mergecal.calendars"
 
     def ready(self):
-        # Import the signal handlers to ensure they're registered
-        pass
+        from mergecal.calendars import signals  # noqa: F401
