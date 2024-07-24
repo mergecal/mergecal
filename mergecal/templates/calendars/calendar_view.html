@@ -25,6 +25,7 @@
   </div>
 {% endblock content %}
 {% block inline_javascript %}
+  {{ block.super }}
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       var calendarEl = document.getElementById('calendar');
