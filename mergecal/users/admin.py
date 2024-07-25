@@ -2,6 +2,9 @@ from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth import admin as auth_admin
 from django.contrib.auth.decorators import login_required
+from django.db.models import Count
+from django.urls import reverse
+from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
 from .forms import UserAdminChangeForm
@@ -39,8 +42,25 @@ class UserAdmin(auth_admin.UserAdmin):
         "email",
         "username",
         "name",
+        "calendar_count_link",
         "is_superuser",
         "date_joined",
         "last_login",
     ]
     search_fields = ["name", "username", "email"]
+
+    def get_queryset(self, request):
+        # Annotate each user with the count of calendars they own
+        queryset = super().get_queryset(request)
+        return queryset.annotate(calendar_count=Count("calendar"))
+
+    @admin.display(description="Calendars")
+    def calendar_count_link(self, obj):
+        # Count is taken from the annotated _calendar_count in get_queryset
+        count = obj.calendar_count
+        url = (
+            reverse("admin:calendars_calendar_changelist")
+            + "?"
+            + f"owner__id__exact={obj.id}"
+        )
+        return format_html('<a href="{}">{} Calendars</a>', url, count)
