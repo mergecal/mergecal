@@ -169,3 +169,7 @@ line-ending = "auto"
 
 [tool.ruff.lint.isort]
 force-single-line = true
+
+[tool.kolo.filters]
+
+ignore_request_paths = ["/static/", "favicon.ico"]
