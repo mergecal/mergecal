@@ -1,0 +1,103 @@
+{% load i18n %}
+
+<nav class="navbar navbar-expand-md bg-body-tertiary">
+  <div class="container-fluid">
+    <button class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent"
+            aria-expanded="false"
+            aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <a class="navbar-brand" href="{% url 'home' %}">MergeCal</a>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-md-0">
+        <li class="nav-item active">
+          <a class="nav-link" href="{% url 'home' %}">Home <span class="visually-hidden">(current)</span></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'about' %}">About</a>
+        </li>
+        {% if request.user.is_authenticated %}
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'calendars:manage-calendar' %}">Calendars</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link"
+               href="{% url 'users:detail' request.user.username %}">{% translate "My Profile" %}</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'account_logout' %}">{% translate "Sign Out" %}</a>
+          </li>
+        {% else %}
+          {% if ACCOUNT_ALLOW_REGISTRATION %}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'account_signup' %}">{% translate "Sign Up" %}</a>
+            </li>
+          {% endif %}
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'account_login' %}">{% translate "Sign In" %}</a>
+          </li>
+        {% endif %}
+      </ul>
+      <ul class="navbar-nav ms-auto mb-2 mb-md-0 d-flex flex-row">
+        <li class="nav-item">
+          <a class="nav-link me-2" href="https://discord.gg/2vqUzSpt6N"><i class="bi bi-discord"></i></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link me-2"
+             href="mailto:feedback@mergecal.org?subject=Feedback%20on%20mergecal"><i class="bi bi-envelope"></i></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link me-2" href="https://github.com/abe-101/mergecal"><i class="bi bi-github"></i></a>
+        </li>
+        <li class="nav-item dropdown">
+          <button class="btn btn-primary py-2 dropdown-toggle d-flex align-items-center me-2"
+                  id="bd-theme"
+                  type="button"
+                  aria-expanded="false"
+                  data-bs-toggle="dropdown"
+                  aria-label="Toggle theme (light)">
+            <i class="bi my-1 theme-icon-active bi-sun-fill"></i>
+            <span class="visually-hidden" id="bd-theme-text">Toggle theme</span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end shadow"
+              aria-labelledby="bd-theme-text">
+            <li>
+              <button type="button"
+                      class="dropdown-item d-flex align-items-center"
+                      data-bs-theme-value="light"
+                      aria-pressed="false">
+                <i class="bi me-2 opacity-50 bi-sun-fill"></i>
+                Light
+                <i class="bi ms-auto d-none bi-check2"></i>
+              </button>
+            </li>
+            <li>
+              <button type="button"
+                      class="dropdown-item d-flex align-items-center"
+                      data-bs-theme-value="dark"
+                      aria-pressed="false">
+                <i class="bi me-2 opacity-50 bi-moon-stars-fill"></i>
+                Dark
+                <i class="bi ms-auto d-none bi-check2"></i>
+              </button>
+            </li>
+            <li>
+              <button type="button"
+                      class="dropdown-item d-flex align-items-center"
+                      data-bs-theme-value="auto"
+                      aria-pressed="false">
+                <i class="bi me-2 opacity-50 bi-circle-half"></i>
+                Auto
+                <i class="bi ms-auto d-none bi-check2"></i>
+              </button>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
