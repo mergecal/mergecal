@@ -37,8 +37,8 @@
             referrerpolicy="no-referrer" />
       {% compress css %}
         <!-- This file stores project-specific CSS -->
-        <link href="{% static 'css/project.css' %}" rel="stylesheet" />
         <link href="{% static 'css/bootstrap.css' %}" rel="stylesheet" />
+        <link href="{% static 'css/project.css' %}" rel="stylesheet" />
         <link rel="stylesheet" type="text/x-scss" href="{% static "scss/custom-bootstrap.scss" %}" />
       {% endcompress %}
     {% endblock css %}
@@ -67,9 +67,9 @@
               crossorigin="anonymous"
               referrerpolicy="no-referrer"></script>
       {% compress js %}
+        <script defer src="{% static 'js/bootstrap.bundle.js' %}"></script>
         <script defer src="{% static 'js/project.js' %}"></script>
         <script defer src="{% static 'js/theme-toggler.js' %}"></script>
-        <script defer src="{% static 'js/bootstrap.bundle.js' %}"></script>
       {% endcompress %}
     {% endblock javascript %}
   </head>
