@@ -1,4 +1,4 @@
-# ruff: noqa: PLR0912
+# ruff: noqa: PLR0912, ERA001
 
 import logging
 from datetime import datetime
@@ -18,7 +18,7 @@ from icalendar import TimezoneStandard
 logger = logging.getLogger(__name__)
 
 
-def combine_calendar(calendar_instance, origin_domain):  # noqa: PLR0915
+def combine_calendar(calendar_instance, origin_domain):
     cal_bye_str = cache.get(f"calendar_str_{calendar_instance.uuid}")
     logger.info(
         "Calendar data not found in cache, generating new for UUID: %s",
@@ -105,8 +105,8 @@ def combine_calendar(calendar_instance, origin_domain):  # noqa: PLR0915
     else:
         logger.info("Calendar data found in cache for UUID: %s", calendar_instance.uuid)
 
-    calendar_instance.calendar_file_str = cal_bye_str
-    calendar_instance.save()
+    # calendar_instance.calendar_file_str = cal_bye_str
+    # calendar_instance.save()
     logger.info(
         "Calendar for instance %s (%s) combined and saved.",
         calendar_instance.name,
@@ -154,7 +154,7 @@ def process_calendar_data(  # noqa: PLR0913
                 original_summary = component.get("summary")
                 component["summary"] = f"{source_name}: {original_summary}"
             # if warning_text != "":
-            # component["description"] = f"{warning_text}\n\n{description}" # noqa: ERA001, E501
+            # component["description"] = f"{warning_text}\n\n{description}"
             advertisement = "\nThis event is brought to you by https://mergecal.org."
             if component.get("description"):
                 component["description"] = component["description"] + advertisement
