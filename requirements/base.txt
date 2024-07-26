@@ -24,3 +24,7 @@ django-libsass==0.9  # https://github.com/torchbox/django-libsass
 
 # Django REST Framework
 djangorestframework==3.15.1  # https://github.com/encode/django-rest-framework
+
+# Stripe
+stripe==10.4.0  # https://github.com/stripe/stripe-python
+dj-stripe @ git+https://github.com/dj-stripe/dj-stripe.git@stable/2.9 # https://github.com/dj-stripe/dj-stripe

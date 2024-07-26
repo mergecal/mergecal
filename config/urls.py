@@ -25,6 +25,7 @@ urlpatterns = [
         include("mergecal.calendars.urls", namespace="calendars"),
         name="calendars",
     ),
+    path("billing/", include("mergecal.billing.urls", namespace="billing")),
     path(
         "robots.txt",
         TemplateView.as_view(template_name="robots.txt", content_type="text/plain"),
@@ -44,6 +45,7 @@ urlpatterns = [
             content_type="text/plain",
         ),
     ),
+    path("djstripe/", include("djstripe.urls", namespace="djstripe")),
     # Media files
     *static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT),
 ]

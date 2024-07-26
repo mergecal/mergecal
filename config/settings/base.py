@@ -87,12 +87,14 @@ THIRD_PARTY_APPS = [
     "django_celery_beat",
     "django_extensions",
     "rest_framework",
+    "djstripe",
 ]
 
 LOCAL_APPS = [
     "mergecal.users",
     # Your stuff: custom apps go here
     "mergecal.calendars.apps.CalendarsConfig",
+    "mergecal.billing.apps.BillingConfig",
     "allauth.socialaccount.providers.google",  # for Google OAuth 2.0
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
@@ -338,3 +340,8 @@ MESSAGE_TAGS = {
 
 # django-libsass
 COMPRESS_PRECOMPILERS = (("text/x-scss", "django_libsass.SassCompiler"),)
+
+
+# https://dj-stripe.dev/2.9/installation/
+DJSTRIPE_FOREIGN_KEY_TO_FIELD = "id"
+STRIPE_LIVE_MODE = False
