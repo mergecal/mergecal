@@ -1,4 +1,4 @@
-# ruff: noqa: PLR0912, ERA001
+# ruff: noqa: PLR0912, ERA001, PLR0915
 
 import logging
 from datetime import datetime
@@ -105,8 +105,8 @@ def combine_calendar(calendar_instance, origin_domain):
     else:
         logger.info("Calendar data found in cache for UUID: %s", calendar_instance.uuid)
 
-    # calendar_instance.calendar_file_str = cal_bye_str
-    # calendar_instance.save()
+    calendar_instance.calendar_file_str = cal_bye_str
+    calendar_instance.save()
     logger.info(
         "Calendar for instance %s (%s) combined and saved.",
         calendar_instance.name,
