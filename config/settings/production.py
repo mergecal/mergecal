@@ -237,3 +237,6 @@ sentry_sdk.init(
 
 # Your stuff...
 # ------------------------------------------------------------------------------
+#
+# https://dj-stripe.dev/2.9/installation/
+STRIPE_LIVE_MODE = True
