@@ -249,9 +249,8 @@ class CalendarFileAPIView(APIView):
 
         origin_domain = self.request.GET.get("origin", "")
 
-        combine_calendar(calendar, origin_domain)
+        calendar_str = combine_calendar(calendar, origin_domain)
 
-        calendar_str = calendar.calendar_file_str
         if not calendar_str:
             return Response(
                 {"error": "Failed to generate calendar data"},

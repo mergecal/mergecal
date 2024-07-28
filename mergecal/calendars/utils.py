@@ -1,30 +1,29 @@
 # ruff: noqa: PLR0912, ERA001, PLR0915
 
 import logging
-from datetime import datetime
 from datetime import timedelta
-from urllib.parse import urlparse
 from zoneinfo import ZoneInfo
 
-import pytz
 import requests
 from django.core.cache import cache
 from django.utils import timezone
 from icalendar import Calendar
-from icalendar import Event
 from icalendar import Timezone
 from icalendar import TimezoneStandard
+
+from mergecal.calendars.meetup import fetch_and_create_meetup_calendar
+from mergecal.calendars.meetup import is_meetup_url
 
 logger = logging.getLogger(__name__)
 
 
 def combine_calendar(calendar_instance, origin_domain):
     cal_bye_str = cache.get(f"calendar_str_{calendar_instance.uuid}")
-    logger.info(
-        "Calendar data not found in cache, generating new for UUID: %s",
-        calendar_instance.uuid,
-    )
     if not cal_bye_str:
+        logger.info(
+            "Calendar data not found in cache, generating new for UUID: %s",
+            calendar_instance.uuid,
+        )
         newcal = Calendar()
         newcal.add("prodid", "-//" + calendar_instance.name + "//mergecal.org//")
         newcal.add("version", "2.0")
@@ -57,61 +56,41 @@ def combine_calendar(calendar_instance, origin_domain):
             warning_text = " Note: You are using an outdated domain. Please update to mergecal.org."  # noqa: E501
 
         for source in calendar_instance.calendarOf.all():
+            cal_data = None
             if is_meetup_url(source.url):
                 logger.info("Meetup URL detected: %s", source.url)
-                try:
-                    meetup_group_name = extract_meetup_group_name(source.url)
-                    if meetup_group_name:
-                        meetup_api_url = (
-                            f"https://api.meetup.com/{meetup_group_name}/events"
-                        )
-                        response = requests.get(meetup_api_url, timeout=10)
-                        response.raise_for_status()
-                        meetup_events = response.json()
-                        cal_data = create_calendar_from_meetup_api_respone(
-                            meetup_events,
-                        )
-                        if cal_data:
-                            logger.info("Meetup events fetched: %s", len(meetup_events))
-                            process_calendar_data(
-                                cal_data,
-                                newcal,
-                                existing_uids,
-                                include_source,
-                                source.name,
-                            )
-                except Exception:
-                    logger.exception("Meetup: Unexpected error with URL %s", source.url)
+                cal_data = fetch_and_create_meetup_calendar(source.url)
             else:
                 try:
                     cal_data = fetch_calendar_data(source.url)
-                    if cal_data:
-                        process_calendar_data(
-                            cal_data,
-                            newcal,
-                            existing_uids,
-                            include_source,
-                            source.name,
-                            warning_text,
-                        )
                 except Exception:
                     logger.exception(
                         "Fetching Cal: Unexpected error with URL %s",
                         source.url,
                     )
+            if cal_data:
+                process_calendar_data(
+                    cal_data,
+                    newcal,
+                    existing_uids,
+                    include_source,
+                    source.name,
+                    warning_text,
+                )
 
         cal_bye_str = newcal.to_ical().decode("utf8")
+        calendar_instance.calendar_file_str = cal_bye_str
+        calendar_instance.save()
         cache.set(f"calendar_str_{calendar_instance.uuid}", cal_bye_str, 60 * 60 * 24)
+        logger.info(
+            "Calendar for instance %s (%s) combined and saved.",
+            calendar_instance.name,
+            calendar_instance.uuid,
+        )
     else:
         logger.info("Calendar data found in cache for UUID: %s", calendar_instance.uuid)
 
-    calendar_instance.calendar_file_str = cal_bye_str
-    calendar_instance.save()
-    logger.info(
-        "Calendar for instance %s (%s) combined and saved.",
-        calendar_instance.name,
-        calendar_instance.uuid,
-    )
+    return cal_bye_str
 
 
 def fetch_calendar_data(url):
@@ -166,58 +145,3 @@ def process_calendar_data(  # noqa: PLR0913
                 newcal.add_component(component)
                 if uid is not None:
                     existing_uids.add(uid)
-
-
-def is_meetup_url(url):
-    # Parse the URL
-    parsed_url = urlparse(url)
-
-    # Check if the domain is 'meetup.com'
-    return parsed_url.netloc.endswith("meetup.com")
-
-
-def extract_meetup_group_name(url):
-    # Parse the URL
-    parsed_url = urlparse(url)
-
-    # Split the path into segments
-    path_segments = parsed_url.path.split("/")
-
-    # The group name should be the second segment in the path (after 'meetup.com/')
-    if len(path_segments) >= 2:  # noqa: PLR2004
-        return path_segments[1]
-    return None
-
-
-def create_calendar_from_meetup_api_respone(events):
-    # Create a calendar
-    cal = Calendar()
-
-    # Set some global calendar properties
-    cal.add("prodid", "-//My Calendar//mxm.dk//")
-    cal.add("version", "2.0")
-
-    for event in events:
-        # Create an event
-        e = Event()
-
-        # Add event details
-        e.add("summary", event["name"])
-        e.add("dtstart", datetime.fromtimestamp(event["time"] / 1000, tz=pytz.utc))
-        e.add(
-            "dtend",
-            datetime.fromtimestamp(
-                (event["time"] + event["duration"]) / 1000,
-                tz=pytz.utc,
-            ),
-        )
-        e.add("dtstamp", datetime.fromtimestamp(event["created"] / 1000, tz=pytz.utc))
-        e.add("description", event["description"])
-        e.add("location", event.get("venue", {}).get("address_1", "No location"))
-        e.add("url", event["link"])
-
-        # Add event to calendar
-        cal.add_component(e)
-
-    # Return the calendar as a string
-    return cal
