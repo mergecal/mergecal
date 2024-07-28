@@ -1,3 +1,5 @@
+import logging
+
 import stripe
 from django.core.exceptions import ImproperlyConfigured
 from django.http import JsonResponse
@@ -9,20 +11,22 @@ from djstripe.enums import APIKeyType
 from djstripe.models import APIKey
 from djstripe.models import Price
 
+logger = logging.getLogger(__name__)
+
 secret_api_key = APIKey.objects.filter(
     type=APIKeyType.secret,
 ).first()
 
 if not secret_api_key:
     msg = "You must first configure a secret key."
-    raise ImproperlyConfigured(msg)
-
-stripe.api_key = secret_api_key.secret
+    logger.warning(msg)
+else:
+    stripe.api_key = secret_api_key.secret
 
 public_keys = APIKey.objects.filter(type=APIKeyType.publishable)[:1]
 if not public_keys.exists():
     msg = "You must first configure a public key."
-    raise ImproperlyConfigured(msg)
+    logger.warning(msg)
 
 
 class CheckoutRedirectView(TemplateView):
