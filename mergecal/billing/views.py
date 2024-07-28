@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 secret_api_key = APIKey.objects.filter(
     type=APIKeyType.secret,
-).first()
+)[:1]
 
 if not secret_api_key:
     msg = "You must first configure a secret key."
