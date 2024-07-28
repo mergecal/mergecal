@@ -240,3 +240,4 @@ sentry_sdk.init(
 #
 # https://dj-stripe.dev/2.9/installation/
 STRIPE_LIVE_MODE = True
+STRIPE_LIVE_SECRET_KEY = env("STRIPE_LIVE_SECRET_KEY")
