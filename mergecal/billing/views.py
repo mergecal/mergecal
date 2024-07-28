@@ -1,3 +1,5 @@
+# ruff: noqa: ERA001
+
 import logging
 
 import stripe
@@ -17,16 +19,16 @@ secret_api_key = APIKey.objects.filter(
     type=APIKeyType.secret,
 )[:1]
 
-if not secret_api_key:
-    msg = "You must first configure a secret key."
-    logger.warning(msg)
-else:
-    stripe.api_key = secret_api_key.secret
+# if not secret_api_key:
+#     msg = "You must first configure a secret key."
+#     logger.warning(msg)
+# else:
+#     stripe.api_key = secret_api_key.secret
 
 public_keys = APIKey.objects.filter(type=APIKeyType.publishable)[:1]
-if not public_keys.exists():
-    msg = "You must first configure a public key."
-    logger.warning(msg)
+# if not public_keys.exists():
+#     msg = "You must first configure a public key."
+#     logger.warning(msg)
 
 
 class CheckoutRedirectView(TemplateView):
