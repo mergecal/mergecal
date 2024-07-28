@@ -1,3 +1,4 @@
+import logging
 from functools import wraps
 
 from django.contrib import messages
@@ -19,6 +20,8 @@ from .forms import SourceForm
 from .models import Calendar
 from .models import Source
 from .utils import combine_calendar
+
+logger = logging.getLogger(__name__)
 
 
 def check_for_demo_account(
@@ -69,6 +72,7 @@ def manage_calendar(request):
             "calendars/partials/calendar_form.html",
             context={"form": form},
         )
+    logger.info("User %s is viewing the manage calendar page", request.user)
 
     context = {
         "form": form,
@@ -261,6 +265,7 @@ class CalendarFileAPIView(APIView):
 
 def calendar_view(request: HttpRequest, uuid: str) -> HttpResponse:
     calendar = get_object_or_404(Calendar, uuid=uuid)
+    logger.info("User %s is viewing the calendar view page", request.user)
     return render(
         request,
         "calendars/calendar_view.html",
