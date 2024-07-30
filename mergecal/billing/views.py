@@ -36,6 +36,7 @@ class PricingTableView(TemplateView):
                 components={"pricing_table": {"enabled": True}},
             )
             ctx["customer_session_id"] = customer_session.client_secret
+        logger.info("User %s accessed the pricing table view", self.request.user)
         return ctx
 
 
