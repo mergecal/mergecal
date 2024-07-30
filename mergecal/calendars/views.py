@@ -259,7 +259,8 @@ class CalendarFileAPIView(APIView):
 
         response = HttpResponse(calendar_str, content_type="text/calendar")
         response["Content-Disposition"] = f'attachment; filename="{uuid}.ics"'  # E702
-        response["Cache-Control"] = "public, max-age=43200"  # 12 hours in seconds
+        if calendar.owner.is_free_tier:
+            response["Cache-Control"] = "public, max-age=43200"  # 12 hours in seconds
         return response
 
 

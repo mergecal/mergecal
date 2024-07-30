@@ -19,11 +19,19 @@ logger = logging.getLogger(__name__)
 
 def combine_calendar(calendar_instance, origin_domain):
     cal_bye_str = cache.get(f"calendar_str_{calendar_instance.uuid}")
-    if not cal_bye_str:
-        logger.info(
-            "Calendar data not found in cache, generating new for UUID: %s",
-            calendar_instance.uuid,
-        )
+    user = calendar_instance.owner
+    if not user.is_free_tier or not cal_bye_str:
+        if not user.is_free_tier:
+            logger.info(
+                "User %s is not on free tier. Generating new for UUID: %s",
+                user.username,
+                calendar_instance.uuid,
+            )
+        else:
+            logger.info(
+                "Calendar data not found in cache, generating new for UUID: %s",
+                calendar_instance.uuid,
+            )
         newcal = Calendar()
         newcal.add("prodid", "-//" + calendar_instance.name + "//mergecal.org//")
         newcal.add("version", "2.0")

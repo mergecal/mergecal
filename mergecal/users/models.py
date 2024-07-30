@@ -37,3 +37,18 @@ class User(AbstractUser):
 
         """
         return reverse("users:detail", kwargs={"username": self.username})
+
+    @property
+    def is_free_tier(self) -> bool:
+        """Check if user is on free tier."""
+        return self.subscription_tier == self.SubscriptionTier.FREE
+
+    @property
+    def show_branding(self) -> bool:
+        """
+        User on Tier BUISNESS or SUPPORTER will not show branding.
+        """
+        return self.subscription_tier not in [
+            self.SubscriptionTier.BUISNESS,
+            self.SubscriptionTier.SUPPORTER,
+        ]
