@@ -88,6 +88,7 @@ THIRD_PARTY_APPS = [
     "django_extensions",
     "rest_framework",
     "djstripe",
+    "django_htmx",
 ]
 
 LOCAL_APPS = [
@@ -154,6 +155,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "mergecal.calendars.middleware.HtmxMessageMiddleware",
     "allauth.account.middleware.AccountMiddleware",
+    "django_htmx.middleware.HtmxMiddleware",
 ]
 
 # STATIC

@@ -7,4 +7,4 @@ class BillingConfig(AppConfig):
     verbose_name = "Billing"
 
     def ready(self):
-        pass
+        import billing.signals  # noqa: F401

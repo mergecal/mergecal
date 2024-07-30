@@ -16,22 +16,24 @@ logger = logging.getLogger(__name__)
 
 
 def update_user_subscription_tier(user: User, subscription: Subscription) -> None:
+    new_tier = None
     if subscription.status in ["active", "trialing"]:
         logger.info("Updating subscription tier for user: %s", user)
-        # Determine tier based on the subscription's price ID or product ID
         if subscription.plan.product.name.lower() == "basic":
-            user.subscription_tier = User.SubscriptionTier.BASIC
-            logger.info("User %s has been updated to Basic tier", user)
+            new_tier = User.SubscriptionTier.BASIC
         elif subscription.plan.product.name.lower() == "premium":
-            user.subscription_tier = User.SubscriptionTier.PREMIUM
-            logger.info("User %s has been updated to Premium tier", user)
+            new_tier = User.SubscriptionTier.PREMIUM
         elif subscription.plan.product.name.lower() == "elite":
-            user.subscription_tier = User.SubscriptionTier.ELITE
-            logger.info("User %s has been updated to Elite tier", user)
+            new_tier = User.SubscriptionTier.ELITE
     else:
-        user.subscription_tier = User.SubscriptionTier.NONE
-        logger.info("User %s has been downgraded to Free tier", user)
-    user.save()
+        new_tier = User.SubscriptionTier.NONE
+
+    if user.subscription_tier != new_tier:
+        user.subscription_tier = new_tier
+        user.save()
+        logger.info("User %s has been updated to %s tier", user, new_tier)
+    else:
+        logger.info("No change in subscription tier for user: %s", user)
 
 
 @receiver(signal=user_logged_in)
@@ -45,19 +47,33 @@ def create_stripe_customer(
 
 
 @djstripe_receiver("customer.subscription.trial_will_end")
-def handle_trial_will_end(sender: Any, **kwargs: dict[str, Any]) -> None:
-    event: Event = kwargs.get("event")
+def handle_trial_will_end(sender: Any, event: Event, **kwargs: dict[str, Any]) -> None:
     customer_id: str = event.data["object"]["customer"]
     customer: Customer = Customer.objects.get(id=customer_id)
     logger.info("Subscription trial will end soon for customer: %s", customer)
     # Send email to customer
 
 
+@djstripe_receiver("checkout.session.completed")
+def handle_checkout_session_completed(
+    sender: Any,
+    event: Event,
+    **kwargs: dict[str, Any],
+) -> None:
+    customer_id: str = event.data["object"]["customer"]
+    customer: Customer = Customer.objects.get(id=customer_id)
+    logger.info("Checkout session completed for customer: %s", customer)
+    # Send email to customer
+
+
 @djstripe_receiver("customer.subscription.created")
 @djstripe_receiver("customer.subscription.resumed")
 @djstripe_receiver("customer.subscription.updated")
-def handle_subscription_update(sender: Any, **kwargs: dict[str, Any]) -> None:
-    event: Event = kwargs.get("event")
+def handle_subscription_update(
+    sender: Any,
+    event: Event,
+    **kwargs: dict[str, Any],
+) -> None:
     logger.info("Webhook Event Type: %s", event.type)
     customer_id: str = event.data["object"]["customer"]
     try:
@@ -74,8 +90,11 @@ def handle_subscription_update(sender: Any, **kwargs: dict[str, Any]) -> None:
 
 @djstripe_receiver("customer.subscription.deleted")
 @djstripe_receiver("customer.subscription.paused")
-def handle_subscription_end(sender: Any, **kwargs: dict[str, Any]) -> None:
-    event: Event = kwargs.get("event")
+def handle_subscription_end(
+    sender: Any,
+    event: Event,
+    **kwargs: dict[str, Any],
+) -> None:
     logger.info("Webhook Event Type: %s", event.type)
     customer_id: str = event.data["object"]["customer"]
     try:

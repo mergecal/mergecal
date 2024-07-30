@@ -15,6 +15,9 @@
           </div>
           <div class="card-body">
             {% if object.name %}<p class="lead">{{ object.name }}</p>{% endif %}
+            <p>
+              Subscription Tier: <strong>{{ object.get_subscription_tier_display }}</strong>
+            </p>
             {% if object == request.user %}
               <!-- Action buttons -->
               <div class="mt-4">
