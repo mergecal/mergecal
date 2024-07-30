@@ -19,14 +19,16 @@ def update_user_subscription_tier(user: User, subscription: Subscription) -> Non
     new_tier = None
     if subscription.status in ["active", "trialing"]:
         logger.info("Updating subscription tier for user: %s", user)
-        if subscription.plan.product.name.lower() == "basic":
-            new_tier = User.SubscriptionTier.BASIC
-        elif subscription.plan.product.name.lower() == "premium":
-            new_tier = User.SubscriptionTier.PREMIUM
-        elif subscription.plan.product.name.lower() == "elite":
-            new_tier = User.SubscriptionTier.ELITE
+
+        match subscription.plan.product.name:
+            case User.SubscriptionTier.PERSONAL.label:
+                new_tier = User.SubscriptionTier.PERSONAL
+            case User.SubscriptionTier.BUISNESS.label:
+                new_tier = User.SubscriptionTier.BUISNESS
+            case User.SubscriptionTier.SUPPORTER.label:
+                new_tier = User.SubscriptionTier.SUPPORTER
     else:
-        new_tier = User.SubscriptionTier.NONE
+        new_tier = User.SubscriptionTier.FREE
 
     if user.subscription_tier != new_tier:
         user.subscription_tier = new_tier
@@ -100,7 +102,7 @@ def handle_subscription_end(
     try:
         customer: Customer = Customer.objects.get(id=customer_id)
         user: User = customer.subscriber
-        user.subscription_tier = User.SubscriptionTier.NONE
+        user.subscription_tier = User.SubscriptionTier.FREE
         user.save()
         logger.info("Subscription ended for customer: %s", customer)
     except Customer.DoesNotExist:
@@ -129,7 +131,7 @@ def handle_invoice_events(sender: Any, **kwargs: dict[str, Any]) -> None:
             "invoice.payment_action_required",
         ]:
             # Handle failed payment
-            user.subscription_tier = User.SubscriptionTier.NONE
+            user.subscription_tier = User.SubscriptionTier.FREE
             user.save()
         logger.info("Invoice event handled for user: %s", user)
     except (Invoice.DoesNotExist, Customer.DoesNotExist):

@@ -18,15 +18,15 @@ class User(AbstractUser):
     last_name = None  # type: ignore[assignment]
 
     class SubscriptionTier(TextChoices):
-        NONE = "none", "None"
-        BASIC = "basic", "Basic"
-        PREMIUM = "premium", "Premium"
-        ELITE = "elite", "Elite"
+        FREE = "free_tier", "Free Tier"
+        PERSONAL = "personal_tier", "Personal Tier"
+        BUISNESS = "buisness_tier", "Business Tier"
+        SUPPORTER = "supporter_tier", "Supporter Tier"
 
     subscription_tier = CharField(
-        max_length=10,
+        max_length=14,
         choices=SubscriptionTier.choices,
-        default=SubscriptionTier.NONE,
+        default=SubscriptionTier.FREE,
     )
 
     def get_absolute_url(self) -> str:
