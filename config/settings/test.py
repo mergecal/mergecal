@@ -1,8 +1,9 @@
+# ruff: noqa: F403, S105
 """
 With these settings, tests run faster.
 """
 
-from .base import *  # noqa: F403
+from .base import *
 from .base import TEMPLATES
 from .base import env
 
@@ -36,3 +37,5 @@ TEMPLATES[0]["OPTIONS"]["debug"] = True  # type: ignore[index]
 MEDIA_URL = "http://media.testserver"
 # Your stuff...
 # ------------------------------------------------------------------------------
+STRIPE_SECRET_KEY = "sk_test_*******"
+STRIPE_PUBLIC_KEY = "pk_test_*******"

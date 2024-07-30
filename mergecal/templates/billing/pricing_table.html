@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}
+  Pricing
+{% endblock title %}
+{% block javascript %}
+  {{ block.super }}
+  <script async src="https://js.stripe.com/v3/pricing-table.js"></script>
+{% endblock javascript %}
+{% block content %}
+  <stripe-pricing-table pricing-table-id="prctbl_1Pgfp3DIziHbUcJlSh62JJtJ" publishable-key="{{ stripe_public_key }}"
+  {% if customer_session_id %}customer-session-client-secret="{{ customer_session_id }}"{% endif %}
+  >
+  </stripe-pricing-table>
+{% endblock content %}
+{% block inline_javascript %}
+{% endblock inline_javascript %}

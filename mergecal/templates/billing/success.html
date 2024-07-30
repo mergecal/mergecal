@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% load static i18n %}
+
+{% block title %}
+  Thank you!
+{% endblock title %}
+{% block navbar %}
+  {% if user.is_authenticated %}
+    <!-- Include navbar for authenticated users -->
+    {{ block.super }}
+  {% else %}
+    {# If the user is not authenticated, this block remains empty, effectively not displaying the navbar. #}
+  {% endif %}
+{% endblock navbar %}
+{% block content %}
+  <div class="container-fluid d-flex justify-content-center align-items-center text-center">
+    <div>
+      <h1>Thank you for your purchase!</h1>
+      <p>Your payment was successful. You will receive an email confirmation shortly.</p>
+    </div>
+  </div>
+  <div id="stripe-session"
+       class="container-fluid d-flex justify-content-center">
+    <div id="lazy-load-session"
+         hx-get=""
+         hx-trigger="fetch-content"
+         hx-target="#stripe-session"
+         hx-swap="outerHTML"
+         hx-vals='{"session_id": "{{ request.GET.session_id }}"}'></div>
+  </div>
+{% endblock content %}
+{% block inline_javascript %}
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      setTimeout(function() {
+        // Triggers the custom "fetch-content" event on #lazy-load-session
+        htmx.trigger('#lazy-load-session', 'fetch-content');
+      }, 1000); // Delay in milliseconds
+    });
+  </script>
+{% endblock inline_javascript %}

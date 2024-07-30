@@ -6,6 +6,7 @@ from django.urls import include, path
 from django.views import defaults as default_views
 from django.views.generic import TemplateView
 from django.views.generic.base import RedirectView
+from mergecal.billing.views import PricingTableView
 
 urlpatterns = [
     path("", TemplateView.as_view(template_name="pages/home.html"), name="home"),
@@ -26,6 +27,7 @@ urlpatterns = [
         name="calendars",
     ),
     path("billing/", include("mergecal.billing.urls", namespace="billing")),
+    path("pricing/", PricingTableView.as_view(), name="pricing"),
     path(
         "robots.txt",
         TemplateView.as_view(template_name="robots.txt", content_type="text/plain"),

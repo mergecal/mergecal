@@ -1,0 +1,107 @@
+{% load static i18n %}
+
+<div>
+  <section id="success">
+    <div class="container py-5">
+      <div class="row justify-content-center">
+        <div class="col-12 col-md-8">
+          <div class="card border-0 shadow-sm">
+            <div class="text-center">
+              <div class="row align-items-center">
+                <div class="col-6 text-left">
+                  {# djlint:off H021 #}
+                  <img src="{% static 'images/favicon.png' %}"
+                       alt="logo"
+                       class="img-fluid"
+                       style="max-width: 100px" />
+                  {# djlint:on #}
+                </div>
+                <div class="col-6 text-right">
+                  <h1 class="card-title text-pink">Receipt</h1>
+                  <p class="mb-0">Subscription #{{ subscription.pk }}</p>
+                </div>
+              </div>
+            </div>
+            <div class="card-body mt-3">
+              <p class="mb-3">
+                <small>Thank you for your subscription.</small>
+              </p>
+              <div class="row p-1 border-bottom">
+                <div class="col-6 text-start">
+                  <p>Plan</p>
+                </div>
+                <div class="col-6 text-end">
+                  <p>
+                    <strong>{{ subscription.plan }}</strong>
+                  </p>
+                </div>
+              </div>
+              <div class="row p-1 border-bottom">
+                <div class="col-6 text-start">
+                  <p>Email</p>
+                </div>
+                <div class="col-6 text-end">
+                  <p>
+                    <strong>{{ customer.email }}</strong>
+                  </p>
+                </div>
+              </div>
+              <div class="row p-1 border-bottom">
+                <div class="col-6 text-start">
+                  <p>Status</p>
+                </div>
+                <div class="col-6 text-end">
+                  <p>
+                    <strong>{{ subscription.status|title }}</strong>
+                  </p>
+                </div>
+              </div>
+              {% if subscription.status == 'trialing' %}
+                <div class="row p-1 border-bottom">
+                  <div class="col-6 text-start">
+                    <p>Trial Period Start Date</p>
+                  </div>
+                  <div class="col-6 text-end">
+                    <p>
+                      <strong>{{ subscription.trial_start }}</strong>
+                    </p>
+                  </div>
+                </div>
+                <div class="row p-1 border-bottom">
+                  <div class="col-6 text-start">
+                    <p>Trial Period End Date</p>
+                  </div>
+                  <div class="col-6 text-end">
+                    <p>
+                      <strong>{{ subscription.trial_end }}</strong>
+                    </p>
+                  </div>
+                </div>
+              {% endif %}
+              <div class="row p-1">
+                <div class="col-6 text-start">
+                  <p>Grand Total</p>
+                </div>
+                <div class="col-6 text-end">
+                  <p>
+                    <strong>${{ session.amount_total }}</strong>
+                  </p>
+                </div>
+              </div>
+              {% comment %}
+              <div class="row p-1">
+                <div class="col-6 text-start">
+                </div>
+                <div class="col-6 text-end">
+                  <p class="text-secondary mb-0">STRIPE RECEIPT</p>
+                  <p>You can view your receipt on Stripe <a href="#" class="text-decoration-none">here</a>.</p>
+                </div>
+              </div>
+              {% endcomment %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

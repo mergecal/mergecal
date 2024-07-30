@@ -3,91 +3,76 @@
 import logging
 
 import stripe
-from django.core.exceptions import ImproperlyConfigured
+from django.conf import settings
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import HttpRequest
+from django.http import HttpResponse
 from django.http import JsonResponse
+from django.shortcuts import render
 from django.urls import reverse
-from django.views import View
 from django.views.generic import RedirectView
 from django.views.generic import TemplateView
-from djstripe.enums import APIKeyType
-from djstripe.models import APIKey
-from djstripe.models import Price
+from djstripe.models import Session
+
+from mergecal.billing.signals import update_user_subscription_tier
 
 logger = logging.getLogger(__name__)
 
-secret_api_key = APIKey.objects.filter(
-    type=APIKeyType.secret,
-)[:1]
 
-# if not secret_api_key:
-#     msg = "You must first configure a secret key."
-#     logger.warning(msg)
-# else:
-#     stripe.api_key = secret_api_key.secret
-
-public_keys = APIKey.objects.filter(type=APIKeyType.publishable)[:1]
-# if not public_keys.exists():
-#     msg = "You must first configure a public key."
-#     logger.warning(msg)
+stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
-class CheckoutRedirectView(TemplateView):
-    template_name = "billing/checkout_redirect.html"
+class PricingTableView(TemplateView):
+    template_name = "billing/pricing_table.html"
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-
-        ctx["stripe_public_key"] = public_keys.get().secret
-        ctx["checkout_session_id"] = self.kwargs["session_id"]
-
+        ctx["price_table_id"] = settings.STRIPE_PRICE_TABLE_ID
+        ctx["stripe_public_key"] = settings.STRIPE_PUBLIC_KEY
+        if self.request.user.is_authenticated:
+            customer = self.request.user.djstripe_customers.first()
+            customer_session = stripe.CustomerSession.create(
+                customer=customer.id,
+                components={"pricing_table": {"enabled": True}},
+            )
+            ctx["customer_session_id"] = customer_session.client_secret
         return ctx
 
 
-checkout_redirect = CheckoutRedirectView.as_view()
-
-
-class CreateCheckoutSession(RedirectView):
-    """
-    A view to create a new Checkout session
-
-    Similar to this tutorial:
-    https://stripe.com/docs/billing/subscriptions/checkout
-
-    We create the session, then redirect to the CheckoutRedirectView.
-    """
-
+class ManageBillingView(LoginRequiredMixin, RedirectView):
     def get_redirect_url(self, *args, **kwargs):
-        price = Price.objects.filter(lookup_key="premiun_plan").first()
-        if not price:
-            msg = "You must first configure a price."
-            raise ImproperlyConfigured(msg)
-
-        checkout_session = stripe.checkout.Session.create(
-            success_url="http://localhost:8000/checkout/success/?session_id={CHECKOUT_SESSION_ID}",
-            cancel_url="http://localhost:8000/checkout/canceled/",
-            mode="subscription",
-            line_items=[{"price": price.id, "quantity": 1}],
-            payment_method_types=["card"],
+        customer = self.request.user.djstripe_customers.first()
+        return_url = self.request.build_absolute_uri(
+            reverse("users:detail", kwargs={"username": self.request.user.username}),
         )
 
-        return reverse(
-            "billing:checkout_redirect",
-            kwargs={"session_id": checkout_session["id"]},
+        portal_session = stripe.billing_portal.Session.create(
+            customer=customer.id,
+            return_url=return_url,
         )
+        return portal_session.url
 
 
-class CheckoutSessionSuccessView(View):
-    def get(self, request, *args, **kwargs):
+def checkout_session_success(request: HttpRequest) -> HttpResponse:
+    if request.htmx:
         session_id = request.GET.get("session_id")
+
         if not session_id:
             return JsonResponse({"error": "No session ID provided."}, status=400)
 
         try:
-            checkout_session = stripe.checkout.Session.retrieve(session_id)
-            return JsonResponse(checkout_session, safe=False)
+            session: Session = Session._get_or_retrieve(session_id)  # noqa: SLF001
         except stripe.error.StripeError as e:
             return JsonResponse({"error": str(e)}, status=400)
 
+        update_user_subscription_tier(request.user, session.subscription)
+        logger.info("retrieved session %s", session)
+        context = {
+            "session": session,
+            "customer": session.customer,
+            "subscription": session.subscription,
+        }
+        return render(request, "billing/_success.html", context)
 
-create_checkout_session = CreateCheckoutSession.as_view()
-checkout_session_success = CheckoutSessionSuccessView.as_view()
+    logger.info("User %s accessed the checkout session return view", request.user)
+    return render(request, "billing/success.html")
