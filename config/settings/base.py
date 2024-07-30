@@ -344,4 +344,6 @@ COMPRESS_PRECOMPILERS = (("text/x-scss", "django_libsass.SassCompiler"),)
 
 # https://dj-stripe.dev/2.9/installation/
 DJSTRIPE_FOREIGN_KEY_TO_FIELD = "id"
+DJSTRIPE_SUBSCRIBER_MODEL = "users.User"
 STRIPE_LIVE_MODE = False
+STRIPE_PRICE_TABLE_ID = env("STRIPE_PRICE_TABLE_ID", default="")

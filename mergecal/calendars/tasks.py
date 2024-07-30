@@ -1,9 +1,8 @@
 from celery import shared_task
 
 from config import celery_app
-
-from .models import Calendar
-from .utils import combine_calendar
+from mergecal.calendars.models import Calendar
+from mergecal.calendars.utils import combine_calendar
 
 calendars = Calendar.objects.all()
 

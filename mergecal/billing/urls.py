@@ -1,8 +1,9 @@
 from django.urls import path
 
-from .views import checkout_redirect
-from .views import checkout_session_success
-from .views import create_checkout_session
+from mergecal.billing.views import ManageBillingView
+from mergecal.billing.views import checkout_redirect
+from mergecal.billing.views import checkout_session_success
+from mergecal.billing.views import create_checkout_session
 
 app_name = "billing"
 
@@ -18,4 +19,5 @@ urlpatterns = [
         checkout_session_success,
         name="checkout_session_success",
     ),
+    path("manage-billing/", ManageBillingView.as_view(), name="manage_billing"),
 ]

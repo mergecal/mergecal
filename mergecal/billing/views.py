@@ -3,32 +3,51 @@
 import logging
 
 import stripe
+from django.conf import settings
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ImproperlyConfigured
 from django.http import JsonResponse
 from django.urls import reverse
 from django.views import View
 from django.views.generic import RedirectView
 from django.views.generic import TemplateView
-from djstripe.enums import APIKeyType
-from djstripe.models import APIKey
 from djstripe.models import Price
 
 logger = logging.getLogger(__name__)
 
-secret_api_key = APIKey.objects.filter(
-    type=APIKeyType.secret,
-)[:1]
 
-# if not secret_api_key:
-#     msg = "You must first configure a secret key."
-#     logger.warning(msg)
-# else:
-#     stripe.api_key = secret_api_key.secret
+stripe.api_key = settings.STRIPE_SECRET_KEY
 
-public_keys = APIKey.objects.filter(type=APIKeyType.publishable)[:1]
-# if not public_keys.exists():
-#     msg = "You must first configure a public key."
-#     logger.warning(msg)
+
+class PricingTableView(TemplateView):
+    template_name = "billing/pricing_table.html"
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["price_table_id"] = settings.STRIPE_PRICE_TABLE_ID
+        ctx["stripe_public_key"] = settings.STRIPE_PUBLIC_KEY
+        if self.request.user.is_authenticated:
+            customer = self.request.user.djstripe_customers.first()
+            customer_session = stripe.CustomerSession.create(
+                customer=customer.id,
+                components={"pricing_table": {"enabled": True}},
+            )
+            ctx["customer_session_id"] = customer_session.client_secret
+        return ctx
+
+
+class ManageBillingView(LoginRequiredMixin, RedirectView):
+    def get_redirect_url(self, *args, **kwargs):
+        customer = self.request.user.djstripe_customers.first()
+        return_url = self.request.build_absolute_uri(
+            reverse("users:detail", kwargs={"username": self.request.user.username}),
+        )
+
+        portal_session = stripe.billing_portal.Session.create(
+            customer=customer.id,
+            return_url=return_url,
+        )
+        return portal_session.url
 
 
 class CheckoutRedirectView(TemplateView):
@@ -37,7 +56,7 @@ class CheckoutRedirectView(TemplateView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
 
-        ctx["stripe_public_key"] = public_keys.get().secret
+        ctx["stripe_public_key"] = settings.STRIPE_PUBLIC_KEY
         ctx["checkout_session_id"] = self.kwargs["session_id"]
 
         return ctx
