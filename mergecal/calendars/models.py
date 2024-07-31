@@ -6,8 +6,11 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
 from icalendar import Calendar as Ical
 from requests.exceptions import RequestException
+
+TWELVE_HOURS_IN_SECONDS = 43200
 
 
 def validate_ical_url(url):
@@ -58,10 +61,26 @@ class Calendar(models.Model):
         default="America/New_York",
     )
     calendar_file_str = models.TextField(blank=True, null=True)  # noqa: DJ001
-    # a boolean weather to include the source name in the event title
+
     include_source = models.BooleanField(
         default=False,
         help_text="Include source name in event title",
+    )
+    update_frequency_seconds = models.PositiveIntegerField(
+        _("Update Frequency"),
+        default=TWELVE_HOURS_IN_SECONDS,  # 12 hours in seconds
+        help_text=_(
+            "How often the calendar updates in seconds. "
+            "Default is every 12 hours (43200 seconds).",
+        ),
+    )
+    remove_branding = models.BooleanField(
+        _("Remove MergeCal Branding"),
+        default=False,
+        help_text=_(
+            "Remove MergeCal branding from the calendar. "
+            "Only available for Business tier and above.",
+        ),
     )
 
     class Meta:
@@ -72,6 +91,41 @@ class Calendar(models.Model):
 
     def get_absolute_url(self):
         return reverse("calendars:calendar_detail", kwargs={"pk": self.pk})
+
+    def clean(self):
+        if (
+            not self.owner.can_set_update_frequency
+            and self.update_frequency_seconds != TWELVE_HOURS_IN_SECONDS
+        ):
+            raise ValidationError(
+                {
+                    "update_frequency_seconds": _(
+                        "You don't have permission to change the update frequency.",
+                    ),
+                },
+            )
+        if not self.owner.can_remove_branding and self.remove_branding:
+            raise ValidationError(
+                {"remove_branding": _("You don't have permission to remove branding.")},
+            )
+
+    @property
+    def update_frequency_hours(self):
+        return self.update_frequency_seconds // 3600
+
+    @update_frequency_hours.setter
+    def update_frequency_hours(self, hours):
+        self.update_frequency_seconds = hours * 3600
+
+    @property
+    def effective_update_frequency(self):
+        if self.owner.can_set_update_frequency:
+            return self.update_frequency_seconds
+        return TWELVE_HOURS_IN_SECONDS
+
+    @property
+    def show_branding(self):
+        return not (self.remove_branding and self.owner.can_remove_branding)
 
     def get_calendar_file_url(self):
         return reverse("calendars:calendar_file", kwargs={"uuid": self.uuid})

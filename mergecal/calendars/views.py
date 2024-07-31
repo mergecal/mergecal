@@ -15,11 +15,12 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from mergecal.calendars.services import CalendarMerger
+
 from .forms import CalendarForm
 from .forms import SourceForm
 from .models import Calendar
 from .models import Source
-from .utils import combine_calendar
 
 logger = logging.getLogger(__name__)
 
@@ -240,16 +241,18 @@ class CalendarFileAPIView(APIView):
 
     def process_calendar_request(self, uuid):
         try:
-            calendar = get_object_or_404(Calendar, uuid=uuid)
+            calendar = get_object_or_404(
+                Calendar.objects.select_related("owner"),
+                uuid=uuid,
+            )
         except Http404:
             return Response(
                 {"error": "Calendar not found"},
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        origin_domain = self.request.GET.get("origin", "")
-
-        calendar_str = combine_calendar(calendar, origin_domain)
+        merger = CalendarMerger(calendar, self.request)
+        calendar_str = merger.merge()
 
         if not calendar_str:
             return Response(

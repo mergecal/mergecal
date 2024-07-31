@@ -2,6 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db.models import CharField
 from django.db.models import TextChoices
 from django.urls import reverse
+from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
 
@@ -20,7 +21,7 @@ class User(AbstractUser):
     class SubscriptionTier(TextChoices):
         FREE = "free_tier", "Free Tier"
         PERSONAL = "personal_tier", "Personal Tier"
-        BUISNESS = "buisness_tier", "Business Tier"
+        BUSINESS = "business_tier", "Business Tier"
         SUPPORTER = "supporter_tier", "Supporter Tier"
 
     subscription_tier = CharField(
@@ -49,6 +50,17 @@ class User(AbstractUser):
         User on Tier BUISNESS or SUPPORTER will not show branding.
         """
         return self.subscription_tier not in [
-            self.SubscriptionTier.BUISNESS,
+            self.SubscriptionTier.BUSINESS,
+            self.SubscriptionTier.SUPPORTER,
+        ]
+
+    @cached_property
+    def can_set_update_frequency(self) -> bool:
+        return self.subscription_tier != self.SubscriptionTier.FREE
+
+    @cached_property
+    def can_remove_branding(self) -> bool:
+        return self.subscription_tier in [
+            self.SubscriptionTier.BUSINESS,
             self.SubscriptionTier.SUPPORTER,
         ]

@@ -25,6 +25,7 @@ class CalendarAdmin(admin.ModelAdmin):
 
     fieldsets = (
         (None, {"fields": ("name", "uuid", "owner", "timezone", "include_source")}),
+        ("customization", {"fields": ("update_frequency_seconds", "remove_branding")}),
         (
             "Advanced options",
             {
