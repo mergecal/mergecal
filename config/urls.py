@@ -28,6 +28,7 @@ urlpatterns = [
     ),
     path("billing/", include("mergecal.billing.urls", namespace="billing")),
     path("pricing/", PricingTableView.as_view(), name="pricing"),
+    path("blog/", include("mergecal.blog.urls", namespace="blog")),
     path(
         "robots.txt",
         TemplateView.as_view(template_name="robots.txt", content_type="text/plain"),

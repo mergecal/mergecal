@@ -89,6 +89,7 @@ THIRD_PARTY_APPS = [
     "rest_framework",
     "djstripe",
     "django_htmx",
+    "ckeditor",
 ]
 
 LOCAL_APPS = [
@@ -97,6 +98,7 @@ LOCAL_APPS = [
     "mergecal.calendars.apps.CalendarsConfig",
     "mergecal.billing.apps.BillingConfig",
     "mergecal.core.apps.CoreConfig",
+    "mergecal.blog.apps.BlogConfig",
     "allauth.socialaccount.providers.google",  # for Google OAuth 2.0
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps

@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% load i18n static %}
+
+{% block title %}
+  {{ blog_post.title }} | MergeCal Blog
+{% endblock title %}
+{% block og_description %}
+  {{ blog_post.description|truncatewords:30 }}
+{% endblock og_description %}
+{% block content %}
+  <article class="container-fluid py-5 bg-light">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="card shadow-sm">
+          {# djlint:off H021 #}
+          {% if blog_post.image %}
+            <img src="{{ blog_post.image.url }}"
+                 class="card-img-top img-fluid"
+                 alt="{{ blog_post.title }}"
+                 style="object-fit: cover;
+                        height: 300px" />
+          {% endif %}
+          {# djlint:on #}
+          <div class="card-body">
+            <header class="mb-4">
+              <h1 class="card-title display-4 fw-bold text-primary">{{ blog_post.title }}</h1>
+              <p class="text-muted">
+                <i class="bi bi-calendar-event me-2"></i>
+                <time datetime="{{ blog_post.pub_date|date:'Y-m-d' }}">{{ blog_post.pub_date|date:"F j, Y" }}</time>
+              </p>
+            </header>
+            <div class="blog-content">{{ blog_post.text|safe }}</div>
+            <footer class="mt-5 pt-3 border-top">
+              <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
+                <div class="mb-3 mb-md-0">
+                  <a href="{% url 'blog:list' %}" class="btn btn-outline-primary">
+                    <i class="bi bi-arrow-left me-2"></i>Back to Blog
+                  </a>
+                </div>
+                <div>
+                  <h5 class="mb-2">Share this post:</h5>
+                  <div class="btn-group" role="group" aria-label="Share buttons">
+                    <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text={{ blog_post.title|urlencode }}"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       class="btn btn-outline-info">
+                      <i class="bi bi-twitter"></i>
+                    </a>
+                    <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       class="btn btn-outline-primary">
+                      <i class="bi bi-facebook"></i>
+                    </a>
+                    <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ request.build_absolute_uri }}&title={{ blog_post.title|urlencode }}"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       class="btn btn-outline-secondary">
+                      <i class="bi bi-linkedin"></i>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </footer>
+          </div>
+        </div>
+      </div>
+    </div>
+  </article>
+{% endblock content %}
+{% block inline_javascript %}
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      "headline": "{{ blog_post.title }}",
+      "datePublished": "{{ blog_post.pub_date|date:'c' }}",
+      "dateModified": "{{ blog_post.modified|date:'c' }}",
+      "author": {
+        "@type": "Person",
+        "name": "MergeCal"
+      },
+      "image": "{% if blog_post.image %}{{ blog_post.image.url }}{% else %}{{ request.scheme }}://{{ request.get_host }}{% static 'images/default-blog-image.jpg' %}{% endif %}",
+      "url": "{{ request.build_absolute_uri }}",
+      "description": "{{ blog_post.description|truncatewords:30 }}"
+    }
+  </script>
+{% endblock inline_javascript %}
