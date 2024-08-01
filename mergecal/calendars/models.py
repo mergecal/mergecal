@@ -11,6 +11,8 @@ from django.utils.translation import gettext_lazy as _
 from icalendar import Calendar as Ical
 from requests.exceptions import RequestException
 
+from mergecal.core.models import TimeStampedModel
+
 TWELVE_HOURS_IN_SECONDS = 43200
 
 
@@ -41,7 +43,7 @@ def validate_ical_url(url):
         raise ValidationError(msg) from err
 
 
-class Calendar(models.Model):
+class Calendar(TimeStampedModel):
     name = models.CharField(max_length=255)
     uuid = models.UUIDField(default=uuid.uuid4, editable=False)
     owner = models.ForeignKey(
@@ -135,7 +137,7 @@ class Calendar(models.Model):
         return reverse("calendars:calendar-view", kwargs={"uuid": self.uuid})
 
 
-class Source(models.Model):
+class Source(TimeStampedModel):
     name = models.CharField(max_length=255)
     url = models.URLField(max_length=400, validators=[validate_ical_url])
     calendar = models.ForeignKey(

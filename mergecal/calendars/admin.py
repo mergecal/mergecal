@@ -12,7 +12,15 @@ class CommentInline(admin.TabularInline):
 
 @admin.register(Calendar)
 class CalendarAdmin(admin.ModelAdmin):
-    list_display = ("name", "owner_email", "timezone", "uuid_link", "source_count")
+    list_display = (
+        "name",
+        "owner_email",
+        "timezone",
+        "uuid_link",
+        "source_count",
+        "created",
+        "modified",
+    )
 
     search_fields = [
         "name",
@@ -24,7 +32,20 @@ class CalendarAdmin(admin.ModelAdmin):
     inlines = [CommentInline]
 
     fieldsets = (
-        (None, {"fields": ("name", "uuid", "owner", "timezone", "include_source")}),
+        (
+            None,
+            {
+                "fields": (
+                    "name",
+                    "uuid",
+                    "owner",
+                    "timezone",
+                    "include_source",
+                    "created",
+                    "modified",
+                ),
+            },
+        ),
         ("customization", {"fields": ("update_frequency_seconds", "remove_branding")}),
         (
             "Advanced options",
@@ -34,7 +55,7 @@ class CalendarAdmin(admin.ModelAdmin):
             },
         ),
     )
-    readonly_fields = ("uuid",)
+    readonly_fields = ("uuid", "created", "modified")
 
     @admin.display(ordering="source_count")
     def source_count(self, obj):
@@ -59,7 +80,7 @@ class CalendarAdmin(admin.ModelAdmin):
 
 @admin.register(Source)
 class SourceAdmin(admin.ModelAdmin):
-    list_display = ("name", "url", "calendar")  # Adjust the fields as needed
+    list_display = ("name", "url", "calendar", "created", "modified")
     search_fields = [
         "name",
         "calendar__name",
@@ -67,4 +88,8 @@ class SourceAdmin(admin.ModelAdmin):
     ]  # Enable search by name and calendar name
     list_filter = ("calendar",)
 
-    fieldsets = ((None, {"fields": ("name", "url", "calendar")}),)
+    fieldsets = (
+        (None, {"fields": ("name", "url", "calendar", "created", "modified")}),
+    )
+
+    readonly_fields = ("created", "modified")

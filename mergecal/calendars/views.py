@@ -16,6 +16,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from mergecal.calendars.services import CalendarMerger
+from mergecal.core.decorators import requires_htmx
 
 from .forms import CalendarForm
 from .forms import SourceForm
@@ -105,6 +106,7 @@ def update_calendar(request, pk):
     return render(request, "calendars/partials/calendar_form.html", context)
 
 
+@requires_htmx
 @login_required
 @check_for_demo_account(error_flash_message="Oops, create an account to do that. 🤐")
 def delete_calendar(request, pk):
@@ -133,6 +135,7 @@ def detail_calendar(request, pk):
 
 
 @login_required
+@requires_htmx
 def create_calendar_form(request):
     form = CalendarForm()
     context = {"form": form}
@@ -140,6 +143,7 @@ def create_calendar_form(request):
 
 
 @login_required
+@requires_htmx
 @check_for_demo_account(error_flash_message="Oops, create an account to do that. 🤐")
 def manage_source(request, pk):
     calendar = get_object_or_404(Calendar.objects.filter(owner=request.user), pk=pk)
@@ -167,6 +171,7 @@ def manage_source(request, pk):
     return render(request, "calendars/manage_source.html", context)
 
 
+@requires_htmx
 @login_required
 @check_for_demo_account(error_flash_message="Oops, create an account to do that. 🤐")
 def update_source(request, pk):
@@ -189,6 +194,7 @@ def update_source(request, pk):
 
 
 @login_required
+@requires_htmx
 @check_for_demo_account(error_flash_message="Oops, create an account to do that. 🤐")
 def delete_source(request, pk):
     source = get_object_or_404(Source, id=pk)
@@ -206,6 +212,7 @@ def delete_source(request, pk):
 
 
 @login_required
+@requires_htmx
 def detail_source(request, pk):
     source = get_object_or_404(Source, id=pk)
     context = {"source": source}
@@ -213,6 +220,7 @@ def detail_source(request, pk):
 
 
 @login_required
+@requires_htmx
 def create_source_form(request, pk):
     calendar = get_object_or_404(Calendar.objects.filter(owner=request.user), pk=pk)
     form = SourceForm()
@@ -221,6 +229,7 @@ def create_source_form(request, pk):
 
 
 @login_required
+@requires_htmx
 def toggle_include_source(request: HttpRequest, uuid: str) -> HttpResponse:
     calendar: Calendar = get_object_or_404(Calendar, uuid=uuid, owner=request.user)
     calendar.include_source = not calendar.include_source
