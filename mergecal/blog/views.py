@@ -17,11 +17,7 @@ class BlogPostListView(ListView):
     paginate_by = 15  # that is all it takes to add pagination in a Class-Based View
 
     def get(self, request, *args, **kwargs):
-        logger.info(
-            "BlogPostListView visited by user: %s from IP: %s",
-            request.user,
-            request.META.get("REMOTE_ADDR"),
-        )
+        logger.info("BlogPostListView visited by user: %s", request.user)
         return super().get(request, *args, **kwargs)
 
 
@@ -32,9 +28,11 @@ class BlogPostDetailView(DetailView):
     context_object_name = "blog_post"
 
     def get(self, request, *args, **kwargs):
+        response = super().get(request, *args, **kwargs)
+        blog_post = self.get_object()
         logger.info(
-            "BlogPostDetailView visited by user: %s from IP: %s",
+            "BlogPostDetailView visited by user: %s, blog post: %s",
             request.user,
-            request.META.get("REMOTE_ADDR"),
+            blog_post.title,
         )
-        return super().get(request, *args, **kwargs)
+        return response
