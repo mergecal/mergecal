@@ -8,6 +8,11 @@
 {% block og_description %}
   {{ blog_post.description|truncatewords:30 }}
 {% endblock og_description %}
+{% if blog_post.image %}
+  {% block og_image %}
+    {{ blog_post.image.url }}
+  {% endblock og_image %}
+{% endif %}
 {% block content %}
   <article class="container-fluid py-5 bg-light">
     <div class="row justify-content-center">
