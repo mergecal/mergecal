@@ -5,13 +5,28 @@
 {% block title %}
   {{ blog_post.title }} | MergeCal Blog
 {% endblock title %}
+{% block og_title %}
+  {{ blog_post.title }} | MergeCal Blog
+{% endblock og_title %}
 {% block og_description %}
   {{ blog_post.description|truncatewords:30 }}
 {% endblock og_description %}
+{% block meta_description %}
+  {{ blog_post.description|truncatewords:30 }}
+{% endblock meta_description %}
+{% block twitter_title %}
+  {{ blog_post.title }} | MergeCal Blog
+{% endblock twitter_title %}
+{% block twitter_description %}
+  {{ blog_post.description|truncatewords:30 }}
+{% endblock twitter_description %}
 {% if blog_post.image %}
   {% block og_image %}
     {{ blog_post.image.url }}
   {% endblock og_image %}
+  {% block twitter_image %}
+    {{ blog_post.image.url }}
+  {% endblock twitter_image %}
 {% endif %}
 {% block content %}
   <article class="container-fluid py-5 bg-light">

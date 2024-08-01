@@ -9,28 +9,31 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge" />
     <title>
       {% block title %}
-        Mergecal | Merging multiple iCalendar feeds into one
+        MergeCal | Merging multiple iCalendar feeds into one
       {% endblock title %}
     </title>
-    <meta property="og:title" content="MergeCal.org | Merge iCalendar feeds" />
+    <meta property="og:title"
+          content="{% block og_title %}MergeCal.org | Merge iCalendar feeds{% endblock og_title %}" />
     <meta property="og:description"
           content="{% block og_description %}MergeCal simplifies your schedule by merging multiple iCalendar feeds into one. Discover seamless calendar management with MergeCal.{% endblock og_description %}" />
     <meta property="og:image"
-          content="{% block og_image %}{% static 'images/favicon.png' %}{% endblock og_image %}" />
-    <meta property="og:url" content="https://MergeCal.org/" />
+          content="{% block og_image %}https://mergecal.org{% static 'images/favicon.png' %}{% endblock og_image %}" />
+    <meta property="og:url"
+          content="{% block og_url %}https://MergeCal.org/{% endblock og_url %}" />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="MergeCal.org | Merge iCalendar feeds" />
+    <meta name="twitter:title"
+          content="{% block twitter_title %}MergeCal.org | Merge iCalendar feeds{% endblock twitter_title %}" />
     <meta name="twitter:description"
-          content="MergeCal simplifies your schedule by merging multiple iCalendar feeds into one. Discover seamless calendar management with MergeCal." />
+          content="{% block twitter_description %}MergeCal simplifies your schedule by merging multiple iCalendar feeds into one. Discover seamless calendar management with MergeCal.{% endblock twitter_description %}" />
     <meta name="twitter:image"
-          content="https://mergecal.org{% static 'images/favicon.png' %}" />
+          content="{% block twitter_image %}https://mergecal.org{% static 'images/favicon.png' %}{% endblock twitter_image %}" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description"
-          content="MergeCal simplifies your schedule by merging multiple iCalendar feeds into one. Discover seamless calendar management with MergeCal." />
+          content="{% block meta_description %}MergeCal simplifies your schedule by merging multiple iCalendar feeds into one. Discover seamless calendar management with MergeCal.{% endblock meta_description %}" />
     <meta name="author" content="Abe Hanoka" />
     <meta name="keywords"
-          content="Calendar, Ical, Ics, Icalendar, Merge, Calendar Feeds, Combine Calendars, Aggregate Calendar, Sync Calendars, Merge Ical, Calendar Integration, Online Calendar, Calendar Management, Calendar Aggregator" />
+          content="{% block meta_keywords %}Calendar, Ical, Ics, Icalendar, Merge, Calendar Feeds, Combine Calendars, Aggregate Calendar, Sync Calendars, Merge Ical, Calendar Integration, Online Calendar, Calendar Management, Calendar Aggregator{% endblock meta_keywords %}" />
     <link rel="icon" href="{% static 'images/favicons/favicon.ico' %}" />
     {% block css %}
       <link rel="stylesheet"
