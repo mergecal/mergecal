@@ -5,8 +5,15 @@ from django.contrib import admin
 from django.urls import include, path
 from django.views import defaults as default_views
 from django.views.generic import TemplateView
+from django.contrib.sitemaps.views import sitemap
 from django.views.generic.base import RedirectView
 from mergecal.billing.views import PricingTableView
+from mergecal.blog.sitemaps import PostSitemap
+
+
+sitemaps = {
+    "posts": PostSitemap,
+}
 
 urlpatterns = [
     path("", TemplateView.as_view(template_name="pages/home.html"), name="home"),
@@ -49,8 +56,14 @@ urlpatterns = [
         ),
     ),
     path("djstripe/", include("djstripe.urls", namespace="djstripe")),
+    path(
+        "sitemap.xml",
+        sitemap,
+        {"sitemaps": sitemaps},
+        name="django.contrib.sitemaps.views.sitemap",
+    )
     # Media files
-    *static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT),
+    * static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT),
 ]
 
 
