@@ -96,6 +96,7 @@ LOCAL_APPS = [
     # Your stuff: custom apps go here
     "mergecal.calendars.apps.CalendarsConfig",
     "mergecal.billing.apps.BillingConfig",
+    "mergecal.core.apps.CoreConfig",
     "allauth.socialaccount.providers.google",  # for Google OAuth 2.0
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
