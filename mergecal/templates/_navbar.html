@@ -26,6 +26,10 @@
              href="{% url 'about' %}">About</a>
         </li>
         <li class="nav-item">
+          <a class="nav-link {% if request.resolver_match.url_name == 'blog' %}active{% endif %}"
+             href="{% url 'blog:list' %}">Blog</a>
+        </li>
+        <li class="nav-item">
           <a class="nav-link {% if request.resolver_match.url_name == 'pricing' %}active{% endif %}"
              href="{% url 'pricing' %}">Pricing</a>
         </li>
