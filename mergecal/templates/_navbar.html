@@ -1,101 +1,108 @@
 {% load i18n %}
+{% load i18n %}
 
-<nav class="navbar navbar-expand-md bg-body-tertiary">
-  <div class="container-fluid">
+<nav class="navbar navbar-expand-lg bg-body-tertiary shadow-sm">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="{% url 'home' %}">
+      <i class="bi bi-calendar-event me-2"></i>MergeCal
+    </a>
     <button class="navbar-toggler"
             type="button"
             data-bs-toggle="collapse"
-            data-bs-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent"
+            data-bs-target="#navbarContent"
+            aria-controls="navbarContent"
             aria-expanded="false"
             aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
-    <a class="navbar-brand" href="{% url 'home' %}">MergeCal</a>
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav me-auto mb-2 mb-md-0">
-        <li class="nav-item active">
-          <a class="nav-link" href="{% url 'home' %}">Home <span class="visually-hidden">(current)</span></a>
+    <div class="collapse navbar-collapse" id="navbarContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}"
+             href="{% url 'home' %}">Home</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="{% url 'about' %}">About</a>
+          <a class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}"
+             href="{% url 'about' %}">About</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="{% url 'pricing' %}">Pricing</a>
+          <a class="nav-link {% if request.resolver_match.url_name == 'pricing' %}active{% endif %}"
+             href="{% url 'pricing' %}">Pricing</a>
         </li>
         {% if request.user.is_authenticated %}
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'calendars:manage-calendar' %}">Calendars</a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'manage-calendar' %}active{% endif %}"
+               href="{% url 'calendars:manage-calendar' %}">Calendars</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link"
-               href="{% url 'users:detail' request.user.username %}">{% translate "My Profile" %}</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'account_logout' %}">{% translate "Sign Out" %}</a>
+        {% endif %}
+      </ul>
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
+        {% if request.user.is_authenticated %}
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle"
+               href="#"
+               id="userDropdown"
+               role="button"
+               data-bs-toggle="dropdown"
+               aria-expanded="false">
+              <i class="bi bi-person-circle me-1"></i>{{ request.user.username }}
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end"
+                aria-labelledby="userDropdown">
+              <li>
+                <a class="dropdown-item"
+                   href="{% url 'users:detail' request.user.username %}"><i class="bi bi-person me-2"></i>{% translate "My Profile" %}</a>
+              </li>
+              <li>
+                <form method="post" action="{% url 'billing:manage_billing' %}">
+                  {% csrf_token %}
+                  <button type="submit" class="dropdown-item">
+                    <i class="bi bi-credit-card me-2"></i>{% translate "Manage Billing" %}
+                  </button>
+                </form>
+              </li>
+              <li>
+                <hr class="dropdown-divider" />
+              </li>
+              <li>
+                <a class="dropdown-item" href="{% url 'account_logout' %}"><i class="bi bi-box-arrow-right me-2"></i>{% translate "Sign Out" %}</a>
+              </li>
+            </ul>
           </li>
         {% else %}
           {% if ACCOUNT_ALLOW_REGISTRATION %}
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'account_signup' %}">{% translate "Sign Up" %}</a>
+              <a class="nav-link" href="{% url 'account_signup' %}"><i class="bi bi-person-plus me-1"></i>{% translate "Sign Up" %}</a>
             </li>
           {% endif %}
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'account_login' %}">{% translate "Sign In" %}</a>
+            <a class="nav-link" href="{% url 'account_login' %}"><i class="bi bi-box-arrow-in-right me-1"></i>{% translate "Sign In" %}</a>
           </li>
         {% endif %}
-      </ul>
-      <ul class="navbar-nav ms-auto mb-2 mb-md-0 d-flex flex-row">
-        <li class="nav-item">
-          <a class="nav-link me-2" href="https://discord.gg/2vqUzSpt6N"><i class="bi bi-discord"></i></a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link me-2"
-             href="mailto:feedback@mergecal.org?subject=Feedback%20on%20mergecal"><i class="bi bi-envelope"></i></a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link me-2" href="https://github.com/abe-101/mergecal"><i class="bi bi-github"></i></a>
-        </li>
         <li class="nav-item dropdown">
-          <button class="btn btn-primary py-2 dropdown-toggle d-flex align-items-center me-2"
-                  id="bd-theme"
-                  type="button"
-                  aria-expanded="false"
-                  data-bs-toggle="dropdown"
-                  aria-label="Toggle theme (light)">
-            <i class="bi my-1 theme-icon-active bi-sun-fill"></i>
-            <span class="visually-hidden" id="bd-theme-text">Toggle theme</span>
-          </button>
-          <ul class="dropdown-menu dropdown-menu-end shadow"
-              aria-labelledby="bd-theme-text">
+          <a class="nav-link dropdown-toggle"
+             href="#"
+             id="themeDropdown"
+             role="button"
+             data-bs-toggle="dropdown"
+             aria-expanded="false">
+            <i class="bi bi-palette"></i>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end"
+              aria-labelledby="themeDropdown">
             <li>
-              <button type="button"
-                      class="dropdown-item d-flex align-items-center"
-                      data-bs-theme-value="light"
-                      aria-pressed="false">
-                <i class="bi me-2 opacity-50 bi-sun-fill"></i>
-                Light
-                <i class="bi ms-auto d-none bi-check2"></i>
+              <button class="dropdown-item" type="button" data-bs-theme-value="light">
+                <i class="bi bi-sun-fill me-2"></i>Light
               </button>
             </li>
             <li>
-              <button type="button"
-                      class="dropdown-item d-flex align-items-center"
-                      data-bs-theme-value="dark"
-                      aria-pressed="false">
-                <i class="bi me-2 opacity-50 bi-moon-stars-fill"></i>
-                Dark
-                <i class="bi ms-auto d-none bi-check2"></i>
+              <button class="dropdown-item" type="button" data-bs-theme-value="dark">
+                <i class="bi bi-moon-stars-fill me-2"></i>Dark
               </button>
             </li>
             <li>
-              <button type="button"
-                      class="dropdown-item d-flex align-items-center"
-                      data-bs-theme-value="auto"
-                      aria-pressed="false">
-                <i class="bi me-2 opacity-50 bi-circle-half"></i>
-                Auto
-                <i class="bi ms-auto d-none bi-check2"></i>
+              <button class="dropdown-item" type="button" data-bs-theme-value="auto">
+                <i class="bi bi-circle-half me-2"></i>Auto
               </button>
             </li>
           </ul>
