@@ -1,3 +1,4 @@
+# ruff: noqa: E501 ERA001
 import uuid
 import zoneinfo
 
@@ -15,8 +16,8 @@ TWELVE_HOURS_IN_SECONDS = 43200
 
 def validate_ical_url(url):
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",  # noqa: E501
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",  # noqa: E501
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
         "Accept-Language": "en-US,en;q=0.9",
         "Accept-Encoding": "gzip, deflate, br",
         "Connection": "keep-alive",
@@ -92,22 +93,22 @@ class Calendar(models.Model):
     def get_absolute_url(self):
         return reverse("calendars:calendar_detail", kwargs={"pk": self.pk})
 
-    def clean(self):
-        if (
-            not self.owner.can_set_update_frequency
-            and self.update_frequency_seconds != TWELVE_HOURS_IN_SECONDS
-        ):
-            raise ValidationError(
-                {
-                    "update_frequency_seconds": _(
-                        "You don't have permission to change the update frequency.",
-                    ),
-                },
-            )
-        if not self.owner.can_remove_branding and self.remove_branding:
-            raise ValidationError(
-                {"remove_branding": _("You don't have permission to remove branding.")},
-            )
+        # def clean(self):
+        #     if (
+        #         not self.owner.can_set_update_frequency
+        #         and self.update_frequency_seconds != TWELVE_HOURS_IN_SECONDS
+        #     ):
+        #         raise ValidationError(
+        #             {
+        #                 "update_frequency_seconds": _(
+        #                     "You don't have permission to change the update frequency.",
+        #                 ),
+        #             },
+        #         )
+        #     if not self.owner.can_remove_branding and self.remove_branding:
+        #         raise ValidationError(
+        #             {"remove_branding": _("You don't have permission to remove branding.")},
+        #         )
 
     @property
     def update_frequency_hours(self):
