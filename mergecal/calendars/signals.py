@@ -28,4 +28,3 @@ def clear_calendar_cache_on_calendar(sender, instance, **kwargs):
     cache_key = f"calendar_str_{instance.uuid}"
     # Check if the cache exists and delete it
     cache.delete(cache_key)
-    logger.info("Cache cleared for key: %s", cache_key)

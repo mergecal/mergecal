@@ -40,7 +40,6 @@ def create_calendar_from_meetup_api_respone(events: list) -> Ical:
     cal.add("prodid", "-//My Calendar//mxm.dk//")
     cal.add("version", "2.0")
 
-    logger.info("length of events: %s", len(events))
     for event in events:
         # Create an event
         e = Event()

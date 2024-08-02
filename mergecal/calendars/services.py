@@ -43,6 +43,7 @@ class CalendarMerger:
             )
             self.merged_calendar = self._create_new_calendar()
             self._add_sources()
+            self._finalize_merged_calendar()
             calendar_str = self.merged_calendar.to_ical().decode("utf-8")
             self.calendar.calendar_file_str = calendar_str
             self.calendar.save()
@@ -93,7 +94,6 @@ class CalendarMerger:
     def _add_source_events(self, source: Source, existing_uids: set) -> None:
         source_calendar = None
         if is_meetup_url(source.url):
-            logger.info("Meetup URL detected: %s", source.url)
             source_calendar = fetch_and_create_meetup_calendar(source.url)
         else:
             source_calendar = self._fetch_source_calendar(source)
@@ -117,8 +117,8 @@ class CalendarMerger:
             response.encoding = "utf-8"
             response.raise_for_status()
             return ICalendar.from_ical(response.text)
-        except RequestException:
-            logger.exception("Error fetching calendar from %s", url)
+        except RequestException as e:
+            self._add_source_error(source, str(e))
         except ValueError:
             logger.exception("Error parsing iCalendar data from %s", url)
         return None
@@ -160,3 +160,25 @@ class CalendarMerger:
         session.mount("http://", HTTPAdapter(max_retries=retries))
         session.mount("https://", HTTPAdapter(max_retries=retries))
         return session
+
+    def _add_source_error(self, source: Source, error_message: str) -> None:
+        if not hasattr(self, "source_errors"):
+            self.source_errors = []
+        self.source_errors.append(
+            {
+                "source_name": source.name,
+                "source_url": source.url,
+                "error": error_message,
+            },
+        )
+
+    def _finalize_merged_calendar(self) -> None:
+        if hasattr(self, "source_errors") and self.source_errors:
+            error_event = Event()
+            error_event.add("summary", "MergeCal: Source Errors")
+            error_description = "The following sources had errors:\n\n"
+            for error in self.source_errors:
+                error_description += f"- {error['source_name']} ({error['source_url']}): {error['error']}\n"  # noqa: E501
+            error_event.add("dtstart", timezone.now())
+            error_event.add("dtend", timezone.now() + timedelta(hours=1))
+            self.merged_calendar.add_component(error_event)
