@@ -1,5 +1,4 @@
 import logging
-from functools import wraps
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -7,7 +6,6 @@ from django.contrib.sites.models import Site
 from django.http import Http404
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
-from django.http.response import HttpResponseForbidden
 from django.http.response import HttpResponseNotAllowed
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render
@@ -26,31 +24,7 @@ from .models import Source
 logger = logging.getLogger(__name__)
 
 
-def check_for_demo_account(
-    redirect_to="calendars.manage_calendar",
-    error_flash_message=None,
-):
-    def inner_render(fn):
-        @wraps(fn)  # Ensure the wrapped function keeps the same name as the view
-        def wrapped(request, *args, **kwargs):
-            if request.method == "POST" and request.user.email == "demo@example.com":
-                if error_flash_message:
-                    messages.add_message(
-                        request,
-                        messages.ERROR,
-                        error_flash_message,
-                    )  # Replace by your own implementation
-
-                return HttpResponseForbidden()
-            return fn(request, *args, **kwargs)
-
-        return wrapped
-
-    return inner_render
-
-
 @login_required
-@check_for_demo_account(error_flash_message="Oops, create an account to do that. 🤐")
 def manage_calendar(request):
     calendars = Calendar.objects.filter(owner=request.user).defer("calendar_file_str")
     form = CalendarForm(request.POST or None)
@@ -86,7 +60,6 @@ def manage_calendar(request):
 
 
 @login_required
-@check_for_demo_account(error_flash_message="Oops, create an account to do that. 🤐")
 def update_calendar(request, pk):
     calendar = Calendar.objects.get(id=pk)
     form = CalendarForm(request.POST or None, instance=calendar)
@@ -108,7 +81,6 @@ def update_calendar(request, pk):
 
 @requires_htmx
 @login_required
-@check_for_demo_account(error_flash_message="Oops, create an account to do that. 🤐")
 def delete_calendar(request, pk):
     calendar = get_object_or_404(Calendar, id=pk)
 
@@ -144,7 +116,6 @@ def create_calendar_form(request):
 
 @login_required
 @requires_htmx
-@check_for_demo_account(error_flash_message="Oops, create an account to do that. 🤐")
 def manage_source(request, pk):
     calendar = get_object_or_404(Calendar.objects.filter(owner=request.user), pk=pk)
     sources = Source.objects.filter(calendar=calendar)
@@ -173,7 +144,6 @@ def manage_source(request, pk):
 
 @requires_htmx
 @login_required
-@check_for_demo_account(error_flash_message="Oops, create an account to do that. 🤐")
 def update_source(request, pk):
     source = Source.objects.get(id=pk)
     form = SourceForm(request.POST or None, instance=source)
@@ -195,7 +165,6 @@ def update_source(request, pk):
 
 @login_required
 @requires_htmx
-@check_for_demo_account(error_flash_message="Oops, create an account to do that. 🤐")
 def delete_source(request, pk):
     source = get_object_or_404(Source, id=pk)
 
