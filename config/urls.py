@@ -8,11 +8,13 @@ from django.views.generic import TemplateView
 from django.contrib.sitemaps.views import sitemap
 from django.views.generic.base import RedirectView
 from mergecal.billing.views import PricingTableView
-from mergecal.blog.sitemaps import PostSitemap
+from mergecal.core.views import staticViewSiteMap
+from mergecal.blog.sitemaps import BlogSitemap
 
 
 sitemaps = {
-    "posts": PostSitemap,
+    "static": staticViewSiteMap,
+    "blog": BogSitemap,
 }
 
 urlpatterns = [
