@@ -1,4 +1,14 @@
-User-Agent: *
-
+User-agent: *
 Disallow: /calendars/
 Disallow: /calendars/*
+Disallow: /accounts/
+
+Allow: /$
+Allow: /about/
+Allow: /pricing/
+Allow: /blog/
+Allow: /blog/*
+
+Sitemap: https://mergecal.org/sitemap.xml
+
+Crawl-delay: 10
