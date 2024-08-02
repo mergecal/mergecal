@@ -88,12 +88,11 @@
   </head>
   <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
         class="{% block bodyclass %}{% endblock bodyclass %}">
+    {% block navbar %}
+      {% include '_navbar.html' %}
+    {% endblock navbar %}
     {% block body %}
-      <div class="mb-1">
-        {% block navbar %}
-          {% include '_navbar.html' %}
-        {% endblock navbar %}
-      </div>
+      <div class="mb-1"></div>
       <div class="container mt-2">
         <div data-toast-container
              class="toast-container position-fixed top-0 end-0 p-3">
