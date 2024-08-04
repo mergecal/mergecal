@@ -11,6 +11,7 @@ from django.utils.translation import gettext_lazy as _
 from icalendar import Calendar as Ical
 from requests.exceptions import RequestException
 
+from mergecal.core.constants import CALENDAR_LIMITS
 from mergecal.core.models import TimeStampedModel
 
 TWELVE_HOURS_IN_SECONDS = 43200
@@ -111,6 +112,13 @@ class Calendar(TimeStampedModel):
             raise ValidationError(
                 {"remove_branding": _("You don't have permission to remove branding.")},
             )
+
+        if not self.pk:  # Only check on creation, not update
+            user_calendar_count = Calendar.objects.filter(owner=self.owner).count()
+            limit = CALENDAR_LIMITS.get(self.owner.subscription_tier, float("inf"))
+            if user_calendar_count >= limit:
+                msg = f"Users on the {self.owner.get_subscription_tier_display()} are limited to {limit} calendars."
+                raise ValidationError(msg)
 
     @property
     def update_frequency_hours(self):
