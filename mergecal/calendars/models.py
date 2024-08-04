@@ -93,7 +93,7 @@ class Calendar(TimeStampedModel):
         return self.name
 
     def get_absolute_url(self):
-        return reverse("calendars:calendar_update", kwargs={"pk": self.pk})
+        return reverse("calendars:calendar_update", kwargs={"uuid": self.uuid})
 
     def clean(self):
         if (
@@ -150,4 +150,4 @@ class Source(TimeStampedModel):
         return self.name
 
     def get_absolute_url(self):
-        return reverse("calendars:source_detail", kwargs={"pk": self.pk})
+        return reverse("calendars:source_edit", kwargs={"pk": self.pk})

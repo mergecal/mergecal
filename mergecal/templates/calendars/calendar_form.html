@@ -101,7 +101,7 @@
           </tbody>
         </table>
       </div>
-      <a href="{% url 'calendars:source_add' calendar_pk=calendar.pk %}"
+      <a href="{% url 'calendars:source_add' uuid=calendar.uuid %}"
          class="btn btn-success mb-4">
         <i class="bi bi-plus-circle"></i> Add New Source
       </a>
@@ -135,7 +135,7 @@
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
               <form method="post"
-                    action="{% url 'calendars:calendar_delete' calendar.pk %}">
+                    action="{% url 'calendars:calendar_delete' calendar.uuid %}">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-danger">
                   <i class="bi bi-exclamation-triangle"></i> Delete Calendar

@@ -1,13 +1,13 @@
 <!-- templates/calendars/partials/add_to_calendar_modal.html -->
 <div class="modal fade"
-     id="addToCalendarModal{{ calendar.id }}"
+     id="addToCalendarModal{{ calendar.uuid }}"
      tabindex="-1"
-     aria-labelledby="addToCalendarModalLabel{{ calendar.id }}"
+     aria-labelledby="addToCalendarModalLabel{{ calendar.uuid }}"
      aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="addToCalendarModalLabel{{ calendar.id }}">Add "{{ calendar.name }}" To Calendar</h5>
+        <h5 class="modal-title" id="addToCalendarModalLabel{{ calendar.uuid }}">Add "{{ calendar.name }}" To Calendar</h5>
         <button type="button"
                 class="btn-close"
                 data-bs-dismiss="modal"

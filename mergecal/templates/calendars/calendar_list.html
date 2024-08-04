@@ -57,14 +57,14 @@
             </div>
             <div class="card-footer">
               <div class="btn-group" role="group">
-                <a href="{% url 'calendars:calendar_update' calendar.pk %}"
+                <a href="{% url 'calendars:calendar_update' calendar.uuid %}"
                    class="btn btn-primary">Edit</a>
                 <a href="{% url 'calendars:calendar_view' uuid=calendar.uuid %}"
                    class="btn btn-secondary">View Calendar</a>
                 <button type="button"
                         class="btn btn-success"
                         data-bs-toggle="modal"
-                        data-bs-target="#addToCalendarModal{{ calendar.id }}">
+                        data-bs-target="#addToCalendarModal{{ calendar.uuid }}">
                   <i class="bi bi-calendar-plus"></i> Add to Calendar
                 </button>
               </div>

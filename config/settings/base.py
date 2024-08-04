@@ -93,6 +93,7 @@ THIRD_PARTY_APPS = [
     "django_htmx",
     "ckeditor",
     "tz_detect",
+    "dynamic_breadcrumbs",
 ]
 
 LOCAL_APPS = [
@@ -223,6 +224,7 @@ TEMPLATES = [
                 "django.template.context_processors.tz",
                 "django.contrib.messages.context_processors.messages",
                 "mergecal.users.context_processors.allauth_settings",
+                "dynamic_breadcrumbs.context_processors.breadcrumbs",
             ],
         },
     },
@@ -370,3 +372,6 @@ DJSTRIPE_FOREIGN_KEY_TO_FIELD = "id"
 DJSTRIPE_SUBSCRIBER_MODEL = "users.User"
 STRIPE_LIVE_MODE = False
 STRIPE_PRICE_TABLE_ID = env("STRIPE_PRICE_TABLE_ID", default="")
+
+# https://django-dynamic-breadcrumbs.readthedocs.io/en/latest/ref/settings.html#dynamic-breadcrumbs-path-max-depth
+DYNAMIC_BREADCRUMBS_PATH_MAX_DEPTH = 6
