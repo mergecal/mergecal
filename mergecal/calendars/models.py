@@ -134,7 +134,7 @@ class Calendar(TimeStampedModel):
         return reverse("calendars:calendar_file", kwargs={"uuid": self.uuid})
 
     def get_calendar_view_url(self):
-        return reverse("calendars:calendar-view", kwargs={"uuid": self.uuid})
+        return reverse("calendars:calendar_view", kwargs={"uuid": self.uuid})
 
 
 class Source(TimeStampedModel):
