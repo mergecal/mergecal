@@ -205,7 +205,11 @@ class CalendarFileAPIView(APIView):
 
 def calendar_view(request: HttpRequest, uuid: str) -> HttpResponse:
     calendar = get_object_or_404(Calendar, uuid=uuid)
-    logger.info("User %s is viewing the calendar view page", request.user)
+    logger.info(
+        "User %s is viewing the calendar view page for uuid: %s",
+        request.user,
+        calendar.uuid,
+    )
     return render(
         request,
         "calendars/calendar_view.html",
