@@ -1,0 +1,65 @@
+<!-- templates/calendars/partials/add_to_calendar_modal.html -->
+<div class="modal fade"
+     id="addToCalendarModal{{ calendar.id }}"
+     tabindex="-1"
+     aria-labelledby="addToCalendarModalLabel{{ calendar.id }}"
+     aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addToCalendarModalLabel{{ calendar.id }}">Add "{{ calendar.name }}" To Calendar</h5>
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label for="calendar_file_url{{ calendar.id }}" class="form-label">iCal File Link:</label>
+          <div class="input-group">
+            <input type="text"
+                   class="form-control"
+                   id="calendar_file_url{{ calendar.id }}"
+                   value="{{ domain_name }}{% url 'calendars:calendar_file' calendar.uuid %}"
+                   readonly />
+            <button class="btn btn-outline-secondary"
+                    type="button"
+                    onclick="copyFileUrl({{ calendar.id }})">
+              <i class="bi bi-clipboard"></i> Copy
+            </button>
+          </div>
+        </div>
+        <hr />
+        <h6>Add to platform:</h6>
+        <ul class="list-group">
+          <li class="list-group-item">
+            {# djlint:off D018 #}
+            <a href="webcal://{{ domain_name|cut:'https://'|cut:'http://' }}{% url 'calendars:calendar_file' calendar.uuid %}"
+               class="d-flex align-items-center text-decoration-none">
+              <i class="bi bi-apple me-2"></i> Apple Calendar
+            </a>
+            {# djlint:on #}
+          </li>
+          <li class="list-group-item">
+            <a href="https://calendar.google.com/calendar/r?cid={{ domain_name }}{% url 'calendars:calendar_file' calendar.uuid %}"
+               class="d-flex align-items-center text-decoration-none">
+              <i class="bi bi-google me-2"></i> Google Calendar
+            </a>
+          </li>
+          <li class="list-group-item">
+            <a href="https://outlook.office.com/calendar/0/addfromweb?url={{ domain_name }}{% url 'calendars:calendar_file' calendar.uuid %}"
+               class="d-flex align-items-center text-decoration-none">
+              <i class="bi bi-microsoft me-2"></i> Office 365
+            </a>
+          </li>
+          <li class="list-group-item">
+            <a href="https://outlook.live.com/calendar/0/addfromweb?url={{ domain_name }}{% url 'calendars:calendar_file' calendar.uuid %}"
+               class="d-flex align-items-center text-decoration-none">
+              <i class="bi bi-microsoft-teams me-2"></i> Outlook.com
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

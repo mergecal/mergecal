@@ -1,48 +1,32 @@
 from django.urls import path
-from django.views.generic import TemplateView
 
-from .views import CalendarFileAPIView
-from .views import calendar_view
-from .views import create_calendar_form
-from .views import create_source_form
-from .views import delete_calendar
-from .views import delete_source
-from .views import detail_calendar
-from .views import detail_source
-from .views import manage_calendar
-from .views import manage_source
-from .views import toggle_include_source
-from .views import update_calendar
-from .views import update_source
+from mergecal.calendars.views import CalendarCreateView
+from mergecal.calendars.views import CalendarDeleteView
+from mergecal.calendars.views import CalendarFileAPIView
+from mergecal.calendars.views import CalendarUpdateView
+from mergecal.calendars.views import SourceAddView
+from mergecal.calendars.views import SourceEditView
+from mergecal.calendars.views import UserCalendarListView
+from mergecal.calendars.views import calendar_view
+from mergecal.calendars.views import source_delete
+from mergecal.calendars.views import toggle_include_source
 
 app_name = "calendars"
 
 urlpatterns = [
-    path("", manage_calendar, name="manage-calendar"),
+    path("", UserCalendarListView.as_view(), name="calendar_list"),
+    path("create/", CalendarCreateView.as_view(), name="calendar_create"),
+    path("<int:pk>/update/", CalendarUpdateView.as_view(), name="calendar_update"),
+    path("<int:pk>/delete/", CalendarDeleteView.as_view(), name="calendar_delete"),
+    path("source/<int:pk>/edit/", SourceEditView.as_view(), name="source_edit"),
     path(
-        "instructions/",
-        TemplateView.as_view(template_name="calendars/instructions.html"),
-        name="instructions",
+        "calendar/<int:calendar_pk>/source/add/",
+        SourceAddView.as_view(),
+        name="source_add",
     ),
-    path("htmx/calendar/<pk>/", detail_calendar, name="detail-calendar"),
-    path("htmx/calendar/<pk>/update/", update_calendar, name="update-calendar"),
-    path("htmx/calendar/<pk>/delete/", delete_calendar, name="delete-calendar"),
-    path(
-        "htmx/create-calendar-form/",
-        create_calendar_form,
-        name="create-calendar-form",
-    ),
-    path("<pk>/", manage_source, name="manage-source"),
-    path("htmx/source/<pk>/", detail_source, name="detail-source"),
-    path("htmx/source/<pk>/update/", update_source, name="update-source"),
-    path("htmx/source/<pk>/delete/", delete_source, name="delete-source"),
-    path(
-        "<pk>/htmx/create-source-form/",
-        create_source_form,
-        name="create-source-form",
-    ),
+    path("source/<int:pk>/delete/", source_delete, name="source_delete"),
     path("<uuid>.ical", CalendarFileAPIView.as_view(), name="calendar_file"),
     path("<uuid>.ics", CalendarFileAPIView.as_view(), name="calendar_file_ics"),
-    path("<uuid>/calendar/", calendar_view, name="calendar-view"),
+    path("<uuid>/calendar/", calendar_view, name="calendar_view"),
     path("<uuid>/toggle-include/", toggle_include_source, name="toggle-include"),
 ]

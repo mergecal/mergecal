@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block title %}
+  {% if form.instance.pk %}
+    Edit
+  {% else %}
+    Add
+  {% endif %}
+  Source
+{% endblock title %}
+{% block content %}
+  <div class="container mt-4">
+    <h1 class="mb-4">
+      {% if form.instance.pk %}
+        Edit
+      {% else %}
+        Add
+      {% endif %}
+      Source for {{ calendar.name }}
+    </h1>
+    {% crispy form %}
+  </div>
+{% endblock content %}

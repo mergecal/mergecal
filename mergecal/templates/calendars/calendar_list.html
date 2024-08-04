@@ -1,0 +1,83 @@
+<!-- templates/calendars/user_calendar_list.html -->
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %}
+  My Merged Calendars
+{% endblock title %}
+{% block content %}
+  <div class="container mt-4">
+    <h1 class="mb-4">My Merged Calendars</h1>
+    <div class="row mb-4">
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Total Calendars</h5>
+            <p class="card-text display-4">{{ total_calendars }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Total Sources</h5>
+            <p class="card-text display-4">{{ total_sources }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <h2>My Merged Calendars</h2>
+        {% for calendar in calendars %}
+          <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <h5 class="mb-0">{{ calendar.name }}</h5>
+              <span class="badge bg-primary">{{ calendar.timezone }}</span>
+            </div>
+            <div class="card-body">
+              <h6>Merged Sources ({{ calendar.source_count }})</h6>
+              <ul class="list-group list-group-flush mb-3">
+                {% for source in calendar.recent_sources %}
+                  <li class="list-group-item">{{ source.name }} - {{ source.url|urlize }}</li>
+                {% endfor %}
+                {% if calendar.source_count > 5 %}
+                  <li class="list-group-item text-muted">And {{ calendar.source_count|add:"-5" }} more...</li>
+                {% endif %}
+              </ul>
+              <p>
+                <strong>Update Frequency:</strong>
+                {% if user.can_set_update_frequency %}
+                  {{ calendar.update_frequency_hours }} hours
+                {% else %}
+                  Default (12 hours)
+                {% endif %}
+              </p>
+            </div>
+            <div class="card-footer">
+              <div class="btn-group" role="group">
+                <a href="{% url 'calendars:calendar_update' calendar.pk %}"
+                   class="btn btn-primary">Edit</a>
+                <a href="{% url 'calendars:calendar_view' uuid=calendar.uuid %}"
+                   class="btn btn-secondary">View Calendar</a>
+                <button type="button"
+                        class="btn btn-success"
+                        data-bs-toggle="modal"
+                        data-bs-target="#addToCalendarModal{{ calendar.id }}">
+                  <i class="bi bi-calendar-plus"></i> Add to Calendar
+                </button>
+              </div>
+            </div>
+          </div>
+          {% include "calendars/_add_to_calendar.html" with calendar=calendar %}
+        {% empty %}
+          <div class="alert alert-info">You haven't created any merged calendars yet.</div>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="mt-4">
+      <a href="{% url 'calendars:calendar_create' %}" class="btn btn-success">Create New Merged Calendar</a>
+    </div>
+  </div>
+{% endblock content %}

@@ -93,24 +93,24 @@ class Calendar(TimeStampedModel):
         return self.name
 
     def get_absolute_url(self):
-        return reverse("calendars:calendar_detail", kwargs={"pk": self.pk})
+        return reverse("calendars:calendar_update", kwargs={"pk": self.pk})
 
-        # def clean(self):
-        #     if (
-        #         not self.owner.can_set_update_frequency
-        #         and self.update_frequency_seconds != TWELVE_HOURS_IN_SECONDS
-        #     ):
-        #         raise ValidationError(
-        #             {
-        #                 "update_frequency_seconds": _(
-        #                     "You don't have permission to change the update frequency.",
-        #                 ),
-        #             },
-        #         )
-        #     if not self.owner.can_remove_branding and self.remove_branding:
-        #         raise ValidationError(
-        #             {"remove_branding": _("You don't have permission to remove branding.")},
-        #         )
+    def clean(self):
+        if (
+            not self.owner.can_set_update_frequency
+            and self.update_frequency_seconds != TWELVE_HOURS_IN_SECONDS
+        ):
+            raise ValidationError(
+                {
+                    "update_frequency_seconds": _(
+                        "You don't have permission to change the update frequency.",
+                    ),
+                },
+            )
+        if not self.owner.can_remove_branding and self.remove_branding:
+            raise ValidationError(
+                {"remove_branding": _("You don't have permission to remove branding.")},
+            )
 
     @property
     def update_frequency_hours(self):

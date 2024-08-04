@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block title %}
+  {% if calendar.pk %}
+    Edit Calendar: {{ calendar.name }}
+  {% else %}
+    Create New Calendar
+  {% endif %}
+{% endblock title %}
+{% block content %}
+  <div class="container mt-4">
+    <h1 class="mb-4">
+      {% if calendar.pk %}
+        Edit Calendar: {{ calendar.name }}
+      {% else %}
+        Create New Calendar
+      {% endif %}
+    </h1>
+    <div class="row">
+      <div class="col-md-6">
+        <form method="post" id="calendar-form">
+          {% csrf_token %}
+          {% crispy form %}
+          <button type="submit" class="btn btn-primary">Save Calendar</button>
+          <a href="{% url 'calendars:calendar_list' %}" class="btn btn-secondary">Cancel</a>
+        </form>
+      </div>
+      {% if calendar.pk %}
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="mb-0">Quick Info</h5>
+            </div>
+            <div class="card-body">
+              <p>
+                <strong>Calendar ID:</strong> {{ calendar.uuid }}
+              </p>
+              <p>
+                <strong>Created:</strong> {{ calendar.created|date:"F d, Y H:i" }}
+              </p>
+              <p>
+                <strong>Last Modified:</strong> {{ calendar.modified|date:"F d, Y H:i" }}
+              </p>
+            </div>
+          </div>
+          {% if not user.can_set_update_frequency or not user.can_remove_branding %}
+            <div class="alert alert-info mt-4">
+              <h4 class="alert-heading">Upgrade for more features!</h4>
+              <p>Unlock premium features by upgrading your account:</p>
+              <ul>
+                {% if not user.can_set_update_frequency %}<li>Set custom update frequency</li>{% endif %}
+                {% if not user.can_remove_branding %}<li>Remove MergeCal branding</li>{% endif %}
+              </ul>
+              <form method="post" action="{% url 'billing:manage_billing' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary">Upgrade Now</button>
+              </form>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+      <h2 class="mt-5">Calendar Sources</h2>
+      <div class="table-responsive" id="sources-table">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>URL</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for source in calendar.calendarOf.all %}
+              <tr>
+                <td>{{ source.name }}</td>
+                <td>
+                  <a href="{{ source.url }}" target="_blank">{{ source.url }}</a>
+                </td>
+                <td>
+                  <a href="{% url 'calendars:source_edit' source.id %}"
+                     class="btn btn-sm btn-primary">
+                    <i class="bi bi-pencil"></i> Edit
+                  </a>
+                  <form method="post" action="{% url 'calendars:source_delete' source.id %}">
+                    {% csrf_token %}
+                    <button type="submit"
+                            class="btn btn-sm btn-danger"
+                            onclick="return confirm('Are you sure you want to delete this source?')">
+                      <i class="bi bi-trash"></i> Delete
+                    </button>
+                  </form>
+                </td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="3" class="text-center">No sources added yet.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <a href="{% url 'calendars:source_add' calendar_pk=calendar.pk %}"
+         class="btn btn-success mb-4">
+        <i class="bi bi-plus-circle"></i> Add New Source
+      </a>
+      <hr />
+      <div class="mt-4">
+        <h3>Danger Zone</h3>
+        <p>Deleting this calendar will permanently remove it and all associated sources. This action cannot be undone.</p>
+        <button type="button"
+                class="btn btn-danger"
+                data-bs-toggle="modal"
+                data-bs-target="#deleteCalendarModal">
+          <i class="bi bi-exclamation-triangle"></i> Delete Calendar
+        </button>
+      </div>
+      <!-- Delete Calendar Modal -->
+      <div class="modal fade"
+           id="deleteCalendarModal"
+           tabindex="-1"
+           aria-labelledby="deleteCalendarModalLabel"
+           aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="deleteCalendarModalLabel">Confirm Deletion</h5>
+              <button type="button"
+                      class="btn-close"
+                      data-bs-dismiss="modal"
+                      aria-label="Close"></button>
+            </div>
+            <div class="modal-body">Are you sure you want to delete this calendar? This action cannot be undone.</div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+              <form method="post"
+                    action="{% url 'calendars:calendar_delete' calendar.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">
+                  <i class="bi bi-exclamation-triangle"></i> Delete Calendar
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+{% endblock content %}

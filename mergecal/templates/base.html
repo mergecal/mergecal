@@ -1,4 +1,5 @@
 {% load static i18n compress %}
+{% load tz_detect %}
 {% load django_htmx %}
 
 <!DOCTYPE html>
@@ -161,5 +162,8 @@
               data-y_margin="18"
               data-bottom="true"></script>
     {% endblock inline_javascript %}
+    {% load tz_detect %}
+
+    {% tz_detect %}
   </body>
 </html>

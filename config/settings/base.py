@@ -92,6 +92,7 @@ THIRD_PARTY_APPS = [
     "djstripe",
     "django_htmx",
     "ckeditor",
+    "tz_detect",
 ]
 
 LOCAL_APPS = [
@@ -175,6 +176,7 @@ MIDDLEWARE = [
     "mergecal.calendars.middleware.HtmxMessageMiddleware",
     "allauth.account.middleware.AccountMiddleware",
     "django_htmx.middleware.HtmxMiddleware",
+    "tz_detect.middleware.TimezoneMiddleware",
 ]
 
 # STATIC

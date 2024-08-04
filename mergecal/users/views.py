@@ -39,7 +39,7 @@ class UserRedirectView(LoginRequiredMixin, RedirectView):
     permanent = False
 
     def get_redirect_url(self):
-        return reverse("calendars:manage-calendar")
+        return reverse("calendars:calendar_list")
 
 
 user_redirect_view = UserRedirectView.as_view()

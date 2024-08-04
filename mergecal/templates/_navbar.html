@@ -35,8 +35,8 @@
         </li>
         {% if request.user.is_authenticated %}
           <li class="nav-item">
-            <a class="nav-link {% if request.resolver_match.url_name == 'manage-calendar' %}active{% endif %}"
-               href="{% url 'calendars:manage-calendar' %}">Calendars</a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'calendar_list' %}active{% endif %}"
+               href="{% url 'calendars:calendar_list' %}">Calendars</a>
           </li>
         {% endif %}
       </ul>

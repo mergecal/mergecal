@@ -24,6 +24,7 @@ django-libsass==0.9  # https://github.com/torchbox/django-libsass
 django-htmx==1.18.0 # https://github.com/adamchainz/django-htmx
 django-autoslug==1.9.9  # https://github.com/justinmayer/django-autoslug/
 django-ckeditor==6.7.1  # https://github.com/django-ckeditor/django-ckeditor
+django-tz-detect==0.5.0  # https://github.com/adamcharnock/django-tz-detect
 
 # Django REST Framework
 djangorestframework==3.15.1  # https://github.com/encode/django-rest-framework
