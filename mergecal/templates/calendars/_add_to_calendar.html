@@ -41,7 +41,7 @@
             {# djlint:on #}
           </li>
           <li class="list-group-item">
-            <a href="https://calendar.google.com/calendar/r?cid={{ domain_name }}{% url 'calendars:calendar_file' calendar.uuid %}"
+            <a href="https://calendar.google.com/calendar/r?cid=http://{{ domain_name|cut:'https://'|cut:'http://' }}{% url 'calendars:calendar_file' calendar.uuid %}"
                class="d-flex align-items-center text-decoration-none">
               <i class="bi bi-google me-2"></i> Google Calendar
             </a>
