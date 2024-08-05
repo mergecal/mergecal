@@ -16,4 +16,4 @@ SOURCE_LIMITS = {
 # Mailjet template ids
 class MailjetTemplates:
     FEEDBACK = "6172264"
-    BASE = "6190295"
+    BASE = "6190328"
