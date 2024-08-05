@@ -121,18 +121,27 @@ class SourceAddView(LoginRequiredMixin, CreateView):
     form_class = SourceForm
     template_name = "calendars/source_form.html"
 
+    def setup(self, request, *args, **kwargs):
+        super().setup(request, *args, **kwargs)
+        self.calendar = get_object_or_404(
+            Calendar,
+            uuid=self.kwargs["uuid"],
+            owner=self.request.user,
+        )
+
     def form_valid(self, form):
         form.instance.calendar.uuid = self.kwargs["uuid"]
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["calendar"] = get_object_or_404(
-            Calendar,
-            uuid=self.kwargs["uuid"],
-            owner=self.request.user,
-        )
+        context["calendar"] = self.calendar
         return context
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["calendar"] = self.calendar
+        return kwargs
 
     def get_success_url(self):
         return reverse(

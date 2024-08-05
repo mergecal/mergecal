@@ -12,7 +12,7 @@ django-stubs[compatible-mypy]==4.2.7  # https://github.com/typeddjango/django-st
 pytest==8.2.0  # https://github.com/pytest-dev/pytest
 pytest-sugar==1.0.0  # https://github.com/Frozenball/pytest-sugar
 time-machine==2.14.2  # https://github.com/adamchainz/time-machine
-kolo==2.33.3 # https://docs.kolo.app/en/latest/#trace-a-django-request
+kolo==2.33.4 # https://docs.kolo.app/en/latest/#trace-a-django-request
 
 # Documentation
 # ------------------------------------------------------------------------------

@@ -12,6 +12,7 @@ from icalendar import Calendar as Ical
 from requests.exceptions import RequestException
 
 from mergecal.core.constants import CALENDAR_LIMITS
+from mergecal.core.constants import SOURCE_LIMITS
 from mergecal.core.models import TimeStampedModel
 
 TWELVE_HOURS_IN_SECONDS = 43200
@@ -159,3 +160,16 @@ class Source(TimeStampedModel):
 
     def get_absolute_url(self):
         return reverse("calendars:source_edit", kwargs={"pk": self.pk})
+
+    def clean(self):
+        if not self.pk:  # Only check on creation, not update
+            calendar_source_count = Source.objects.filter(
+                calendar=self.calendar,
+            ).count()
+            limit = SOURCE_LIMITS.get(
+                self.calendar.owner.subscription_tier,
+                float("inf"),
+            )
+            if calendar_source_count >= limit:
+                msg = f"Users on the {self.calendar.owner.get_subscription_tier_display()} are limited to {limit} sources per calendars."
+                raise ValidationError(msg)

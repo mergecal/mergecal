@@ -74,6 +74,7 @@ class SourceForm(ModelForm):
         )
 
     def __init__(self, *args, **kwargs):
+        self.calendar = kwargs.pop("calendar", None)
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         # add submit button
@@ -85,3 +86,7 @@ class SourceForm(ModelForm):
             ),
             Div(Submit("submit", "Save")),
         )
+
+    def clean(self):
+        self.instance.calendar = self.calendar
+        return super().clean()
