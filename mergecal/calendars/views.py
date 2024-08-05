@@ -256,9 +256,9 @@ class CalendarFileAPIView(APIView):
             )
 
         response = HttpResponse(calendar_str, content_type="text/calendar")
-        response[
-            "Content-Disposition"
-        ] = f'attachment; filename="{uuid}.ics"'  # noqa E702
+        response["Content-Disposition"] = (
+            f'attachment; filename="{uuid}.ics"'  # noqa E702
+        )
         return response
 
 
