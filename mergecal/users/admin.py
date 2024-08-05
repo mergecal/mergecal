@@ -75,11 +75,10 @@ class UserAdmin(auth_admin.UserAdmin):
     @admin.action(description="Send feedback email")
     def send_feedback_email(self, request, queryset):
         message = EmailMessage(
-            subject=None,  # use the subject from the stored template
-            from_email=settings.DEFAULT_FROM_EMAIL,
             to=[user.email for user in queryset],
         )
         message.template_id = "6172264"  # your Mailjet template ID
+        message.from_email = None
 
         # Prepare merge data for all recipients
         message.merge_data = {user.email: {"name": user.name} for user in queryset}

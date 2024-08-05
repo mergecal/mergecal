@@ -42,12 +42,12 @@ urlpatterns = [
     path(
         "privacy/",
         TemplateView.as_view(template_name="pages/privacy.html"),
-        name="privacy_page",
+        name="privacy",
     ),
     path(
         "terms/",
         TemplateView.as_view(template_name="pages/terms.html"),
-        name="terms_page",
+        name="terms",
     ),
     path(
         "robots.txt",
