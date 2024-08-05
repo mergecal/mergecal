@@ -9,6 +9,8 @@ from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
+from mergecal.core.constants import MailjetTemplates
+
 from .forms import UserAdminChangeForm
 from .forms import UserAdminCreationForm
 from .models import User
@@ -77,7 +79,7 @@ class UserAdmin(auth_admin.UserAdmin):
         message = EmailMessage(
             to=[user.email for user in queryset],
         )
-        message.template_id = "6172264"  # your Mailjet template ID
+        message.template_id = MailjetTemplates.FEEDBACK
         message.from_email = None
 
         # Prepare merge data for all recipients

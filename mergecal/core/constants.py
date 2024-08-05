@@ -11,3 +11,9 @@ SOURCE_LIMITS = {
     User.SubscriptionTier.PERSONAL: 3,
     User.SubscriptionTier.BUSINESS: 5,
 }
+
+
+# Mailjet template ids
+class MailjetTemplates:
+    FEEDBACK = "6172264"
+    BASE = "6190295"
