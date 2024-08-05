@@ -40,6 +40,16 @@ urlpatterns = [
     path("blog/", include("mergecal.blog.urls", namespace="blog")),
     path("tz_detect/", include("tz_detect.urls")),
     path(
+        "privacy/",
+        TemplateView.as_view(template_name="pages/privacy.html"),
+        name="privacy_page",
+    ),
+    path(
+        "terms/",
+        TemplateView.as_view(template_name="pages/terms.html"),
+        name="terms_page",
+    ),
+    path(
         "robots.txt",
         TemplateView.as_view(template_name="robots.txt", content_type="text/plain"),
     ),  # add the robots.txt file
