@@ -82,7 +82,7 @@ class UserAdmin(auth_admin.UserAdmin):
         message.template_id = "6172264"  # your Mailjet template ID
 
         # Prepare merge data for all recipients
-        message.merge_data = {user.email: {"NAME": user.name} for user in queryset}
+        message.merge_data = {user.email: {"name": user.name} for user in queryset}
 
         # Send the message
         message.send()
