@@ -1,7 +1,9 @@
 from django.conf import settings
 from django.contrib import admin
+from django.contrib import messages
 from django.contrib.auth import admin as auth_admin
 from django.contrib.auth.decorators import login_required
+from django.core.mail import EmailMessage
 from django.db.models import Count
 from django.urls import reverse
 from django.utils.html import format_html
@@ -67,3 +69,26 @@ class UserAdmin(auth_admin.UserAdmin):
             + f"owner__id__exact={obj.id}"
         )
         return format_html('<a href="{}">{} Calendars</a>', url, count)
+
+    actions = ["send_feedback_email"]
+
+    @admin.action(description="Send feedback email")
+    def send_feedback_email(self, request, queryset):
+        message = EmailMessage(
+            subject=None,  # use the subject from the stored template
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to=[user.email for user in queryset],
+        )
+        message.template_id = "6172264"  # your Mailjet template ID
+
+        # Prepare merge data for all recipients
+        message.merge_data = {user.email: {"NAME": user.name} for user in queryset}
+
+        # Send the message
+        message.send()
+
+        self.message_user(
+            request,
+            f"Feedback email sent to {queryset.count()} users",
+            messages.SUCCESS,
+        )
