@@ -37,7 +37,7 @@ class CalendarMerger:
         cached_calendar = cache.get(cache_key)
 
         if cached_calendar is None:
-            logger.info(
+            logger.debug(
                 "Calendar data not found in cache, generating new for UUID: %s",
                 self.calendar.uuid,
             )
@@ -52,7 +52,10 @@ class CalendarMerger:
             cache_duration = self.calendar.effective_update_frequency
             cache.set(cache_key, calendar_str, cache_duration)
         else:
-            logger.info("Calendar data found in cache for UUID: %s", self.calendar.uuid)
+            logger.debug(
+                "Calendar data found in cache for UUID: %s",
+                self.calendar.uuid,
+            )
             calendar_str = cached_calendar
 
         return calendar_str
