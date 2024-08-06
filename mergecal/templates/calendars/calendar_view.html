@@ -3,18 +3,6 @@
 {% block title %}
   mergecal | My Calendar
 {% endblock title %}
-{% block javascript %}
-  {{ block.super }}
-  <script src="https://cdn.jsdelivr.net/npm/ical.js@1.5.0/build/ical.min.js"
-          integrity="sha256-uotVKltUv5neKsIlZxrxUccba0PaptusFj6p+w8Sons="
-          crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"
-          integrity="sha256-J37ZtjEw94oWBNZ9w/XC73raGXE9t10//XHJfKz2QCM="
-          crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/icalendar@6.1.10/index.global.min.js"
-          integrity="sha256-io4G+JpruJtt8SoSUOgLQrhBj/YtQXFgIvkGzBxQAUQ="
-          crossorigin="anonymous"></script>
-{% endblock javascript %}
 {% block content %}
   <div class="container">
     <div class="card">
