@@ -340,8 +340,7 @@ ACCOUNT_EMAIL_REQUIRED = True
 # https://docs.allauth.org/en/latest/account/configuration.html
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 # https://docs.allauth.org/en/latest/account/configuration.html
-# ACCOUNT_ADAPTER = "mergecal.users.adapters.AccountAdapter"
-ACCOUNT_ADAPTER = "mergecal.core.adapters.CustomAccountAdapter"
+ACCOUNT_ADAPTER = "mergecal.users.adapters.AccountAdapter"
 # https://docs.allauth.org/en/latest/account/forms.html
 ACCOUNT_FORMS = {"signup": "mergecal.users.forms.UserSignupForm"}
 # https://docs.allauth.org/en/latest/socialaccount/configuration.html
