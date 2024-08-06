@@ -5,9 +5,11 @@ from django.contrib.auth.signals import user_logged_in
 from django.dispatch import receiver
 from django.http import HttpRequest
 from djstripe.event_handlers import djstripe_receiver
+from djstripe.models import Coupon
 from djstripe.models import Customer
 from djstripe.models import Event
 from djstripe.models import Invoice
+from djstripe.models import Price
 from djstripe.models import Subscription
 
 from mergecal.users.models import User
@@ -46,6 +48,11 @@ def create_stripe_customer(
     **kwargs: dict[str, Any],
 ) -> None:
     customer, created = Customer.get_or_create(subscriber=user)
+    if created:
+        price = Price.objects.get(lookup_key="personal_monthly")
+        coupon = Coupon.objects.get(name="beta tester")
+        customer.add_coupon(coupon)
+        customer.subscribe(price=price.id)
 
 
 @djstripe_receiver("customer.subscription.trial_will_end")
