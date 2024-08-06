@@ -340,7 +340,8 @@ ACCOUNT_EMAIL_REQUIRED = True
 # https://docs.allauth.org/en/latest/account/configuration.html
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 # https://docs.allauth.org/en/latest/account/configuration.html
-ACCOUNT_ADAPTER = "mergecal.users.adapters.AccountAdapter"
+# ACCOUNT_ADAPTER = "mergecal.users.adapters.AccountAdapter"
+ACCOUNT_ADAPTER = "mergecal.core.adapters.CustomAccountAdapter"
 # https://docs.allauth.org/en/latest/account/forms.html
 ACCOUNT_FORMS = {"signup": "mergecal.users.forms.UserSignupForm"}
 # https://docs.allauth.org/en/latest/socialaccount/configuration.html
@@ -374,4 +375,4 @@ STRIPE_LIVE_MODE = False
 STRIPE_PRICE_TABLE_ID = env("STRIPE_PRICE_TABLE_ID", default="")
 
 # https://django-dynamic-breadcrumbs.readthedocs.io/en/latest/ref/settings.html#dynamic-breadcrumbs-path-max-depth
-DYNAMIC_BREADCRUMBS_PATH_MAX_DEPTH = 6
+DYNAMIC_BREADCRUMBS_PATH_MAX_DEPTH = 8
