@@ -49,6 +49,7 @@ class ManageBillingView(LoginRequiredMixin, RedirectView):
         return_url = self.request.build_absolute_uri(
             reverse("users:detail", kwargs={"username": self.request.user.username}),
         )
+        logger.info("User %s accessed the manage billing view", self.request.user)
 
         portal_session = stripe.billing_portal.Session.create(
             customer=customer.id,
