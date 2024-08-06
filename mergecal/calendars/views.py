@@ -89,6 +89,11 @@ class CalendarUpdateView(LoginRequiredMixin, UpdateView):
     slug_field = "uuid"
     slug_url_kwarg = "uuid"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["domain_name"] = get_site_url()
+        return context
+
     def get_queryset(self):
         return super().get_queryset().filter(owner=self.request.user)
 
@@ -224,3 +229,8 @@ def calendar_view(request: HttpRequest, uuid: str) -> HttpResponse:
         "calendars/calendar_view.html",
         context={"calendar": calendar},
     )
+
+
+def calendar_iframe(request: HttpRequest, uuid: str) -> HttpResponse:
+    calendar = get_object_or_404(Calendar, uuid=uuid)
+    return render(request, "calendars/calendar_iframe.html", {"calendar": calendar})

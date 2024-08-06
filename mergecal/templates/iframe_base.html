@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      {% block title %}
+        Embedded Calendar
+      {% endblock title %}
+    </title>
+    {% block css %}
+      {% compress css %}
+        <!-- This file stores project-specific CSS -->
+        <link href="{% static 'css/bootstrap.css' %}" rel="stylesheet" />
+        <link href="{% static 'css/project.css' %}" rel="stylesheet" />
+        <link rel="stylesheet" type="text/x-scss" href="{% static "scss/custom-bootstrap.scss" %}" />
+      {% endcompress %}
+    {% endblock css %}
+    {% block javascript %}
+      {% compress js %}
+        <script defer src="{% static 'js/bootstrap.bundle.js' %}"></script>
+        <script defer src="{% static 'js/ical.min.js' %}"></script>
+        <script defer src="{% static 'js/fullcalendar.index.global.min.js' %}"></script>
+        <script defer
+                src="{% static 'js/fullcalendar.icalendar.index.global.min.js' %}"></script>
+        <script defer src="{% static 'js/project.js' %}"></script>
+      {% endcompress %}
+    {% endblock javascript %}
+  </head>
+  <body>
+    {% block content %}
+      <p>This is where teh Calendar will be placed</p>
+    {% endblock content %}
+  </body>
+</html>

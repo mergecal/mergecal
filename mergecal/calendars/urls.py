@@ -7,6 +7,7 @@ from mergecal.calendars.views import CalendarUpdateView
 from mergecal.calendars.views import SourceAddView
 from mergecal.calendars.views import SourceEditView
 from mergecal.calendars.views import UserCalendarListView
+from mergecal.calendars.views import calendar_iframe
 from mergecal.calendars.views import calendar_view
 from mergecal.calendars.views import source_delete
 
@@ -27,4 +28,5 @@ urlpatterns = [
     path("<uuid>.ical", CalendarFileAPIView.as_view(), name="calendar_file"),
     path("<uuid>.ics", CalendarFileAPIView.as_view(), name="calendar_file_ics"),
     path("<uuid>/calendar/", calendar_view, name="calendar_view"),
+    path("<uuid>/iframe/", calendar_iframe, name="calendar_iframe"),
 ]
