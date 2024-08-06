@@ -56,7 +56,10 @@ class User(AbstractUser):
 
     @cached_property
     def can_set_update_frequency(self) -> bool:
-        return self.subscription_tier != self.SubscriptionTier.FREE
+        return self.subscription_tier in [
+            self.SubscriptionTier.BUSINESS,
+            self.SubscriptionTier.SUPPORTER,
+        ]
 
     @cached_property
     def can_remove_branding(self) -> bool:
