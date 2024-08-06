@@ -28,5 +28,5 @@ urlpatterns = [
     path("<uuid>.ical", CalendarFileAPIView.as_view(), name="calendar_file"),
     path("<uuid>.ics", CalendarFileAPIView.as_view(), name="calendar_file_ics"),
     path("<uuid>/calendar/", calendar_view, name="calendar_view"),
-    path("<uuid>/iframe/", calendar_iframe, name="calendar_iframe"),
+    path("iframe/<uuid>/", calendar_iframe, name="calendar_iframe"),
 ]
