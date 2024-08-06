@@ -115,16 +115,29 @@ class CalendarMerger:
 
         session = self.session
 
+        def validate_calendar(cal: ICalendar) -> None:
+            if not cal.walk():
+                msg = f"Calendar from {url} contains no components"
+                raise ValueError(msg)
+
         try:
             response = session.get(url, headers=headers, timeout=30)
             response.encoding = "utf-8"
             response.raise_for_status()
-            return ICalendar.from_ical(response.text)
+
+            # Log the response content for debugging
+            logger.debug("Response content for %s: %s...", url, response.text[:500])
+
+            calendar = ICalendar.from_ical(response.text)
+            validate_calendar(calendar)
         except RequestException as e:
-            self._add_source_error(source, str(e))
-        except ValueError:
-            logger.exception("Error parsing iCalendar data from %s", url)
-        return None
+            self._add_source_error(source, f"HTTP error: {e!s}")
+            return None
+        except ValueError as e:
+            self._add_source_error(source, f"Parsing error: {e!s}")
+            return None
+
+        return calendar
 
     def _process_event(self, event: Event, source: Source, existing_uids: set) -> None:
         uid = event.get("uid")
@@ -182,6 +195,7 @@ class CalendarMerger:
             error_description = "The following sources had errors:\n\n"
             for error in self.source_errors:
                 error_description += f"- {error['source_name']} ({error['source_url']}): {error['error']}\n"  # noqa: E501
+            error_event.add("description", error_description)
             error_event.add("dtstart", timezone.now())
             error_event.add("dtend", timezone.now() + timedelta(hours=1))
             self.merged_calendar.add_component(error_event)
