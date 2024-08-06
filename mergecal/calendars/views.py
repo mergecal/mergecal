@@ -13,6 +13,7 @@ from django.shortcuts import redirect
 from django.shortcuts import render
 from django.urls import reverse
 from django.urls import reverse_lazy
+from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.http import require_POST
 from django.views.generic import CreateView
 from django.views.generic import DeleteView
@@ -231,6 +232,7 @@ def calendar_view(request: HttpRequest, uuid: str) -> HttpResponse:
     )
 
 
+@xframe_options_exempt
 def calendar_iframe(request: HttpRequest, uuid: str) -> HttpResponse:
     calendar = get_object_or_404(Calendar, uuid=uuid)
     return render(request, "calendars/calendar_iframe.html", {"calendar": calendar})
