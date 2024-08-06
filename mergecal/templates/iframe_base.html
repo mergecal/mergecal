@@ -15,7 +15,6 @@
       {% compress css %}
         <!-- This file stores project-specific CSS -->
         <link href="{% static 'css/bootstrap.css' %}" rel="stylesheet" />
-        <link href="{% static 'css/project.css' %}" rel="stylesheet" />
         <link rel="stylesheet" type="text/x-scss" href="{% static "scss/custom-bootstrap.scss" %}" />
       {% endcompress %}
     {% endblock css %}
@@ -26,7 +25,6 @@
         <script defer src="{% static 'js/fullcalendar.index.global.min.js' %}"></script>
         <script defer
                 src="{% static 'js/fullcalendar.icalendar.index.global.min.js' %}"></script>
-        <script defer src="{% static 'js/project.js' %}"></script>
       {% endcompress %}
     {% endblock javascript %}
   </head>
