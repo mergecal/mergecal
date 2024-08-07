@@ -18,9 +18,27 @@ def user(db) -> User:
 
 
 @pytest.fixture(scope="session", autouse=True)
+def patch_price_get():
+    with patch(
+        "djstripe.models.core.Price.objects.get",
+        return_value=MagicMock(id="price_123", lookup_key="personal_monthly"),
+    ) as mock_method:
+        yield mock_method
+
+
+@pytest.fixture(scope="session", autouse=True)
 def patch_customer_get_or_create():
     with patch(
         "djstripe.models.Customer.get_or_create",
         return_value=(MagicMock(), True),
+    ) as mock_method:
+        yield mock_method
+
+
+@pytest.fixture(scope="session", autouse=True)
+def patch_coupon_get():
+    with patch(
+        "djstripe.models.billing.Coupon.objects.get",
+        return_value=MagicMock(name="beta tester", id="coupon_123"),
     ) as mock_method:
         yield mock_method

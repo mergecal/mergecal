@@ -154,6 +154,14 @@ class Source(TimeStampedModel):
         on_delete=models.CASCADE,
         related_name="calendarOf",
     )
+    include_title = models.BooleanField(default=True)
+    include_description = models.BooleanField(default=True)
+    include_location = models.BooleanField(default=True)
+    custom_prefix = models.CharField(max_length=50, blank=True)
+    exclude_keywords = models.TextField(
+        blank=True,
+        help_text="Comma-separated list of keywords to exclude events",
+    )
 
     def __str__(self):
         return self.name
@@ -172,4 +180,14 @@ class Source(TimeStampedModel):
             )
             if calendar_source_count >= limit:
                 msg = f"Users on the {self.calendar.owner.get_subscription_tier_display()} are limited to {limit} sources per calendars."
+                raise ValidationError(msg)
+        if not self.calendar.owner.can_customize_sources:
+            if (
+                not self.include_title
+                or not self.include_description
+                or not self.include_location
+                or self.custom_prefix
+                or self.exclude_keywords
+            ):
+                msg = "Customization features are only available for Business and Supporter plans"
                 raise ValidationError(msg)

@@ -20,6 +20,69 @@
       {% endif %}
       Source for {{ calendar.name }}
     </h1>
-    {% crispy form %}
+    <div class="row g-4">
+      <div class="col-lg-6">
+        <div class="card">
+          <div class="card-body">
+            <h2 class="card-title h4 mb-4">Source Details</h2>
+            {% crispy form %}
+            {% if not user.can_customize_sources %}
+              <div class="alert alert-info mt-3">
+                <strong>Upgrade to Business or Supporter plan</strong> to access advanced customization features.
+                <form method="post"
+                      action="{% url 'billing:manage_billing' %}"
+                      class="mt-2">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-primary btn-sm">Upgrade Now</button>
+                </form>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="card">
+          <div class="card-body">
+            <h2 class="card-title h4 mb-4">Customization Options</h2>
+            <p class="card-text">Use these options to customize how events from this source appear in your merged calendar:</p>
+            <ul class="list-group list-group-flush mb-3">
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span><strong>Name:</strong> Internal Name of calendar source</span>
+                <span class="badge bg-primary rounded-pill">Basic</span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span><strong>Url:</strong> The Url leading to the calendar feed</span>
+                <span class="badge bg-primary rounded-pill">Basic</span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span><strong>Include Title:</strong> Show the original event title</span>
+                <span class="badge bg-success rounded-pill">Premium</span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span><strong>Include Description:</strong> Include the event description</span>
+                <span class="badge bg-success rounded-pill">Premium</span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span><strong>Include Location:</strong> Show the event location</span>
+                <span class="badge bg-success rounded-pill">Premium</span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span><strong>Custom Prefix:</strong> Add a prefix to all event titles</span>
+                <span class="badge bg-success rounded-pill">Premium</span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span><strong>Exclude Keywords:</strong> Filter out events by keywords</span>
+                <span class="badge bg-success rounded-pill">Premium</span>
+              </li>
+            </ul>
+            {% if not user.can_customize_sources %}
+              <div class="alert alert-warning">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>Premium options are available for Business and Supporter plan users.
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 {% endblock content %}

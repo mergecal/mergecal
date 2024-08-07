@@ -143,21 +143,43 @@ class CalendarMerger:
         uid = event.get("uid")
         if uid is None or uid not in existing_uids:
             self._apply_event_rules(event, source)
-            self.merged_calendar.add_component(event)
-            if uid is not None:
-                existing_uids.add(uid)
+            if self._should_include_event(event, source):
+                self.merged_calendar.add_component(event)
+                if uid is not None:
+                    existing_uids.add(uid)
 
     def _apply_event_rules(self, event: Event, source: Source) -> None:
-        if self.calendar.include_source:
-            event["summary"] = f"{source.name}: {event.get('summary')}"
+        if self.calendar.owner.can_customize_sources:
+            if not source.include_title:
+                event["summary"] = source.custom_prefix or source.name
+            elif source.custom_prefix:
+                event["summary"] = f"{source.custom_prefix}: {event.get('summary')}"
+
+            if not source.include_description:
+                event.pop("description", None)
+
+            if not source.include_location:
+                event.pop("location", None)
 
         if self.calendar.show_branding:
             self._add_branding(event)
+
+    def _should_include_event(self, event: Event, source: Source) -> bool:
+        if not self.calendar.owner.can_customize_sources or not source.exclude_keywords:
+            return True
+
+        exclude_keywords = [
+            kw.strip().lower() for kw in source.exclude_keywords.split(",")
+        ]
+        event_title = event.get("summary", "").lower()
+        return not any(kw in event_title for kw in exclude_keywords)
 
     def _add_branding(self, event: Event) -> None:
         branding = "\nThis event is brought to you by https://mergecal.org."
         description = event.get("description", "")
         event["description"] = description + branding
+        summary = event.get("summary", "")
+        event["summary"] = summary + " (via MergeCal.org)"
 
     def _add_domain_warning(self, event: Event) -> None:
         warning = (

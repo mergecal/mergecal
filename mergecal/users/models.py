@@ -67,3 +67,10 @@ class User(AbstractUser):
             self.SubscriptionTier.BUSINESS,
             self.SubscriptionTier.SUPPORTER,
         ]
+
+    @cached_property
+    def can_customize_sources(self):
+        return self.subscription_tier in [
+            self.SubscriptionTier.BUSINESS,
+            self.SubscriptionTier.SUPPORTER,
+        ]
