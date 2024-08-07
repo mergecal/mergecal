@@ -80,16 +80,39 @@ class CalendarAdmin(admin.ModelAdmin):
 
 @admin.register(Source)
 class SourceAdmin(admin.ModelAdmin):
-    list_display = ("name", "url", "calendar", "created", "modified")
-    search_fields = [
+    list_display = (
         "name",
-        "calendar__name",
         "url",
-    ]  # Enable search by name and calendar name
-    list_filter = ("calendar",)
+        "calendar",
+        "include_title",
+        "include_description",
+        "include_location",
+        "custom_prefix",
+    )
+    search_fields = ["name", "calendar__name", "url"]
+    list_filter = (
+        "calendar",
+        "include_title",
+        "include_description",
+        "include_location",
+    )
 
     fieldsets = (
-        (None, {"fields": ("name", "url", "calendar", "created", "modified")}),
+        (None, {"fields": ("name", "url", "calendar")}),
+        (
+            "Customization",
+            {
+                "fields": (
+                    "include_title",
+                    "include_description",
+                    "include_location",
+                    "custom_prefix",
+                    "exclude_keywords",
+                ),
+                "classes": ("collapse",),
+            },
+        ),
+        ("Timestamps", {"fields": ("created", "modified")}),
     )
 
     readonly_fields = ("created", "modified")
