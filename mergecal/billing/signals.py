@@ -25,8 +25,8 @@ def update_user_subscription_tier(user: User, subscription: Subscription) -> Non
         match subscription.plan.product.name:
             case User.SubscriptionTier.PERSONAL.label:
                 new_tier = User.SubscriptionTier.PERSONAL
-            case User.SubscriptionTier.BUISNESS.label:
-                new_tier = User.SubscriptionTier.BUISNESS
+            case User.SubscriptionTier.BUSINESS.label:
+                new_tier = User.SubscriptionTier.BUSINESS
             case User.SubscriptionTier.SUPPORTER.label:
                 new_tier = User.SubscriptionTier.SUPPORTER
     else:
