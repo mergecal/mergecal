@@ -34,17 +34,17 @@
           </div>
         </div>
       </div>
-      <!-- Calendar Embed -->
-      <div class="col-md-6 mb-4">
-        <div class="card h-100">
-          <div class="card-header">
-            <h2 class="card-title">Calendar Preview</h2>
+      {% if calendar.pk %}
+        <!-- Calendar Embed -->
+        <div class="col-md-6 mb-4">
+          <div class="card h-100">
+            <div class="card-header">
+              <h2 class="card-title">Calendar Preview</h2>
+            </div>
+            <div class="card-body">{% include 'calendars/_calendar_embed.html' %}</div>
           </div>
-          <div class="card-body">{% include 'calendars/_calendar_embed.html' %}</div>
         </div>
       </div>
-    </div>
-    {% if calendar.pk %}
       <!-- Quick Info and Upgrade CTA -->
       <div class="row mb-4">
         <div class="col-lg-6 mb-4 mb-lg-0">
