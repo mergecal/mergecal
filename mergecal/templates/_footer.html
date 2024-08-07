@@ -1,0 +1,70 @@
+<footer class="footer mt-auto py-4 bg-body-tertiary">
+  <div class="container">
+    <div class="row gy-4">
+      <div class="col-md-4">
+        <h5 class="text-body-emphasis mb-3">MergeCal</h5>
+        <p class="text-body-secondary mb-0">Simplify your calendar management</p>
+      </div>
+      <div class="col-md-4">
+        <h5 class="text-body-emphasis mb-3">Quick Links</h5>
+        <ul class="list-unstyled">
+          <li>
+            <a href="{% url 'home' %}" class="link-secondary text-decoration-none">Home</a>
+          </li>
+          <li>
+            <a href="{% url 'about' %}" class="link-secondary text-decoration-none">About</a>
+          </li>
+          <li>
+            <a href="{% url 'privacy' %}"
+               class="link-secondary text-decoration-none">Privacy Policy</a>
+          </li>
+          <li>
+            <a href="{% url 'terms' %}" class="link-secondary text-decoration-none">Terms of Service</a>
+          </li>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5 class="text-body-emphasis mb-3">Connect</h5>
+        <div class="d-flex flex-wrap">
+          <a href="mailto:feedback@mergecal.org?subject=Feedback"
+             class="link-secondary me-3 mb-2 fs-5"
+             aria-label="Send Feedback">
+            <i class="bi bi-envelope"></i>
+          </a>
+          <a href="https://github.com/abe-101/mergecal"
+             class="link-secondary me-3 mb-2 fs-5"
+             aria-label="GitHub">
+            <i class="bi bi-github"></i>
+          </a>
+          <a href="https://discord.gg/2vqUzSpt6N"
+             class="link-secondary me-3 mb-2 fs-5"
+             aria-label="Join Our Discord">
+            <i class="bi bi-discord"></i>
+          </a>
+          <a href="https://twitter.com/abe__101"
+             class="link-secondary me-3 mb-2 fs-5"
+             aria-label="Twitter">
+            <i class="bi bi-twitter-x"></i>
+          </a>
+          <a href="https://www.reddit.com/r/mergecal/"
+             class="link-secondary me-3 mb-2 fs-5"
+             aria-label="Reddit">
+            <i class="bi bi-reddit"></i>
+          </a>
+        </div>
+        <p class="text-body-secondary mt-2 mb-0">Email: feedback@mergecal.org</p>
+      </div>
+    </div>
+    <hr class="my-4 border-top" />
+    <div class="row">
+      <div class="col-md-6 text-center text-md-start">
+        <p class="text-body-secondary mb-0">© {% now "Y" %} MergeCal. All rights reserved.</p>
+      </div>
+      <div class="col-md-6 text-center text-md-end">
+        <a href="{% url 'privacy' %}"
+           class="link-secondary text-decoration-none me-3">Privacy Policy</a>
+        <a href="{% url 'terms' %}" class="link-secondary text-decoration-none">Terms of Service</a>
+      </div>
+    </div>
+  </div>
+</footer>

@@ -93,7 +93,7 @@
     {% endblock navbar %}
     {% block body %}
       <div class="mb-1"></div>
-      <div class="container mt-2">
+      <div class="container mt-2 mb-5">
         <div data-toast-container
              class="toast-container position-fixed top-0 end-0 p-3">
           <div data-toast-template
@@ -135,6 +135,7 @@
           {% endblock content %}
         {% endblock main %}
       </div>
+      {% include "_footer.html" %}
       <!-- /container -->
     {% endblock body %}
     {% block modal %}
