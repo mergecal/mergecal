@@ -5,7 +5,7 @@
 
 Welcome to mergecal, a Django webapp that allows you to merge multiple iCalendar feeds into a single feed. With mergecal, you can easily keep track of events from multiple sources in one place.
 
-Available at https://mergecal.habet.dev/
+Available at [https://MergeCal.org](https://mergecal.org)
 
 ## Using mergecal
 
