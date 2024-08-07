@@ -4,6 +4,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import HTML
 from crispy_forms.layout import Field
 from crispy_forms.layout import Layout
+from crispy_forms.layout import Submit
 from django.forms import ModelForm
 from django.forms import ValidationError
 
@@ -76,6 +77,16 @@ class SourceForm(ModelForm):
     def __init__(self, *args, **kwargs):
         self.calendar = kwargs.pop("calendar", None)
         super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        # add submit button
+        self.helper.layout = Layout(
+            Div(
+                Field("name", css_class="form-control"),
+                Field("url", css_class="form-control"),
+                css_class="form-row",
+            ),
+            Div(Submit("submit", "Save")),
+        )
 
     def clean(self):
         cleaned_data = super().clean()
