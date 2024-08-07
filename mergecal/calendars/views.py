@@ -3,6 +3,7 @@ import logging
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import PermissionDenied
 from django.db.models import Count
 from django.db.models import Prefetch
 from django.http import Http404
@@ -161,10 +162,27 @@ class SourceEditView(LoginRequiredMixin, UpdateView):
     form_class = SourceForm
     template_name = "calendars/source_form.html"
 
+    def get_object(self, queryset=None):
+        obj = super().get_object(queryset)
+        if obj.calendar.owner != self.request.user:
+            error_message = "You don't have permission to edit this source."
+            raise PermissionDenied(error_message)
+        return obj
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["calendar"] = self.object.calendar
+        return kwargs
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["calendar"] = self.object.calendar
         return context
+
+    def form_valid(self, form):
+        form.instance.calendar = self.object.calendar
+        messages.success(self.request, "Source updated successfully.")
+        return super().form_valid(form)
 
     def get_success_url(self):
         return reverse(
