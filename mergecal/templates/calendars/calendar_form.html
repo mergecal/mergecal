@@ -133,13 +133,43 @@
                         </a>
                         <button type="button"
                                 class="btn btn-sm btn-danger"
-                                hx-delete="{% url 'calendars:source_delete' source.id %}"
-                                hx-confirm="Are you sure you want to delete this source?">
+                                data-bs-toggle="modal"
+                                data-bs-target="#deleteSourceModal{{ source.id }}">
                           <i class="bi bi-trash"></i> Delete
                         </button>
                       </div>
                     </td>
                   </tr>
+                  <!-- Delete Source Modal -->
+                  <div class="modal fade"
+                       id="deleteSourceModal{{ source.id }}"
+                       tabindex="-1"
+                       aria-labelledby="deleteSourceModalLabel{{ source.id }}"
+                       aria-hidden="true">
+                    <div class="modal-dialog">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="deleteSourceModalLabel{{ source.id }}">Confirm Source Deletion</h5>
+                          <button type="button"
+                                  class="btn-close"
+                                  data-bs-dismiss="modal"
+                                  aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                          Are you sure you want to delete the source "{{ source.name }}"? This action cannot be undone.
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                          <form method="post" action="{% url 'calendars:source_delete' source.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">
+                              <i class="bi bi-exclamation-triangle"></i> Delete Source
+                            </button>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 {% empty %}
                   <tr>
                     <td colspan="3" class="text-center">No sources added yet.</td>
