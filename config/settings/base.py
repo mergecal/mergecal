@@ -93,7 +93,6 @@ THIRD_PARTY_APPS = [
     "django_htmx",
     "ckeditor",
     "tz_detect",
-    "dynamic_breadcrumbs",
 ]
 
 LOCAL_APPS = [

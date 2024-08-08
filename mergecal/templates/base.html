@@ -125,11 +125,6 @@
           {% endfor %}
         </div>
         {% block main %}
-          {% if request.user.is_authenticated and request.resolver_match.namespace == 'calendars' %}
-            {% if breadcrumbs %}
-              <div class="container">{% include "dynamic_breadcrumbs/breadcrumbs.html" with breadcrumbs=breadcrumbs %}</div>
-            {% endif %}
-          {% endif %}
           {% block content %}
             <p>Use this document as a way to quick start any new project.</p>
           {% endblock content %}

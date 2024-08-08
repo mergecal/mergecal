@@ -1,10 +1,24 @@
 {% extends "base.html" %}
 
 {% block title %}
-  mergecal | My Calendar
+  mergecal | {{ calendar.name }}
 {% endblock title %}
 {% block content %}
-  <div class="container">
+  <div class="container mt-4">
+    <div class="row align-items-center mb-4">
+      <div class="col-md-4">
+        {% if user.is_authenticated %}
+          <a href="{% url 'calendars:calendar_list' %}"
+             class="btn btn-outline-primary">
+            <i class="bi bi-arrow-left"></i> Back to My Calendars
+          </a>
+        {% endif %}
+      </div>
+      <div class="col-md-4 text-center">
+        <h2>{{ calendar.name }}</h2>
+      </div>
+      <div class="col-md-4"></div>
+    </div>
     <div class="card">
       <div class="card-body">{% include 'calendars/_calendar_embed.html' %}</div>
     </div>

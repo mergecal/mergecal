@@ -12,6 +12,14 @@
 {% endblock title %}
 {% block content %}
   <div class="container mt-4">
+    <div class="row mb-4">
+      <div class="col">
+        <a href="{% url 'calendars:calendar_update' uuid=calendar.uuid %}"
+           class="btn btn-outline-primary">
+          <i class="bi bi-arrow-left"></i> Back to Calendar
+        </a>
+      </div>
+    </div>
     <h1 class="mb-4">
       {% if form.instance.pk %}
         Edit
