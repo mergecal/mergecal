@@ -223,7 +223,6 @@ TEMPLATES = [
                 "django.template.context_processors.tz",
                 "django.contrib.messages.context_processors.messages",
                 "mergecal.users.context_processors.allauth_settings",
-                "dynamic_breadcrumbs.context_processors.breadcrumbs",
             ],
         },
     },
