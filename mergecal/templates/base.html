@@ -145,22 +145,6 @@
       });
     </script>
       {% endcomment %}
-      <script>
-        document.body.addEventListener('htmx:configRequest', (event) => {
-          event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
-        })
-      </script>
-      <script data-name="BMC-Widget"
-              data-cfasync="false"
-              src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js"
-              data-id="abe101"
-              data-description="Support me on Buy me a coffee!"
-              data-message=""
-              data-color="#008080"
-              data-position="Right"
-              data-x_margin="18"
-              data-y_margin="18"
-              data-bottom="true"></script>
     {% endblock inline_javascript %}
     {% load tz_detect %}
 
