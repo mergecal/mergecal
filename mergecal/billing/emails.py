@@ -18,7 +18,7 @@ def upgrade_subscription_email(
 ) -> MultiBodyTemplateEmailMessage:
     subject = f"Welcome to MergeCal {new_tier.label}!"
     bodies = get_subscription_email_bodies(new_tier)
-    ps = "P.S. If you have any questions, please don't hesitate to contact our support team."
+    ps = get_subscription_email_ps(new_tier)
     return MultiBodyTemplateEmailMessage(
         subject=subject,
         to_users=[user],
@@ -48,28 +48,35 @@ def downgrade_subscription_email(user: User) -> MultiBodyTemplateEmailMessage:
     )
 
 
-def get_subscription_email_bodies(tier: User.SubscriptionTier) -> list[str]:
+def get_subscription_email_bodies(tier: User.SubscriptionTier) -> tuple[list[str], str]:
     base_url = get_site_url()
     account_url = base_url + reverse("calendars:calendar_list")
-    common_intro = f"Welcome to the MergeCal {tier.label}! I'm Abe, the creator of MergeCal, and I'm thrilled to have you on board."
+
     bodies = {
         User.SubscriptionTier.PERSONAL: [
-            common_intro,
-            "With the Personal tier, you now have access to:",
-            "• Updates every 12 hours to merged calendar feeds  • Limit of 2 calendars  • Limit of 3 feeds per calendar  • MergeCal branding included",
-            f"To start using your new features, head over to your calendar management page at {account_url}. If you need any assistance, our support team and I are here to help!",
+            "Thank you for upgrading to MergeCal Personal. We're excited to have you on board and can't wait for you to experience the enhanced features of your new plan.",
+            f"To get started, please visit your Calendar Management page at {account_url}. Here you can set up your merged calendars and explore the new capabilities at your disposal.",
+            "If you have any questions or need assistance, our support team is here to help. We're committed to making your experience with MergeCal as smooth and productive as possible.",
         ],
         User.SubscriptionTier.BUSINESS: [
-            common_intro,
-            "The Business tier unlocks powerful features for professional calendar management:",
-            "• Real-time updates to merged calendar feeds  • Up to 5 calendars integration  • Limit of 5 feeds per calendar  • Option to remove MergeCal branding  • Customizable event titles and descriptions",
-            f"To configure your new features, please visit your calendar management page at {account_url}. Our team and I are ready to assist you in maximizing the benefits of your Business tier subscription.",
+            "Welcome to MergeCal Business. We're thrilled that you've chosen our service for your business needs and we're committed to helping you make the most of it.",
+            f"To leverage your new subscription, visit your enhanced Calendar Management page at {account_url}. Here you can configure your expanded calendar integrations and customize settings to suit your business requirements.",
+            "Our support team is ready to assist you in maximizing these features. We're dedicated to helping your business streamline its calendar management and boost productivity.",
         ],
         User.SubscriptionTier.SUPPORTER: [
-            common_intro,
-            "As a Supporter, you now have access to our premium experience:",
-            "• Unlimited Calendars and Calendar feeds  • Real-time updates  • MergeCal branding removal option  • Embed Merged Calendar on your site (iFrame)  • Influence on future development  • Optional recognition on the MergeCal website  • Access to exclusive Discord community",
-            f"To explore your new features and benefits, check out your calendar management page at {account_url}. I'm personally thrilled to have you as a Supporter and look forward to your input on MergeCal's future!",
+            "Thank you for becoming a MergeCal Supporter. Your commitment is invaluable in driving our development and improving MergeCal for everyone.",
+            f"To start exploring your new capabilities, visit your Calendar Management page at {account_url}. You'll find a host of advanced features there, including unlimited calendars and embedding options.",
+            "As a Supporter, your input is especially valuable to us. We welcome your suggestions for new features or improvements. Your support truly makes a difference in shaping the future of MergeCal.",
+            "Reply with your Discord username to join our exclusive community. Connect with power users and get early feature insights.",
         ],
     }
-    return bodies.get(tier, [])
+    return bodies.get(tier, ([], ""))
+
+
+def get_subscription_email_ps(tier: User.SubscriptionTier) -> str:
+    ps = {
+        User.SubscriptionTier.PERSONAL: "If you're open to sharing how you use MergeCal, we'd be interested in featuring your story. Reply to this email if you'd like to participate.",
+        User.SubscriptionTier.BUSINESS: "If you're open to sharing how you use MergeCal, we'd be interested in featuring your story. Reply to this email if you'd like to participate.",
+        User.SubscriptionTier.SUPPORTER: "If you're open to sharing how you use MergeCal, we'd be interested in featuring your story. Reply to this email if you'd like to participate.",
+    }
+    return ps.get(tier, "")
