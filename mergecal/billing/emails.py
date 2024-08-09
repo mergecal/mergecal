@@ -24,7 +24,7 @@ def upgrade_subscription_email(
         to_users=[user],
         bodies=bodies,
         ps=ps,
-        from_email="Abe <abe@mergecal.com>",
+        from_email="Abe <abe@mergecal.org>",
         template_id=MailjetTemplates.FOUR_PARAGRAPHS,
     )
 
