@@ -32,7 +32,6 @@ def upgrade_subscription_email(
 def downgrade_subscription_email(user: User) -> MultiBodyTemplateEmailMessage:
     subject = "Your MergeCal Subscription Has Been Updated"
     bodies = [
-        f"Dear {user.username},",
         "I wanted to personally inform you that your MergeCal subscription has been updated to the Free tier. I hope you've found value in the premium features you've experienced.",
         "You can still enjoy MergeCal's core features on the Free tier, including basic calendar merging capabilities.",
         "If you'd like to regain access to premium features, you can upgrade your subscription at any time from your account settings.",
@@ -75,8 +74,8 @@ def get_subscription_email_bodies(tier: User.SubscriptionTier) -> tuple[list[str
 
 def get_subscription_email_ps(tier: User.SubscriptionTier) -> str:
     ps = {
-        User.SubscriptionTier.PERSONAL: "If you're open to sharing how you use MergeCal, we'd be interested in featuring your story. Reply to this email if you'd like to participate.",
-        User.SubscriptionTier.BUSINESS: "If you're open to sharing how you use MergeCal, we'd be interested in featuring your story. Reply to this email if you'd like to participate.",
-        User.SubscriptionTier.SUPPORTER: "If you're open to sharing how you use MergeCal, we'd be interested in featuring your story. Reply to this email if you'd like to participate.",
+        User.SubscriptionTier.PERSONAL: "P.S. If you're open to sharing how you use MergeCal, we'd be interested in featuring your story. Reply to this email if you'd like to participate.",
+        User.SubscriptionTier.BUSINESS: "P.S. If you're open to sharing how you use MergeCal, we'd be interested in featuring your story. Reply to this email if you'd like to participate.",
+        User.SubscriptionTier.SUPPORTER: "P.S. If you're open to sharing how you use MergeCal, we'd be interested in featuring your story. Reply to this email if you'd like to participate.",
     }
     return ps.get(tier, "")
