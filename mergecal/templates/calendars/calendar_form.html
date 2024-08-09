@@ -11,6 +11,20 @@
 {% endblock title %}
 {% block content %}
   <div class="container-fluid mt-4">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a href="{% url 'calendars:calendar_list' %}">Calendars</a>
+        </li>
+        <li class="breadcrumb-item active" ara-current="page">
+          {% if calendar.pk %}
+            Edit Calendar: {{ calendar.name }}
+          {% else %}
+            Create New Calendar
+          {% endif %}
+        </li>
+      </ol>
+    </nav>
     <div class="row">
       <!-- Calendar Edit Form -->
       <div class="col-md-6 mb-4">
@@ -32,6 +46,14 @@
               <a href="{% url 'calendars:calendar_list' %}" class="btn btn-secondary">Cancel</a>
             </form>
           </div>
+          {% if calendar.pk %}
+            <div class="card-footer">
+              <small class="d-flex justify-content-between text-muted">
+                <span>UUID: {{ calendar.uuid }}</span>
+                <span>Last modified: {{ calendar.modified|date:"M d, Y H:i" }}</span>
+              </small>
+            </div>
+          {% endif %}
         </div>
       </div>
       {% if calendar.pk %}
@@ -46,65 +68,30 @@
         </div>
       </div>
       <!-- Quick Info and Upgrade CTA -->
-      <div class="row mb-4">
-        <div class="col-lg-6 mb-4 mb-lg-0">
-          <div class="card h-100">
-            <div class="card-header bg-primary text-white">
-              <h3 class="card-title mb-0">Quick Info</h3>
-            </div>
-            <div class="card-body">
-              <p>
-                <strong>Calendar ID:</strong> {{ calendar.uuid }}
-              </p>
-              <p>
-                <strong>Created:</strong> {{ calendar.created|date:"F d, Y H:i" }}
-              </p>
-              <p>
-                <strong>Last Modified:</strong> {{ calendar.modified|date:"F d, Y H:i" }}
-              </p>
-              <div class="embed-code mt-4">
-                <label for="embedCode" class="form-label">
-                  <strong>Embed this calendar on your website:</strong>
-                </label>
-                <div class="input-group">
-                  <textarea id="embedCode" class="form-control" rows="3" readonly><iframe src="{{ domain_name }}{% url 'calendars:calendar_iframe' calendar.uuid %}" width="100%" height="600" style="border: 1px solid #ccc;" title="MergeCal Embedded Calendar"></iframe></textarea>
-                </div>
-                <small class="text-muted">Copy and paste this code to embed your calendar.</small>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-6">
-          {% if not user.can_set_update_frequency or not user.can_remove_branding %}
-            <div class="card h-100">
-              <div class="card-header bg-info text-white">
-                <h3 class="card-title mb-0">Upgrade for More Features!</h3>
-              </div>
-              <div class="card-body">
-                <p class="lead">Unlock premium features by upgrading your account:</p>
-                <ul class="list-group list-group-flush mb-4">
-                  {% if not user.can_set_update_frequency %}<li class="list-group-item">✅ Set custom update frequency</li>{% endif %}
-                  {% if not user.can_remove_branding %}<li class="list-group-item">✅ Remove MergeCal branding</li>{% endif %}
-                  <li class="list-group-item">✅ Priority support</li>
-                  <li class="list-group-item">✅ Calendar Iframe</li>
-                </ul>
-                <form method="post" action="{% url 'billing:manage_billing' %}">
-                  {% csrf_token %}
-                  <button type="submit" class="btn btn-primary btn-lg w-100">Upgrade Now</button>
-                </form>
-              </div>
-            </div>
-          {% endif %}
-        </div>
-      </div>
       <!-- Calendar Sources -->
       <div class="card mb-4">
         <div class="card-header d-flex justify-content-between align-items-center">
           <h3 class="card-title mb-0">Calendar Sources</h3>
-          <a href="{% url 'calendars:source_add' uuid=calendar.uuid %}"
-             class="btn btn-success btn-sm">
-            <i class="bi bi-plus-circle"></i> Add New Source
-          </a>
+          {% if calendar.can_add_source %}
+            <a href="{% url 'calendars:source_add' uuid=calendar.uuid %}"
+               class="btn btn-success btn-sm">
+              <i class="bi bi-plus-circle"></i> Add New Source
+            </a>
+          {% else %}
+            <div class="d-flex align-items-center">
+              <button class="btn btn-secondary btn-sm me-2"
+                      disabled
+                      title="Source limit reached">
+                <i class="bi bi-plus-circle"></i> Add New Source
+              </button>
+              <form method="post" action="{% url 'billing:manage_billing' %}" class="m-0">
+                {% csrf_token %}
+                <button type="submit"
+                        class="btn btn-primary btn-sm"
+                        title="Upgrade to add more sources">Upgrade</button>
+              </form>
+            </div>
+          {% endif %}
         </div>
         <div class="card-body">
           <div class="table-responsive">
@@ -178,6 +165,50 @@
               </tbody>
             </table>
           </div>
+        </div>
+      </div>
+      <div class="row mb-4">
+        <div class="col">
+          {% if not user.can_set_update_frequency or not user.can_remove_branding %}
+            <div class="card shadow-sm mb-4">
+              <div class="card-header bg-info text-white">
+                <h3 class="card-title mb-0">Unlock Premium Features</h3>
+              </div>
+              <div class="card-body">
+                <p class="lead">Upgrade to Business or Supporter Tier for advanced options:</p>
+                <ul class="list-group list-group-flush mb-3">
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>Real-time updates to merged calendar feeds</span>
+                    <i class="bi bi-check-circle-fill text-success"></i>
+                  </li>
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>MergeCal branding removal option</span>
+                    <i class="bi bi-check-circle-fill text-success"></i>
+                  </li>
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>Customizable event titles and descriptions</span>
+                    <i class="bi bi-check-circle-fill text-success"></i>
+                  </li>
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>Priority support</span>
+                    <i class="bi bi-check-circle-fill text-success"></i>
+                  </li>
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>Embed Merged Calendar on Your Site - iFrame</span>
+                    <i class="bi bi-check-circle-fill text-success"></i>
+                  </li>
+                </ul>
+                <div class="alert alert-info">
+                  <strong>Start your trial now!</strong>
+                  <p class="mb-0 mt-2">No credit card required to get started.</p>
+                </div>
+                <form method="post" action="{% url 'billing:manage_billing' %}">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-primary btn-lg w-100">Start Trial</button>
+                </form>
+              </div>
+            </div>
+          {% endif %}
         </div>
       </div>
       <!-- Danger Zone -->

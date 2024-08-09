@@ -51,7 +51,6 @@ class UserCalendarListView(LoginRequiredMixin, ListView):
                 ),
             )
             .select_related("owner")
-            .defer("calendar_file_str")
         )
 
     def get_context_data(self, **kwargs):

@@ -47,13 +47,6 @@ class CalendarAdmin(admin.ModelAdmin):
             },
         ),
         ("customization", {"fields": ("update_frequency_seconds", "remove_branding")}),
-        (
-            "Advanced options",
-            {
-                "classes": ("collapse",),
-                "fields": ("calendar_file_str",),
-            },
-        ),
     )
     readonly_fields = ("uuid", "created", "modified")
 

@@ -1,65 +1,139 @@
 <!-- templates/calendars/partials/add_to_calendar_modal.html -->
-<div class="modal fade"
-     id="addToCalendarModal{{ calendar.uuid }}"
-     tabindex="-1"
-     aria-labelledby="addToCalendarModalLabel{{ calendar.uuid }}"
-     aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="addToCalendarModalLabel{{ calendar.uuid }}">Add "{{ calendar.name }}" To Calendar</h5>
-        <button type="button"
-                class="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="mb-3">
-          <label for="calendar_file_url{{ calendar.id }}" class="form-label">iCal File Link:</label>
-          <div class="input-group">
-            <input type="text"
-                   class="form-control"
-                   id="calendar_file_url{{ calendar.id }}"
-                   value="{{ domain_name }}{% url 'calendars:calendar_file' calendar.uuid %}"
-                   readonly />
-            <button class="btn btn-outline-secondary"
-                    type="button"
-                    onclick="copyFileUrl({{ calendar.id }})">
-              <i class="bi bi-clipboard"></i> Copy
-            </button>
+{% block add_to_calendar_modal %}
+  <div class="modal fade"
+       id="addToCalendarModal{{ calendar.uuid }}"
+       tabindex="-1"
+       aria-labelledby="addToCalendarModalLabel{{ calendar.uuid }}"
+       aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addToCalendarModalLabel{{ calendar.uuid }}">Add "{{ calendar.name }}" To Calendar</h5>
+          <button type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="calendar_file_url{{ calendar.uuid }}" class="form-label">iCal File Link:</label>
+            <div class="input-group">
+              <input type="text"
+                     class="form-control"
+                     id="calendar_file_url{{ calendar.uuid }}"
+                     value="{{ domain_name }}{% url 'calendars:calendar_file' calendar.uuid %}"
+                     readonly />
+              <button class="btn btn-outline-secondary"
+                      type="button"
+                      onclick="copyToClipboard('calendar_file_url{{ calendar.uuid }}', 'iCal File Link')"
+                      data-bs-toggle="tooltip"
+                      data-bs-placement="top"
+                      title="Copy iCal File Link">
+                <i class="bi bi-clipboard"></i> Copy
+              </button>
+            </div>
+          </div>
+          <hr />
+          <h6>Add to platform:</h6>
+          <ul class="list-group">
+            <li class="list-group-item">
+              {# djlint:off D018 #}
+              <a href="webcal://{{ domain_name|cut:'https://'|cut:'http://' }}{% url 'calendars:calendar_file' calendar.uuid %}"
+                 class="d-flex align-items-center text-decoration-none">
+                <i class="bi bi-apple me-2"></i> Apple Calendar
+              </a>
+              {# djlint:on #}
+            </li>
+            <li class="list-group-item">
+              <a href="https://calendar.google.com/calendar/r?cid=http://{{ domain_name|cut:'https://'|cut:'http://' }}{% url 'calendars:calendar_file' calendar.uuid %}"
+                 class="d-flex align-items-center text-decoration-none">
+                <i class="bi bi-google me-2"></i> Google Calendar
+              </a>
+            </li>
+            <li class="list-group-item">
+              <a href="https://outlook.office.com/calendar/0/addfromweb?url={{ domain_name }}{% url 'calendars:calendar_file' calendar.uuid %}"
+                 class="d-flex align-items-center text-decoration-none">
+                <i class="bi bi-microsoft me-2"></i> Office 365
+              </a>
+            </li>
+            <li class="list-group-item">
+              <a href="https://outlook.live.com/calendar/0/addfromweb?url={{ domain_name }}{% url 'calendars:calendar_file' calendar.uuid %}"
+                 class="d-flex align-items-center text-decoration-none">
+                <i class="bi bi-microsoft-teams me-2"></i> Outlook.com
+              </a>
+            </li>
+          </ul>
+          <hr />
+          <h6>Embed Calendar Iframe:</h6>
+          <div class="mb-3">
+            <div class="input-group">
+              <textarea class="form-control {% if user.subscription_tier != 'supporter_tier' %}bg-light{% endif %}"
+                        id="calendar_iframe_code{{ calendar.uuid }}"
+                        rows="3"
+                        readonly
+                        {% if user.subscription_tier != 'supporter_tier' %} onselect="return false;" onmousedown="return false;" onselectstart="return false;" oncut="return false;" oncopy="return false;" onpaste="return false;" ondrag="return false;" ondrop="return false;" autocomplete="off" {% endif %}>{{ calendar.get_calendar_iframe }}</textarea>
+              <button class="btn btn-outline-secondary"
+                      type="button"
+                      {% if user.subscription_tier == 'supporter_tier' %} onclick="copyToClipboard('calendar_iframe_code{{ calendar.uuid }}', 'Iframe Code')" {% endif %}
+                      data-bs-toggle="tooltip"
+                      data-bs-placement="top"
+                      title="{% if user.subscription_tier == 'supporter_tier' %}Copy Iframe Code{% else %}Upgrade to copy{% endif %}"
+                      {% if user.subscription_tier != 'supporter_tier' %}disabled{% endif %}>
+                <i class="bi bi-clipboard"></i> Copy
+              </button>
+            </div>
+            {% if user.subscription_tier != 'supporter_tier' %}
+              <small class="text-muted mt-2">
+                <i class="bi bi-info-circle"></i>
+                Upgrade to Supporter tier to embed your calendar on your website.
+              </small>
+              <form method="post"
+                    action="{% url 'billing:manage_billing' %}"
+                    class="mt-2">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary btn-sm">Upgrade Now</button>
+              </form>
+              <small class="text-muted mt-2">No credit card required to get started.</small>
+            {% endif %}
           </div>
         </div>
-        <hr />
-        <h6>Add to platform:</h6>
-        <ul class="list-group">
-          <li class="list-group-item">
-            {# djlint:off D018 #}
-            <a href="webcal://{{ domain_name|cut:'https://'|cut:'http://' }}{% url 'calendars:calendar_file' calendar.uuid %}"
-               class="d-flex align-items-center text-decoration-none">
-              <i class="bi bi-apple me-2"></i> Apple Calendar
-            </a>
-            {# djlint:on #}
-          </li>
-          <li class="list-group-item">
-            <a href="https://calendar.google.com/calendar/r?cid=http://{{ domain_name|cut:'https://'|cut:'http://' }}{% url 'calendars:calendar_file' calendar.uuid %}"
-               class="d-flex align-items-center text-decoration-none">
-              <i class="bi bi-google me-2"></i> Google Calendar
-            </a>
-          </li>
-          <li class="list-group-item">
-            <a href="https://outlook.office.com/calendar/0/addfromweb?url={{ domain_name }}{% url 'calendars:calendar_file' calendar.uuid %}"
-               class="d-flex align-items-center text-decoration-none">
-              <i class="bi bi-microsoft me-2"></i> Office 365
-            </a>
-          </li>
-          <li class="list-group-item">
-            <a href="https://outlook.live.com/calendar/0/addfromweb?url={{ domain_name }}{% url 'calendars:calendar_file' calendar.uuid %}"
-               class="d-flex align-items-center text-decoration-none">
-              <i class="bi bi-microsoft-teams me-2"></i> Outlook.com
-            </a>
-          </li>
-        </ul>
       </div>
     </div>
   </div>
-</div>
+{% endblock add_to_calendar_modal %}
+{% block inline_javascript %}
+  <script>
+    function copyToClipboard(elementId, contentType) {
+      const copyText = document.getElementById(elementId);
+      copyText.select();
+      copyText.setSelectionRange(0, 99999); // For mobile devices
+
+      navigator.clipboard.writeText(copyText.value).then(() => {
+        createToast({
+          message: `${contentType} copied to clipboard`,
+          tags: 'text-white bg-success',
+        });
+      }).catch(err => {
+        console.error('Failed to copy: ', err);
+        createToast({
+          message: `Failed to copy ${contentType}`,
+          tags: 'text-white bg-danger',
+        });
+      });
+    }
+
+    // Prevent copying for non-supporter users
+    document.addEventListener('DOMContentLoaded', function() {
+      const textarea = document.getElementById('calendar_iframe_code{{ calendar.uuid }}');
+      if ('{{ user.subscription_tier }}' !== 'supporter_tier') {
+        textarea.addEventListener('copy', function(e) {
+          e.preventDefault();
+          createToast({
+            message: 'Upgrade to Supporter tier to copy the embed code.',
+            tags: 'text-white bg-warning',
+          });
+        });
+      }
+    });
+  </script>
+{% endblock inline_javascript %}

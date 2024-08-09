@@ -77,7 +77,23 @@
       </div>
     </div>
     <div class="mt-4">
-      <a href="{% url 'calendars:calendar_create' %}" class="btn btn-success">Create New Merged Calendar</a>
+      {% if user.can_add_calendar %}
+        <a href="{% url 'calendars:calendar_create' %}" class="btn btn-success">Create New Merged Calendar</a>
+      {% else %}
+        <button class="btn btn-secondary" disabled title="Calendar limit reached">Create New Merged Calendar</button>
+        <div class="mt-2">
+          <p class="text-muted">You've reached your calendar limit. Upgrade to add more calendars.</p>
+          <form method="post"
+                action="{% url 'billing:manage_billing' %}"
+                class="d-inline">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary">Upgrade Now</button>
+            <p>
+              <small class="mb-0 mt-2">No credit card required to get started.</small>
+            </p>
+          </form>
+        </div>
+      {% endif %}
     </div>
   </div>
 {% endblock content %}

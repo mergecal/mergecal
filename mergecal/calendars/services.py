@@ -45,8 +45,6 @@ class CalendarMerger:
             self._add_sources()
             self._finalize_merged_calendar()
             calendar_str = self.merged_calendar.to_ical().decode("utf-8")
-            self.calendar.calendar_file_str = calendar_str
-            self.calendar.save()
 
             # Set cache with appropriate duration
             cache_duration = self.calendar.effective_update_frequency

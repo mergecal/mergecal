@@ -5,6 +5,8 @@ from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
+from mergecal.core.constants import CalendarLimits
+
 
 class User(AbstractUser):
     """
@@ -74,3 +76,18 @@ class User(AbstractUser):
             self.SubscriptionTier.BUSINESS,
             self.SubscriptionTier.SUPPORTER,
         ]
+
+    @property
+    def can_add_calendar(self):
+        user_calendar_count = self.calendar_set.count()
+        match self.subscription_tier:
+            case self.SubscriptionTier.FREE:
+                return user_calendar_count < CalendarLimits.FREE
+            case self.SubscriptionTier.PERSONAL:
+                return user_calendar_count < CalendarLimits.PERSONAL
+            case self.SubscriptionTier.BUSINESS:
+                return user_calendar_count < CalendarLimits.BUSINESS
+            case self.SubscriptionTier.SUPPORTER:
+                return True  # Unlimited calendars
+            case _:
+                return False  # Unknown tier, restrict calendar creation

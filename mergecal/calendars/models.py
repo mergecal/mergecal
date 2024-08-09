@@ -11,9 +11,9 @@ from django.utils.translation import gettext_lazy as _
 from icalendar import Calendar as Ical
 from requests.exceptions import RequestException
 
-from mergecal.core.constants import CALENDAR_LIMITS
-from mergecal.core.constants import SOURCE_LIMITS
+from mergecal.core.constants import SourceLimits
 from mergecal.core.models import TimeStampedModel
+from mergecal.core.utils import get_site_url
 
 TWELVE_HOURS_IN_SECONDS = 43200
 
@@ -65,7 +65,6 @@ class Calendar(TimeStampedModel):
         max_length=250,
         default="America/New_York",
     )
-    calendar_file_str = models.TextField(blank=True, null=True)  # noqa: DJ001
 
     include_source = models.BooleanField(
         default=False,
@@ -115,10 +114,8 @@ class Calendar(TimeStampedModel):
             )
 
         if not self.pk:  # Only check on creation, not update
-            user_calendar_count = Calendar.objects.filter(owner=self.owner).count()
-            limit = CALENDAR_LIMITS.get(self.owner.subscription_tier, float("inf"))
-            if user_calendar_count >= limit:
-                msg = f"Users on the {self.owner.get_subscription_tier_display()} are limited to {limit} calendars."
+            if not self.owner.can_add_calendar:
+                msg = "Upgrade to create more calendars."
                 raise ValidationError(msg)
 
     @property
@@ -145,22 +142,69 @@ class Calendar(TimeStampedModel):
     def get_calendar_view_url(self):
         return reverse("calendars:calendar_view", kwargs={"uuid": self.uuid})
 
+    def get_calendar_iframe(self):
+        domain_name = get_site_url()
+        iframe_url = reverse("calendars:calendar_iframe", kwargs={"uuid": self.uuid})
+        return f'<iframe src="{domain_name}{iframe_url}" width="100%" height="600" style="border: 1px solid #ccc;" title="MergeCal Embedded Calendar"></iframe>'
+
+    @property
+    def can_add_source(self):
+        user_event_count = self.calendarOf.count()
+        match self.owner.subscription_tier:
+            case self.owner.SubscriptionTier.FREE:
+                return user_event_count < SourceLimits.FREE
+            case self.owner.SubscriptionTier.PERSONAL:
+                return user_event_count < SourceLimits.PERSONAL
+            case self.owner.SubscriptionTier.BUSINESS:
+                return user_event_count < SourceLimits.BUSINESS
+            case self.owner.SubscriptionTier.SUPPORTER:
+                return True
+
 
 class Source(TimeStampedModel):
-    name = models.CharField(max_length=255)
-    url = models.URLField(max_length=400, validators=[validate_ical_url])
+    name = models.CharField(
+        max_length=255,
+        verbose_name="Feed Name",
+        help_text="A friendly name to identify this calendar feed.",
+    )
+    url = models.URLField(
+        max_length=400,
+        validators=[validate_ical_url],
+        verbose_name="Feed URL",
+        help_text="The URL of the iCal feed for this calendar source.",
+    )
     calendar = models.ForeignKey(
         "calendars.Calendar",
         on_delete=models.CASCADE,
         related_name="calendarOf",
+        verbose_name="Merged Calendar",
+        help_text="The merged calendar this feed belongs to.",
     )
-    include_title = models.BooleanField(default=True)
-    include_description = models.BooleanField(default=True)
-    include_location = models.BooleanField(default=True)
-    custom_prefix = models.CharField(max_length=50, blank=True)
+    include_title = models.BooleanField(
+        default=True,
+        verbose_name="Include Event Title",
+        help_text="If checked, the original event title from this feed will be included in the merged calendar.",
+    )
+    include_description = models.BooleanField(
+        default=True,
+        verbose_name="Include Event Description",
+        help_text="If checked, the event description from this feed will be included in the merged calendar.",
+    )
+    include_location = models.BooleanField(
+        default=True,
+        verbose_name="Include Event Location",
+        help_text="If checked, the event location from this feed will be included in the merged calendar.",
+    )
+    custom_prefix = models.CharField(
+        max_length=50,
+        blank=True,
+        verbose_name="Custom Prefix",
+        help_text="Optional prefix to add before each event title from this feed (e.g., '[Work]').",
+    )
     exclude_keywords = models.TextField(
         blank=True,
-        help_text="Comma-separated list of keywords to exclude events",
+        verbose_name="Exclude Keywords",
+        help_text="Enter keywords separated by commas. Events from this feed containing these keywords in their title will be excluded from the merged calendar.",
     )
 
     def __str__(self):
@@ -171,16 +215,10 @@ class Source(TimeStampedModel):
 
     def clean(self):
         if not self.pk:  # Only check on creation, not update
-            calendar_source_count = Source.objects.filter(
-                calendar=self.calendar,
-            ).count()
-            limit = SOURCE_LIMITS.get(
-                self.calendar.owner.subscription_tier,
-                float("inf"),
-            )
-            if calendar_source_count >= limit:
-                msg = f"Users on the {self.calendar.owner.get_subscription_tier_display()} are limited to {limit} sources per calendars."
+            if not self.calendar.can_add_source:
+                msg = "upgrade to add more sources"
                 raise ValidationError(msg)
+
         if not self.calendar.owner.can_customize_sources:
             if (
                 not self.include_title
