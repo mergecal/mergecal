@@ -62,6 +62,19 @@ class UserCalendarListView(LoginRequiredMixin, ListView):
         context["domain_name"] = get_site_url()
         return context
 
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        calendars = self.get_queryset()
+
+        if user.is_free_tier and calendars.count() == 0:
+            messages.info(
+                request,
+                "To start creating calendars, please sign up for a plan.",
+            )
+            return redirect(reverse("pricing"))
+
+        return super().get(request, *args, **kwargs)
+
 
 class CalendarCreateView(LoginRequiredMixin, CreateView):
     model = Calendar
