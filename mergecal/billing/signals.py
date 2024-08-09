@@ -1,3 +1,4 @@
+# ruff: noqa: ERA001
 import logging
 from typing import Any
 
@@ -5,14 +6,11 @@ from django.contrib.auth.signals import user_logged_in
 from django.dispatch import receiver
 from django.http import HttpRequest
 from djstripe.event_handlers import djstripe_receiver
-from djstripe.models import Coupon
 from djstripe.models import Customer
 from djstripe.models import Event
 from djstripe.models import Invoice
-from djstripe.models import Price
 from djstripe.models import Subscription
 
-from mergecal.billing.emails import downgrade_subscription_email
 from mergecal.billing.emails import upgrade_subscription_email
 from mergecal.users.models import User
 
@@ -35,17 +33,17 @@ def update_user_subscription_tier(user: User, subscription: Subscription) -> Non
         new_tier = User.SubscriptionTier.FREE
 
     if user.subscription_tier != new_tier:
-        old_tier = user.subscription_tier
+        # old_tier = user.subscription_tier
         user.subscription_tier = new_tier
         user.save()
         logger.info("User %s has been updated to %s tier", user, new_tier)
         if new_tier != User.SubscriptionTier.FREE:
             email = upgrade_subscription_email(user, new_tier)
             email.send()
-        elif old_tier != User.SubscriptionTier.FREE:
-            # Optionally send a downgrade email
-            email = downgrade_subscription_email(user)
-            email.send()
+            # elif old_tier != User.SubscriptionTier.FREE:
+            #     # Optionally send a downgrade email
+            #     email = downgrade_subscription_email(user)
+            #     email.send()
 
     else:
         logger.info("No change in subscription tier for user: %s", user)
@@ -59,11 +57,11 @@ def create_stripe_customer(
     **kwargs: dict[str, Any],
 ) -> None:
     customer, created = Customer.get_or_create(subscriber=user)
-    if created:
-        price = Price.objects.get(lookup_key="personal_monthly")
-        coupon = Coupon.objects.get(name="beta tester")
-        customer.add_coupon(coupon)
-        customer.subscribe(price=price.id)
+    # if created:
+    #     price = Price.objects.get(lookup_key="personal_monthly")
+    #     coupon = Coupon.objects.get(name="beta")
+    #     customer.add_coupon(coupon)
+    #     customer.subscribe(price=price.id)
 
 
 @djstripe_receiver("customer.subscription.trial_will_end")
