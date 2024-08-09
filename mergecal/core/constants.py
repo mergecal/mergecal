@@ -18,3 +18,4 @@ class MailjetTemplates:
     FEEDBACK = "6172264"
     BASE = "6190328"
     FOUR_PARAGRAPHS = "6193713"
+    THREE_PARAGRAPHS = "6199227"

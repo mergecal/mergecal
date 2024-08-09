@@ -1,9 +1,13 @@
 # ruff: noqa: PLR0913, FBT002, FBT001
 # your_app/emails.py
+from django.conf import settings
 from django.core.mail import EmailMessage
 
 from mergecal.core.constants import MailjetTemplates
 from mergecal.users.models import User
+
+THREE = 3
+FOUR = 4
 
 
 class TemplateEmailMessage(EmailMessage):
@@ -46,9 +50,6 @@ class TemplateEmailMessage(EmailMessage):
         return super().send(fail_silently=fail_silently)
 
 
-FOUR = 4
-
-
 class MultiBodyTemplateEmailMessage(EmailMessage):
     DEFAULT_TEMPLATE_ID = MailjetTemplates.BASE
 
@@ -57,6 +58,7 @@ class MultiBodyTemplateEmailMessage(EmailMessage):
         subject: str,
         to_users: list[User],
         bodies: list[str],
+        ps: str | None = None,
         from_email: str | None = None,
         template_id: str | None = None,
     ):
@@ -71,9 +73,14 @@ class MultiBodyTemplateEmailMessage(EmailMessage):
             to=to_emails,
         )
 
-        # Set the template ID based on the number of bodies
+        if settings.DEBUG:
+            self.body = "\n\n".join(bodies)
+            if ps:
+                self.body += f"\n\nPS: {ps}"
         if template_id:
             self.template_id = template_id
+        elif len(bodies) == THREE:
+            self.template_id = MailjetTemplates.THREE_PARAGRAPHS
         elif len(bodies) == FOUR:
             self.template_id = MailjetTemplates.FOUR_PARAGRAPHS
         else:
@@ -86,6 +93,8 @@ class MultiBodyTemplateEmailMessage(EmailMessage):
         for i, body in enumerate(bodies, start=1):
             for email in self.context:
                 self.context[email][f"body{i}"] = body
+                if ps:
+                    self.context[email]["ps"] = ps
 
     def send(self, fail_silently: bool = False) -> int:
         if not isinstance(self.context, dict):

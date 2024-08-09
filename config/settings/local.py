@@ -29,7 +29,7 @@ CACHES = {
 # https://docs.djangoproject.com/en/dev/ref/settings/#email-host
 EMAIL_HOST = "localhost"
 # https://docs.djangoproject.com/en/dev/ref/settings/#email-port
-EMAIL_PORT = 1025
+EMAIL_PORT = 2525
 
 # WhiteNoise
 # ------------------------------------------------------------------------------
@@ -43,7 +43,7 @@ INSTALLED_APPS = ["whitenoise.runserver_nostatic", *INSTALLED_APPS]
 INSTALLED_APPS += ["debug_toolbar"]
 # MIDDLEWARE = ["kolo.middleware.KoloMiddleware", *MIDDLEWARE]
 # https://django-debug-toolbar.readthedocs.io/en/latest/installation.html#middleware
-MIDDLEWARE += ["debug_toolbar.middleware.DebugToolbarMiddleware"]
+# MIDDLEWARE += ["debug_toolbar.middleware.DebugToolbarMiddleware"]
 # https://django-debug-toolbar.readthedocs.io/en/latest/configuration.html#debug-toolbar-config
 DEBUG_TOOLBAR_CONFIG = {
     "DISABLE_PANELS": ["debug_toolbar.panels.redirects.RedirectsPanel"],

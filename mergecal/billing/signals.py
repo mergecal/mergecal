@@ -12,6 +12,8 @@ from djstripe.models import Invoice
 from djstripe.models import Price
 from djstripe.models import Subscription
 
+from mergecal.billing.emails import downgrade_subscription_email
+from mergecal.billing.emails import upgrade_subscription_email
 from mergecal.users.models import User
 
 logger = logging.getLogger(__name__)
@@ -33,9 +35,18 @@ def update_user_subscription_tier(user: User, subscription: Subscription) -> Non
         new_tier = User.SubscriptionTier.FREE
 
     if user.subscription_tier != new_tier:
+        old_tier = user.subscription_tier
         user.subscription_tier = new_tier
         user.save()
         logger.info("User %s has been updated to %s tier", user, new_tier)
+        if new_tier != User.SubscriptionTier.FREE:
+            email = upgrade_subscription_email(user, new_tier)
+            email.send()
+        elif old_tier != User.SubscriptionTier.FREE:
+            # Optionally send a downgrade email
+            email = downgrade_subscription_email(user)
+            email.send()
+
     else:
         logger.info("No change in subscription tier for user: %s", user)
 
@@ -71,6 +82,7 @@ def handle_checkout_session_completed(
 ) -> None:
     customer_id: str = event.data["object"]["customer"]
     customer: Customer = Customer.objects.get(id=customer_id)
+    # subscription: Subscription = Subscription.objects.get(
     logger.info("Checkout session completed for customer: %s", customer)
     # Send email to customer
 
