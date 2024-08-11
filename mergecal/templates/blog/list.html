@@ -3,46 +3,87 @@
 {% load i18n static %}
 
 {% block title %}
-  {% trans "Latest Blog Posts" %} | MergeCal
+  {% trans "Latest Blog Posts on Calendar Management and Productivity" %} | MergeCal
 {% endblock title %}
+{% block meta_description %}
+  {% trans "Explore MergeCal's blog for expert insights, tips, and updates on calendar management, productivity, and digital organization. Stay informed and optimize your time management skills." %}
+{% endblock meta_description %}
+{% block og_title %}
+  {% trans "Latest Blog Posts on Calendar Management and Productivity" %} | MergeCal
+{% endblock og_title %}
 {% block og_description %}
-  {% trans "Discover the latest insights, tips, and updates about calendar management and productivity on the MergeCal blog." %}
+  {% trans "Discover expert insights, practical tips, and the latest updates on calendar management and productivity. Enhance your time management skills with MergeCal's blog." %}
 {% endblock og_description %}
+{% block og_type %}
+  blog
+{% endblock og_type %}
 {% block content %}
   <section class="container py-5">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a href="{% url 'home' %}">Home</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Blog</li>
+      </ol>
+    </nav>
     <header class="row mb-4">
       <div class="col-12">
-        <h1 class="display-4 text-primary">{% trans "Latest Blog Posts" %}</h1>
+        <h1 class="display-4 text-primary">{% trans "Latest Blog Posts on Calendar Management" %}</h1>
+        <p class="lead">{% trans "Explore our insights on productivity, time management, and digital organization." %}</p>
       </div>
     </header>
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
       {% for post in blog_posts %}
         <div class="col">
-          <article class="card h-100 shadow-sm">
+          <article class="card h-100 shadow-sm"
+                   itemscope
+                   itemtype="http://schema.org/BlogPosting">
             {% if post.image %}
               <img src="{{ post.image.url }}"
                    class="card-img-top"
                    alt="{{ post.title }}"
-                   loading="lazy" />
+                   loading="lazy"
+                   itemprop="image" />
             {% endif %}
             <div class="card-body">
-              <h2 class="h5 card-title">
+              <h2 class="h5 card-title" itemprop="headline">
                 <a href="{{ post.get_absolute_url }}"
-                   class="text-decoration-none text-dark stretched-link">{{ post.title }}</a>
+                   class="text-decoration-none text-dark"
+                   itemprop="url">{{ post.title }}</a>
               </h2>
-              <p class="card-text text-muted">{{ post.description|truncatewords:20 }}</p>
+              <p class="card-text text-muted" itemprop="description">{{ post.description|truncatewords:20 }}</p>
+              {% if post.tags.all %}
+                <div class="mb-2">
+                  {% for tag in post.tags.all %}<span class="badge bg-secondary me-1">{{ tag.name }}</span>{% endfor %}
+                </div>
+              {% endif %}
             </div>
-            <div class="card-footer bg-white border-top-0">
-              <small class="text-muted">
-                <i class="bi bi-calendar-event"></i>
-                <time datetime="{{ post.pub_date|date:'Y-m-d' }}">{{ post.pub_date|date:"F j, Y" }}</time>
-              </small>
+            <div class="card-footer bg-transparent border-top">
+              <div class="d-flex justify-content-between align-items-center">
+                <small class="text-muted">
+                  <i class="bi bi-calendar-event" aria-hidden="true"></i>
+                  <time datetime="{{ post.pub_date|date:'Y-m-d' }}" itemprop="datePublished">{{ post.pub_date|date:"F j, Y" }}</time>
+                </small>
+                <small class="text-muted">
+                  <i class="bi bi-clock" aria-hidden="true"></i> {{ post.get_reading_time }} min read
+                </small>
+              </div>
+              {% if post.author %}
+                <div class="mt-2">
+                  <small class="text-muted" itemprop="author">
+                    <i class="bi bi-person" aria-hidden="true"></i> {{ post.author.get_full_name }}
+                  </small>
+                </div>
+              {% endif %}
             </div>
           </article>
         </div>
       {% empty %}
         <div class="col-12">
-          <p class="lead text-center">{% trans "No blog posts available at the moment. Check back soon!" %}</p>
+          <p class="lead text-center">
+            {% trans "No blog posts available at the moment. Check back soon for insights on calendar management and productivity!" %}
+          </p>
         </div>
       {% endfor %}
     </div>
@@ -55,14 +96,15 @@
                  href="{% url 'blog:list' %}?page={{ page_obj.previous_page_number }}"
                  aria-label="{% trans "Previous" %}">
                 <span aria-hidden="true"><</span>
+                <span class="visually-hidden">{% trans "Previous" %}</span>
               </a>
             </li>
           {% endif %}
           <li class="page-item disabled">
             <span class="page-link">
               {% blocktrans with num=page_obj.number num_pages=page_obj.paginator.num_pages %}
-          Page {{ num }} of {{ num_pages }}
-          {% endblocktrans %}
+                Page {{ num }} of {{ num_pages }}
+              {% endblocktrans %}
             </span>
           </li>
           {% if page_obj.has_next %}
@@ -71,6 +113,7 @@
                  href="{% url 'blog:list' %}?page={{ page_obj.next_page_number }}"
                  aria-label="{% trans "Next" %}">
                 <span aria-hidden="true">></span>
+                <span class="visually-hidden">{% trans "Next" %}</span>
               </a>
             </li>
           {% endif %}
@@ -79,3 +122,28 @@
     {% endif %}
   </section>
 {% endblock content %}
+{% block inline_javascript %}
+  <script type="application/ld+json">
+    {
+      "@context": "http://schema.org",
+      "@type": "Blog",
+      "url": "{{ request.build_absolute_uri }}",
+      "name": "MergeCal Blog",
+      "description": "{% trans "
+      Expert insights,
+      tips,
+      and updates on calendar management,
+      productivity,
+      and digital organization.
+      " %}",
+      "publisher": {
+        "@type": "Organization",
+        "name": "MergeCal",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "{{ request.scheme }}://{{ request.get_host }}{% static 'images/favicon.png' %}"
+        }
+      }
+    }
+  </script>
+{% endblock inline_javascript %}

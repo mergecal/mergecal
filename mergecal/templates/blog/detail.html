@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% load i18n static %}
+{% load social_share %}
 
 {% block title %}
   {{ blog_post.title }} | MergeCal Blog
@@ -28,82 +29,185 @@
     {{ blog_post.image.url }}
   {% endblock twitter_image %}
 {% endif %}
+{% block css %}
+  {{ block.super }}
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism.min.css" />
+{% endblock css %}
 {% block content %}
-  <article class="container-fluid py-5 bg-light">
+  <article class="container my-5"
+           itemscope
+           itemtype="https://schema.org/BlogPosting">
     <div class="row justify-content-center">
       <div class="col-lg-8">
-        <div class="card shadow-sm">
-          {# djlint:off H021 #}
-          {% if blog_post.image %}
-            <img src="{{ blog_post.image.url }}"
-                 class="card-img-top img-fluid"
-                 alt="{{ blog_post.title }}"
-                 style="object-fit: cover;
-                        height: 300px" />
+        {% if blog_post.image %}
+          <img src="{{ blog_post.image.url }}"
+               class="img-fluid rounded mb-4"
+               alt="{{ blog_post.title }}"
+               itemprop="image" />
+        {% endif %}
+        <header class="mb-4">
+          <h1 class="display-4 fw-bold" itemprop="headline">{{ blog_post.title }}</h1>
+          <div class="d-flex flex-wrap align-items-center text-muted mb-3">
+            <span class="me-3">
+              <i class="bi bi-calendar3"></i>
+              <time datetime="{{ blog_post.pub_date|date:'Y-m-d' }}"
+                    itemprop="datePublished">
+                {{ blog_post.pub_date|date:"F j, Y" }}
+              </time>
+            </span>
+            <span class="me-3">
+              <i class="bi bi-clock"></i> {{ blog_post.get_reading_time }} min read
+            </span>
+            {% if blog_post.author %}
+              <span itemprop="author" itemscope itemtype="https://schema.org/Person">
+                <i class="bi bi-person"></i>
+                <span itemprop="name">{{ blog_post.author.get_full_name }}</span>
+              </span>
+            {% endif %}
+          </div>
+          {% if blog_post.tags.all %}
+            <div class="mb-3">
+              {% for tag in blog_post.tags.all %}
+                <a href="{% url 'blog:tag' tag.slug %}"
+                   class="badge bg-secondary text-decoration-none">{{ tag.name }}</a>
+              {% endfor %}
+            </div>
           {% endif %}
-          {# djlint:on #}
+        </header>
+        <nav class="card mb-4">
+          <div class="card-header">
+            <h2 class="h5 mb-0">Table of Contents</h2>
+          </div>
           <div class="card-body">
-            <header class="mb-4">
-              <h1 class="card-title display-4 fw-bold text-primary">{{ blog_post.title }}</h1>
-              <p class="text-muted">
-                <i class="bi bi-calendar-event me-2"></i>
-                <time datetime="{{ blog_post.pub_date|date:'Y-m-d' }}">{{ blog_post.pub_date|date:"F j, Y" }}</time>
-              </p>
-            </header>
-            <div class="blog-content">{{ blog_post.text|safe }}</div>
-            <footer class="mt-5 pt-3 border-top">
-              <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
-                <div class="mb-3 mb-md-0">
-                  <a href="{% url 'blog:list' %}" class="btn btn-outline-primary">
-                    <i class="bi bi-arrow-left me-2"></i>Back to Blog
-                  </a>
-                </div>
+            <ul class="list-unstyled mb-0" id="toc">
+            </ul>
+          </div>
+        </nav>
+        <div class="blog-content mb-5" itemprop="articleBody">{{ blog_post.text|safe }}</div>
+        <footer class="border-top pt-4 mt-4">
+          <div class="row align-items-center">
+            <div class="mt-4 mb-5">
+              <h3 class="h5 mb-3">Share this post</h3>
+              <div class="d-flex flex-wrap gap-2">
+                {% post_to_facebook object_or_url '<i class="bi bi-facebook me-2"></i>Share on Facebook' %}
+                {% post_to_twitter "Check out this post: {{ blog_post.title }}" object_or_url '<i class="bi bi-twitter me-2"></i>Share on Twitter' %}
+                {% post_to_linkedin object_or_url %}
+                {% post_to_whatsapp object_or_url link_text='<i class="bi bi-whatsapp me-2"></i>Share on WhatsApp' %}
+                {% post_to_telegram object_or_url link_text='<i class="bi bi-telegram me-2"></i>Share on Telegram' %}
+              </div>
+            </div>
+            <div class="col-md-6 text-md-end">
+              <a href="{% url 'blog:list' %}" class="btn btn-outline-primary">
+                <i class="bi bi-arrow-left"></i> Back to Blog
+              </a>
+            </div>
+          </div>
+        </footer>
+        {% if blog_post.author %}
+          <section class="card mt-5">
+            <div class="card-body">
+              <h2 class="h4 card-title">About the Author</h2>
+              <div class="d-flex align-items-center">
+                {% if blog_post.author.profile_picture %}
+                  <img src="{{ blog_post.author.profile_picture.url }}"
+                       class="rounded-circle me-3"
+                       width="64"
+                       height="64"
+                       alt="{{ blog_post.author.get_full_name }}" />
+                {% endif %}
                 <div>
-                  <h5 class="mb-2">Share this post:</h5>
-                  <div class="btn-group" role="group" aria-label="Share buttons">
-                    <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text={{ blog_post.title|urlencode }}"
-                       target="_blank"
-                       rel="noopener noreferrer"
-                       class="btn btn-outline-info">
-                      <i class="bi bi-twitter"></i>
-                    </a>
-                    <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}"
-                       target="_blank"
-                       rel="noopener noreferrer"
-                       class="btn btn-outline-primary">
-                      <i class="bi bi-facebook"></i>
-                    </a>
-                    <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ request.build_absolute_uri }}&title={{ blog_post.title|urlencode }}"
-                       target="_blank"
-                       rel="noopener noreferrer"
-                       class="btn btn-outline-secondary">
-                      <i class="bi bi-linkedin"></i>
-                    </a>
-                  </div>
+                  <h3 class="h5 mb-1">{{ blog_post.author.get_full_name }}</h3>
+                  <p class="mb-0">{{ blog_post.author.bio|truncatewords:30 }}</p>
                 </div>
               </div>
-            </footer>
-          </div>
-        </div>
+            </div>
+          </section>
+        {% endif %}
+        {% with related_posts=blog_post.get_related_posts %}
+          {% if related_posts %}
+            <section class="mt-5">
+              <h2 class="h3 mb-4">Related Posts</h2>
+              <div class="row row-cols-1 row-cols-md-3 g-4">
+                {% for related_post in related_posts %}
+                  <div class="col">
+                    <div class="card h-100">
+                      {% if related_post.image %}
+                        <img src="{{ related_post.image.url }}"
+                             class="card-img-top"
+                             alt="{{ related_post.title }}" />
+                      {% endif %}
+                      <div class="card-body">
+                        <h3 class="h5 card-title">
+                          <a href="{{ related_post.get_absolute_url }}"
+                             class="text-decoration-none text-dark">{{ related_post.title }}</a>
+                        </h3>
+                        <p class="card-text">{{ related_post.description|truncatewords:20 }}</p>
+                      </div>
+                      <div class="card-footer bg-transparent">
+                        <small class="text-muted">{{ related_post.pub_date|date:"F j, Y" }}</small>
+                      </div>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            </section>
+          {% endif %}
+        {% endwith %}
       </div>
     </div>
   </article>
 {% endblock content %}
 {% block inline_javascript %}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/plugins/autoloader/prism-autoloader.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Generate table of contents
+      const headers = document.querySelectorAll('.blog-content h2, .blog-content h3');
+      const toc = document.getElementById('toc');
+      headers.forEach((header, index) => {
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        const id = `section-${index}`;
+        header.id = id;
+        a.href = `#${id}`;
+        a.textContent = header.textContent;
+        a.className = header.tagName === 'H3' ? 'ms-3' : '';
+        li.appendChild(a);
+        toc.appendChild(li);
+      });
+
+      // Highlight code blocks
+      Prism.highlightAll();
+    });
+  </script>
+{% endblock inline_javascript %}
+{% block structured_data %}
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "BlogPosting",
       "headline": "{{ blog_post.title }}",
+      "image": "{% if blog_post.image %}{{ blog_post.image.url }}{% else %}{{ request.scheme }}://{{ request.get_host }}{% static 'images/default-blog-image.jpg' %}{% endif %}",
       "datePublished": "{{ blog_post.pub_date|date:'c' }}",
       "dateModified": "{{ blog_post.modified|date:'c' }}",
       "author": {
         "@type": "Person",
-        "name": "MergeCal"
+        "name": "{% if blog_post.author %}{{ blog_post.author.get_full_name }}{% else %}MergeCal Team{% endif %}"
       },
-      "image": "{% if blog_post.image %}{{ blog_post.image.url }}{% else %}{{ request.scheme }}://{{ request.get_host }}{% static 'images/default-blog-image.jpg' %}{% endif %}",
-      "url": "{{ request.build_absolute_uri }}",
-      "description": "{{ blog_post.description|truncatewords:30 }}"
+      "publisher": {
+        "@type": "Organization",
+        "name": "MergeCal",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "{{ request.scheme }}://{{ request.get_host }}{% static 'images/mergecal-logo.png' %}"
+        }
+      },
+      "description": "{{ blog_post.description }}",
+      "keywords": "{{ blog_post.keyword_list|join:', ' }}",
+      "wordCount": "{{ blog_post.text|wordcount }}",
+      "url": "{{ request.build_absolute_uri }}"
     }
   </script>
-{% endblock inline_javascript %}
+{% endblock structured_data %}

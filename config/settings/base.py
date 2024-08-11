@@ -93,6 +93,8 @@ THIRD_PARTY_APPS = [
     "django_htmx",
     "ckeditor",
     "tz_detect",
+    "taggit",
+    "django_social_share",
 ]
 
 LOCAL_APPS = [
