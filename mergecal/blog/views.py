@@ -36,3 +36,17 @@ class BlogPostDetailView(DetailView):
             blog_post.title,
         )
         return response
+
+
+class BlogPostTagListView(ListView):
+    model = BlogPost
+    template_name = "blog/list.html"  # You can reuse the list template
+    context_object_name = "blog_posts"
+
+    def get_queryset(self):
+        return BlogPost.objects.published().filter(tags__slug=self.kwargs["tag_slug"])
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["current_tag"] = self.kwargs["tag_slug"]
+        return context
