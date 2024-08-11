@@ -29,6 +29,9 @@
     {{ blog_post.image.url }}
   {% endblock twitter_image %}
 {% endif %}
+{% block meta_keywords %}
+  {{ blog_post.keywords }}
+{% endblock meta_keywords %}
 {% block css %}
   {{ block.super }}
   <link rel="stylesheet"
