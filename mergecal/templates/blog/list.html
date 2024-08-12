@@ -36,48 +36,47 @@
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
       {% for post in blog_posts %}
         <div class="col">
-          <article class="card h-100 shadow-sm"
-                   itemscope
-                   itemtype="http://schema.org/BlogPosting">
-            {% if post.image %}
-              <img src="{{ post.image.url }}"
-                   class="card-img-top"
-                   alt="{{ post.title }}"
-                   loading="lazy"
-                   itemprop="image" />
-            {% endif %}
-            <div class="card-body">
-              <h2 class="h5 card-title" itemprop="headline">
-                <a href="{{ post.get_absolute_url }}"
-                   class="text-decoration-none text-dark"
-                   itemprop="url">{{ post.title }}</a>
-              </h2>
-              <p class="card-text text-muted" itemprop="description">{{ post.description|truncatewords:20 }}</p>
-              {% if post.tags.all %}
-                <div class="mb-2">
-                  {% for tag in post.tags.all %}<span class="badge bg-secondary me-1">{{ tag.name }}</span>{% endfor %}
-                </div>
+          <a href="{{ post.get_absolute_url }}"
+             class="text-decoration-none text-reset">
+            <article class="card h-100 shadow-sm hover-shadow"
+                     itemscope
+                     itemtype="http://schema.org/BlogPosting">
+              {% if post.image %}
+                <img src="{{ post.image.url }}"
+                     class="card-img-top"
+                     alt="{{ post.title }}"
+                     loading="lazy"
+                     itemprop="image" />
               {% endif %}
-            </div>
-            <div class="card-footer bg-transparent border-top">
-              <div class="d-flex justify-content-between align-items-center">
-                <small class="text-muted">
-                  <i class="bi bi-calendar-event" aria-hidden="true"></i>
-                  <time datetime="{{ post.pub_date|date:'Y-m-d' }}" itemprop="datePublished">{{ post.pub_date|date:"F j, Y" }}</time>
-                </small>
-                <small class="text-muted">
-                  <i class="bi bi-clock" aria-hidden="true"></i> {{ post.get_reading_time }} min read
-                </small>
+              <div class="card-body">
+                <h2 class="h5 card-title" itemprop="headline">{{ post.title }}</h2>
+                <p class="card-text text-muted" itemprop="description">{{ post.description|truncatewords:20 }}</p>
+                {% if post.tags.all %}
+                  <div class="mb-2">
+                    {% for tag in post.tags.all %}<span class="badge bg-secondary me-1">{{ tag.name }}</span>{% endfor %}
+                  </div>
+                {% endif %}
               </div>
-              {% if post.author %}
-                <div class="mt-2">
-                  <small class="text-muted" itemprop="author">
-                    <i class="bi bi-person" aria-hidden="true"></i> {{ post.author.get_full_name }}
+              <div class="card-footer bg-transparent border-top">
+                <div class="d-flex justify-content-between align-items-center">
+                  <small class="text-muted">
+                    <i class="bi bi-calendar-event" aria-hidden="true"></i>
+                    <time datetime="{{ post.pub_date|date:'Y-m-d' }}" itemprop="datePublished">{{ post.pub_date|date:"F j, Y" }}</time>
+                  </small>
+                  <small class="text-muted">
+                    <i class="bi bi-clock" aria-hidden="true"></i> {{ post.get_reading_time }} min read
                   </small>
                 </div>
-              {% endif %}
-            </div>
-          </article>
+                {% if post.author %}
+                  <div class="mt-2">
+                    <small class="text-muted" itemprop="author">
+                      <i class="bi bi-person" aria-hidden="true"></i> {{ post.author.get_full_name }}
+                    </small>
+                  </div>
+                {% endif %}
+              </div>
+            </article>
+          </a>
         </div>
       {% empty %}
         <div class="col-12">
