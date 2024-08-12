@@ -1,6 +1,8 @@
 User-agent: *
 Disallow: /calendars/
 Disallow: /calendars/*
+Disallow: /tz_detect/set/
+
 
 Allow: /$
 Allow: /about/
