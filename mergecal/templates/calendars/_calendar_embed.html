@@ -50,15 +50,23 @@
     document.addEventListener('DOMContentLoaded', function() {
       var calendarEl = document.getElementById('calendar');
       var calendar = new FullCalendar.Calendar(calendarEl, {
+        schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
         themeSystem: 'bootstrap5',
         headerToolbar: {
-          left: 'prev,next today',
+          start: 'prev,next today',
           center: 'title',
-          right: 'dayGridMonth,timeGridWeek,listYear'
+          end: 'dayGridMonth,timeGridWeek,listYear,multiMonthYear'
         },
-        eventClassNames: 'bg-primary text-white',
+        buttonIcons: {
+          prev: 'arrow-left',
+          next: 'arrow-right',
+          prevYear: 'bi bi-chevron-double-left',
+          nextYear: 'bi bi-chevron-double-right'
+        },
+        eventClassNames: 'bg-primary',
         dayMaxEvents: true,
         initialView: 'dayGridMonth',
+        timeZone: '{{ calendar.timezone }}',
         eventSources: [{
           url: "{% url 'calendars:calendar_file' calendar.uuid %}",
           format: 'ics',

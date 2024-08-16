@@ -44,10 +44,6 @@
             integrity="sha512-dPXYcDub/aeb08c63jRq/k6GaKccl256JQy/AnOq7CAnEZ9FzSL9wSbcZkMp4R26vBsMLFYH4kQ67/bbV8XaCQ=="
             crossorigin="anonymous"
             referrerpolicy="no-referrer" />
-      <link rel="preconnect" href="https://fonts.googleapis.com" />
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-      <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Space+Grotesk:wght@300..700&display=swap"
-            rel="stylesheet" />
       {% compress css %}
         <!-- This file stores project-specific CSS -->
         <link href="{% static 'css/bootstrap.css' %}" rel="stylesheet" />
@@ -78,9 +74,14 @@
         <script defer src="{% static 'js/bootstrap.bundle.js' %}"></script>
         <script defer src="{% static 'js/htmx.min.js' %}"></script>
         <script defer src="{% static 'js/ical.min.js' %}"></script>
-        <script defer src="{% static 'js/fullcalendar.index.global.min.js' %}"></script>
         <script defer
-                src="{% static 'js/fullcalendar.icalendar.index.global.min.js' %}"></script>
+                src="{% static 'js/fullcalendar-scheduler-6.1.15/dist/index.global.min.js' %}"></script>
+        <script defer
+                src="{% static 'js/fullcalendar-6.1.15/packages/icalendar/index.global.min.js' %}"></script>
+        <script defer
+                src="{% static 'js/fullcalendar-6.1.15/packages/bootstrap5/index.global.min.js' %}"></script>
+        <script defer
+                src="{% static 'js/fullcalendar-6.1.15/packages/luxon3/index.global.min.js' %}"></script>
         <script defer src="{% static 'js/project.js' %}"></script>
         <script defer src="{% static 'js/theme-toggler.js' %}"></script>
       {% endcompress %}
