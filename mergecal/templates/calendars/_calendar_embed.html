@@ -5,7 +5,7 @@
        tabindex="-1"
        aria-labelledby="eventModalLabel"
        aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
       <div class="modal-content">
         <div class="modal-header bg-primary text-white">
           <h5 class="modal-title" id="eventModalLabel"></h5>
@@ -15,24 +15,32 @@
                   aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <ul class="list-group list-group-flush">
-            <li class="list-group-item" id="eventTimeItem">
-              <i class="bi bi-clock me-2"></i>
-              <span id="eventTime"></span>
-            </li>
-            <li class="list-group-item" id="eventLocationItem">
-              <i class="bi bi-geo-alt me-2"></i>
-              <span id="eventLocation"></span>
-            </li>
-            <li class="list-group-item" id="eventDescriptionItem">
-              <i class="bi bi-info-circle me-2"></i>
-              <span id="eventDescription"></span>
-            </li>
-            <li class="list-group-item" id="eventUrlItem">
-              <i class="bi bi-link-45deg me-2"></i>
-              <span id="eventUrl"></span>
-            </li>
-          </ul>
+          <div class="row">
+            <div class="col-md-6">
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item py-3" id="eventTimeItem">
+                  <i class="bi bi-clock me-2"></i>
+                  <span id="eventTime"></span>
+                </li>
+                <li class="list-group-item py-3" id="eventLocationItem">
+                  <i class="bi bi-geo-alt me-2"></i>
+                  <span id="eventLocation"></span>
+                </li>
+                <li class="list-group-item py-3" id="eventUrlItem">
+                  <i class="bi bi-link-45deg me-2"></i>
+                  <span id="eventUrl"></span>
+                </li>
+              </ul>
+            </div>
+            <div class="col-md-6">
+              <div class="card h-100">
+                <div class="card-body">
+                  <h6 class="card-subtitle mb-2 text-muted">Description</h6>
+                  <div id="eventDescription"></div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="modal-footer">
           <button type="button"
@@ -48,7 +56,13 @@
 {% block inline_javascript %}
   <script>
     document.addEventListener('DOMContentLoaded', function() {
+      console.log('DOM content loaded');
       var calendarEl = document.getElementById('calendar');
+      if (!calendarEl) {
+        console.error('Calendar element not found');
+        return;
+      }
+
       var calendar = new FullCalendar.Calendar(calendarEl, {
         schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
         themeSystem: 'bootstrap5',
@@ -72,6 +86,8 @@
           format: 'ics',
         }],
         eventClick: function(info) {
+          info.jsEvent.preventDefault(); // Prevent the default action (following the link)
+          console.log('Event clicked:', info.event);
           var modal = new bootstrap.Modal(document.getElementById('eventModal'));
           var event = info.event;
 
@@ -93,18 +109,17 @@
           }
 
           // Set description if available
-          var descriptionEl = document.getElementById('eventDescriptionItem');
+          var descriptionEl = document.getElementById('eventDescription');
           if (event.extendedProps.description) {
-            document.getElementById('eventDescription').textContent = event.extendedProps.description;
-            descriptionEl.style.display = 'list-item';
+            descriptionEl.innerHTML = parseDescription(event.extendedProps.description);
           } else {
-            descriptionEl.style.display = 'none';
+            descriptionEl.innerHTML = '<p class="text-muted">No description available.</p>';
           }
 
           // Set URL if available
           var urlEl = document.getElementById('eventUrlItem');
           if (event.url) {
-            document.getElementById('eventUrl').innerHTML = '<a href="' + event.url + '" target="_blank">Event Link</a>';
+            document.getElementById('eventUrl').innerHTML = '<a href="' + event.url + '" target="_blank">' + (event.title || 'Event Link') + '</a>';
             urlEl.style.display = 'list-item';
           } else {
             urlEl.style.display = 'none';
@@ -118,7 +133,9 @@
           };
         }
       });
+
       calendar.render();
+      console.log('Calendar rendered');
     });
 
     function formatEventTime(start, end, allDay) {
@@ -160,6 +177,27 @@
       }
 
       return `${startStr} - ${endStr}`;
+    }
+
+    function parseDescription(description) {
+      // Check if the content is likely to be HTML
+      var containsHTML = /<[a-z][\s\S]*>/i.test(description);
+
+      if (containsHTML) {
+        // If it's HTML, sanitize it
+        var sanitizedHtml = DOMPurify.sanitize(description, {
+          ALLOWED_TAGS: ['a', 'br', 'b', 'i', 'strong', 'em', 'p', 'ul', 'ol', 'li'],
+          ALLOWED_ATTR: ['href', 'target', 'class']
+        });
+        return sanitizedHtml;
+      } else {
+        // If it's plain text, convert URLs to links and preserve line breaks
+        var linkedText = description.replace(
+          /(https?:\/\/[^\s]+)/g,
+          '<a href="$1" target="_blank">$1</a>'
+        );
+        return linkedText.replace(/\n/g, '<br />');
+      }
     }
   </script>
 {% endblock inline_javascript %}
