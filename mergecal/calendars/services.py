@@ -173,7 +173,7 @@ class CalendarMerger:
         return not any(kw in event_title for kw in exclude_keywords)
 
     def _add_branding(self, event: Event) -> None:
-        branding = "\nThis event is brought to you by https://mergecal.org."
+        branding = "\nThis event is powered by MergeCal by https://mergecal.org"
         description = event.get("description", "")
         event["description"] = description + branding
         summary = event.get("summary", "")
@@ -181,7 +181,7 @@ class CalendarMerger:
 
     def _add_domain_warning(self, event: Event) -> None:
         warning = (
-            "You are using an outdated domain. Please update to https://mergecal.org."
+            "You are using an outdated domain. Please update to https://mergecal.org"
         )
         description = event.get("description", "")
         event["description"] = warning + "\n" + description
