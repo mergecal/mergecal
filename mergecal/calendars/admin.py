@@ -20,6 +20,8 @@ class CalendarAdmin(admin.ModelAdmin):
         "source_count",
         "created",
         "modified",
+        "update_frequency_seconds",
+        "remove_branding",
     )
 
     search_fields = [
