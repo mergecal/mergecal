@@ -173,7 +173,7 @@ class CalendarMerger:
         return not any(kw in event_title for kw in exclude_keywords)
 
     def _add_branding(self, event: Event) -> None:
-        branding = "\nThis event is powered by MergeCal by https://mergecal.org"
+        branding = "\n\nThis event is powered by MergeCal https://mergecal.org"
         description = event.get("description", "")
         event["description"] = description + branding
         summary = event.get("summary", "")
