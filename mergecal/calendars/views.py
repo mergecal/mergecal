@@ -265,5 +265,11 @@ def calendar_view(request: HttpRequest, uuid: str) -> HttpResponse:
 @xframe_options_exempt
 def calendar_iframe(request: HttpRequest, uuid: str) -> HttpResponse:
     calendar = get_object_or_404(Calendar, uuid=uuid)
-    logger.info("Iframe request for calendar %s: uuid %s", calendar.name, calendar.uuid)
+    referer = request.headers.get("referer")
+    logger.info(
+        "Iframe request for calendar %s: uuid %s, referer: %s",
+        calendar.name,
+        calendar.uuid,
+        referer or "Unknown",
+    )
     return render(request, "calendars/calendar_iframe.html", {"calendar": calendar})
