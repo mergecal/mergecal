@@ -1,0 +1,288 @@
+/* home.scss */
+
+body {
+  overflow-x: hidden;
+}
+
+#fullpage {
+  padding-top: 56px; /* Adjust based on your navbar height */
+}
+
+.section {
+  display: flex;
+  align-items: center;
+  padding: 4rem 0;
+  min-height: 100vh;
+}
+
+#section-hero {
+  background-color: var(--bs-primary-bg-subtle);
+}
+
+#busy-professional {
+  background-color: var(--bs-secondary-bg-subtle);
+}
+
+#adventure-tour-operator {
+  background-color: var(--bs-light);
+}
+
+#vacation-rental-pro {
+  background-color: var(--bs-secondary-bg-subtle);
+}
+
+#section-trusted-companies {
+  background-color: var(--bs-body-bg);
+  padding: 4rem 0;
+}
+
+#section-cta {
+  background-color: var(--bs-primary-bg-subtle);
+}
+
+.story-content {
+  h2 {
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .lead {
+    font-size: 1.25rem;
+    margin-bottom: 2rem;
+  }
+
+  ul {
+    li {
+      margin-bottom: 1rem;
+      font-size: 1.1rem;
+    }
+  }
+}
+
+.story-image {
+  img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  }
+}
+
+/* Trusted Companies Section */
+#section-trusted-companies {
+  .row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .col {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+    padding: 20px;
+  }
+
+  .logo-container {
+    background-color: var(--bs-gray-200);
+    border-radius: 10px;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background-color: var(--bs-primary);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+
+      img {
+        transform: scale(1.1);
+      }
+    }
+  }
+
+  img {
+    max-height: 160px;
+    width: auto;
+    max-width: 100%;
+    transition: transform 0.3s ease;
+    filter: none; /* Remove any filters */
+  }
+}
+
+/* Responsive Styles */
+@media (max-width: 991px) {
+  #fullpage {
+    padding-top: 0;
+  }
+
+  .section {
+    height: auto !important;
+    min-height: 100vh;
+    padding: 80px 0; /* Adjust based on your navbar height */
+  }
+
+  .story-content {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .order-lg-2 {
+    order: -1;
+  }
+}
+
+@media (max-width: 767px) {
+  #section-trusted-companies {
+    .col {
+      height: 150px;
+    }
+
+    img {
+      max-height: 120px;
+    }
+  }
+
+  .story-content {
+    h2 {
+      font-size: 2rem;
+    }
+
+    .lead {
+      font-size: 1.1rem;
+    }
+
+    ul li {
+      font-size: 1rem;
+    }
+  }
+}
+
+/* fullPage.js overrides */
+.fp-watermark,
+.fp-warning,
+.fp-watermark > a {
+  display: none !important;
+}
+
+#fp-nav ul li a span,
+.fp-slidesNav ul li a span {
+  background: var(--bs-primary);
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  #section-trusted-companies .logo-container {
+    background-color: var(--bs-gray-700);
+
+    &:hover {
+      background-color: var(--bs-primary-dark, var(--bs-primary));
+    }
+  }
+
+  #busy-professional,
+  #vacation-rental-pro {
+    background-color: var(--bs-dark);
+  }
+
+  #adventure-tour-operator {
+    background-color: var(--bs-gray-800);
+  }
+}
+
+/* home.scss */
+// ... (previous styles remain the same) ...
+
+/* Trusted Companies Section */
+#section-trusted-companies {
+  background-color: var(--bs-body-bg);
+  padding: 6rem 0;
+
+  .container {
+    max-width: 1200px;
+  }
+
+  h2 {
+    font-size: 2.5rem;
+    margin-bottom: 3rem;
+  }
+
+  .row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .col {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 250px;
+    padding: 30px;
+  }
+
+  .logo-container {
+    background-color: var(--bs-gray-200);
+    border: 1px solid var(--bs-gray-300);
+    border-radius: 15px;
+    padding: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background-color: var(--bs-gray-300);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+  }
+
+  img {
+    max-height: 150px;
+    width: auto;
+    max-width: 100%;
+    transition: transform 0.3s ease;
+    object-fit: contain;
+  }
+
+  .logo-container:hover img {
+    transform: scale(1.05);
+  }
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  #section-trusted-companies {
+    .logo-container {
+      background-color: var(--bs-gray-800);
+      border-color: var(--bs-gray-700);
+
+      &:hover {
+        background-color: var(--bs-gray-700);
+      }
+    }
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 767px) {
+  #section-trusted-companies {
+    .col {
+      height: 200px;
+    }
+
+    img {
+      max-height: 120px;
+    }
+
+    h2 {
+      font-size: 2rem;
+    }
+  }
+}

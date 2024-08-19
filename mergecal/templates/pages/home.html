@@ -1,106 +1,252 @@
 {% extends "base.html" %}
 
 {% block title %}
-  MergeCal | Merge Icalendar Feeds
+  MergeCal | Merge Multiple Calendars into One
 {% endblock title %}
-{% load static %}
+{% load static compress %}
 
+{% block css %}
+  {{ block.super }}
+  {% compress css %}
+    <link rel="stylesheet"
+          type="text/x-scss"
+          href="{% static 'scss/home_page.scss' %}" />
+    <link href="{% static 'css/fullpage.min.css' %}" rel="stylesheet" />
+  {% endcompress %}
+{% endblock css %}
+{% block javascript %}
+  {{ block.super }}
+  {% compress js %}
+    <script src="{% static 'js/fullpage.min.js' %}"></script>
+  {% endcompress %}
+{% endblock javascript %}
 {% block content %}
-  <div class="bg-primary text-white text-center p-5">
-    <div class="container">
-      <h1 class="display-4 fw-bold">Centralize All Your Schedules with MergeCal</h1>
-      <p class="lead mb-4">
-        Effortlessly combine multiple calendar feeds into one. Perfect for sports teams, schools, and short term rental hosts.
-      </p>
-      <a href="{% url 'account_signup' %}"
-         class="btn btn-outline-light btn-lg">Get Started</a>
-    </div>
-  </div>
-  <div class="container py-5">
-    <div class="row">
-      <div class="col-md-4 mb-4 text-center">
-        <i class="bi bi-calendar3 display-3 text-primary mb-3"></i>
-        <h5 class="fw-bold">Sports Team Management</h5>
-        <p>Aggregate and share schedules from multiple sports leagues into one unified calendar.</p>
-      </div>
-      <div class="col-md-4 mb-4 text-center">
-        <i class="bi bi-building display-3 text-primary mb-3"></i>
-        <h5 class="fw-bold">Corporate Planning</h5>
-        <p>
-          Centralize corporate events, team meetings, and project deadlines in a single calendar for easy access and transparency.
-        </p>
-      </div>
-      <div class="col-md-4 mb-4 text-center">
-        <i class="bi bi-house display-3 text-primary mb-3"></i>
-        <h5 class="fw-bold">Rental Coordination</h5>
-        <p>
-          Sync all booking dates from platforms like Airbnb and Booking.com to manage and prevent double bookings efficiently.
-        </p>
-      </div>
-    </div>
-  </div>
-  <div class="bg-body-secondary py-5">
-    <div class="container">
-      <h2 class="text-center fw-bold mb-4">Trusted by Professionals</h2>
-      <div class="row">
-        <div class="col-md-4 mb-3">
-          <div class="card h-100 border-0 shadow-sm bg-body">
-            <div class="card-body">
-              <blockquote class="blockquote">
-                <p class="mb-0">
-                  "MergeCal has revolutionized the way we coordinate and share our sports events schedules, enhancing team collaboration."
-                </p>
-                <br />
-                <footer class="blockquote-footer">
-                  Jamie Cox, Sports Coordinator
-                </footer>
-              </blockquote>
-            </div>
+  <div id="fullpage">
+    <div class="section" data-anchor="hero">
+      <div class="container">
+        <div class="row align-items-center">
+          <div class="col-lg-6 hero-content">
+            <h1 class="display-4 fw-bold mb-4">Merge Multiple Calendars into One</h1>
+            <p class="lead mb-4">
+              MergeCal simplifies your life by combining all your calendar feeds into a single, easy-to-manage source.
+            </p>
+            <a href="{% url 'account_signup' %}" class="btn btn-primary btn-lg">Start Your Free Trial</a>
           </div>
-        </div>
-        <div class="col-md-4 mb-3">
-          <div class="card h-100 border-0 shadow-sm bg-body">
-            <div class="card-body">
-              <blockquote class="blockquote">
-                <p class="mb-0">
-                  "MergeCal is crucial for managing our company-wide events and team calendars, ensuring everyone is always in sync."
-                </p>
-                <br />
-                <footer class="blockquote-footer">
-                  Alex Johnson, HR Manager
-                </footer>
-              </blockquote>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-4 mb-3">
-          <div class="card h-100 border-0 shadow-sm bg-body">
-            <div class="card-body">
-              <blockquote class="blockquote">
-                <p class="mb-0">
-                  "Using MergeCal to sync booking dates from different platforms has made managing my rental properties seamless and error-free."
-                </p>
-                <br />
-                <footer class="blockquote-footer">
-                  Morgan Bailey, Property Manager
-                </footer>
-              </blockquote>
-            </div>
+          <div class="col-lg-6 d-none d-lg-block">
+            <img src="{% static 'images/calendars-svgrepo-com.svg' %}"
+                 alt="MergeCal Illustration"
+                 class="img-fluid" />
           </div>
         </div>
       </div>
     </div>
-  </div>
-  <div class="bg-secondary text-white text-center py-5">
-    <div class="container">
-      <h2 class="fw-bold">Ready to Simplify Your Calendar?</h2>
-      <p class="lead mb-4">
-        Join the thousands who are already streamlining their schedules with MergeCal.
-        <br />
-        Free while in beta!
-      </p>
-      <a href="{% url 'account_signup' %}"
-         class="btn btn-lg btn-outline-light">Sign Up Now — Free Beta</a>
+    <div class="section" data-anchor="busy-professional">
+      <div class="container">
+        <div class="row align-items-center">
+          <div class="col-lg-6 order-lg-2 story-content">
+            <h2 class="display-5 fw-bold mb-4">One Calendar, All Your Life</h2>
+            <p class="lead">
+              Sarah, a project manager, syncs work and family calendars with MergeCal. No more missed soccer games or double-booked client meetings.
+            </p>
+            <ul class="list-unstyled mt-4">
+              <li>
+                <i class="bi bi-check-circle-fill text-primary me-2"></i> View work and personal events at a glance
+              </li>
+              <li>
+                <i class="bi bi-check-circle-fill text-primary me-2"></i> Coordinate family schedules effortlessly
+              </li>
+              <li>
+                <i class="bi bi-check-circle-fill text-primary me-2"></i> Never double-book again
+              </li>
+            </ul>
+          </div>
+          <div class="col-lg-6 order-lg-1 story-image">
+            <img src="{% static 'images/work-on-laptop-work-job-effort-svgrepo-com.svg' %}"
+                 alt="Busy Professional"
+                 class="img-fluid" />
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="section" data-anchor="adventure-tour">
+      <div class="container">
+        <div class="row align-items-center">
+          <div class="col-lg-6 story-content">
+            <h2 class="display-5 fw-bold mb-4">Streamline Bookings Across Platforms</h2>
+            <p class="lead">
+              Tom's kayaking tour company uses MergeCal to sync bookings from their website, Viator, and GetYourGuide into one feed, eliminating scheduling conflicts.
+            </p>
+            <ul class="list-unstyled mt-4">
+              <li>
+                <i class="bi bi-check-circle-fill text-primary me-2"></i> Consolidate bookings from multiple platforms
+              </li>
+              <li>
+                <i class="bi bi-check-circle-fill text-primary me-2"></i> Avoid overbooking and maximize tour capacity
+              </li>
+              <li>
+                <i class="bi bi-check-circle-fill text-primary me-2"></i> Simplify staff scheduling and equipment allocation
+              </li>
+            </ul>
+          </div>
+          <div class="col-lg-6 story-image">
+            <img src="{% static 'images/kayaking-svgrepo-com.svg' %}"
+                 alt="Adventure Tour Operator"
+                 class="img-fluid" />
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="section" data-anchor="vacation-rental">
+      <div class="container">
+        <div class="row align-items-center">
+          <div class="col-lg-6 order-lg-2 story-content">
+            <h2 class="display-5 fw-bold mb-4">Sync All, List Everywhere</h2>
+            <p class="lead">
+              Lisa manages multiple vacation rentals. MergeCal creates a unified feed from all booking platforms, which she then inserts back into each platform, ensuring perfect synchronization.
+            </p>
+            <ul class="list-unstyled mt-4">
+              <li>
+                <i class="bi bi-check-circle-fill text-primary me-2"></i> Create one master calendar from all platforms
+              </li>
+              <li>
+                <i class="bi bi-check-circle-fill text-primary me-2"></i> Push unified availability to every listing site
+              </li>
+              <li>
+                <i class="bi bi-check-circle-fill text-primary me-2"></i> Eliminate double bookings automatically
+              </li>
+            </ul>
+          </div>
+          <div class="col-lg-6 order-lg-1 story-image">
+            <img src="{% static 'images/holiday-village-svgrepo-com.svg' %}"
+                 alt="Vacation Rental Pro"
+                 class="img-fluid" />
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="section" data-anchor="trusted" id="section-trusted-companies">
+      <div class="container">
+        <h2 class="text-center fw-bold">Trusted by Industry Leaders</h2>
+        <div class="row row-cols-1 row-cols-md-2 g-4 justify-content-center align-items-center">
+          <div class="col">
+            <a href="https://codeandcoffee.org/"
+               target="_blank"
+               class="logo-container d-flex align-items-center justify-content-center">
+              <img src="{% static 'images/code-and-coffee.png' %}"
+                   alt="codeandcoffee.org"
+                   class="img-fluid" />
+            </a>
+          </div>
+          <div class="col">
+            <a href="https://www.spitfires.com/"
+               target="_blank"
+               class="logo-container d-flex align-items-center justify-content-center">
+              <img src="{% static 'images/Spitfires_com.png' %}"
+                   alt="spitfires.com"
+                   class="img-fluid" />
+            </a>
+          </div>
+          <!-- Add more company logos here -->
+        </div>
+      </div>
+    </div>
+    <div class="section" data-anchor="feedback">
+      <div class="container">
+        <h2 class="text-center fw-bold mb-5">What Our Users Say</h2>
+        <div class="row">
+          <div class="col-md-4 mb-4">
+            <div class="card h-100 border-0 shadow-sm">
+              <div class="card-body">
+                <p class="card-text">
+                  "MergeCal has been a lifesaver for managing my work and personal calendars. No more missed family events or double-booked meetings. It's truly simplified my life!"
+                </p>
+                <footer class="blockquote-footer mt-3">
+                  Sarah Johnson, Marketing Director
+                </footer>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4 mb-4">
+            <div class="card h-100 border-0 shadow-sm">
+              <div class="card-body">
+                <p class="card-text">
+                  "As a vacation rental host, MergeCal has eliminated double bookings across all my listing platforms. It's made managing multiple properties so much easier!"
+                </p>
+                <footer class="blockquote-footer mt-3">
+                  Michael Chen, Airbnb Superhost
+                </footer>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4 mb-4">
+            <div class="card h-100 border-0 shadow-sm">
+              <div class="card-body">
+                <p class="card-text">
+                  "MergeCal has revolutionized how we manage our sports league schedules. Combining multiple team calendars into one view has made coordination a breeze!"
+                </p>
+                <footer class="blockquote-footer mt-3">
+                  Lisa Thompson, League Coordinator
+                </footer>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="section" data-anchor="cta-footer">
+      <div class="container">
+        <div class="row">
+          <div class="col-12 text-center mb-5">
+            <h2 class="fw-bold mb-3">Ready to Simplify Your Calendar Management?</h2>
+            <p class="lead mb-4">
+              Join over 200 professionals who've streamlined their schedules with MergeCal.
+              <br />
+              Start your free trial today!
+            </p>
+            <a href="{% url 'account_signup' %}"
+               class="btn btn-primary btn-lg px-5 py-3">Get Started — It's Free</a>
+            <p class="mt-3">
+              <small>No credit card required</small>
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="container">
+        <div class="row">
+          {% block footer %}
+            {% include '_footer.html' %}
+          {% endblock footer %}
+        </div>
+      </div>
     </div>
   </div>
 {% endblock content %}
+{% block inline_javascript %}
+  {{ block.super }}
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      new fullpage('#fullpage', {
+        licenseKey: 'YOUR_KEY_HERE',
+        autoScrolling: true,
+        navigation: true,
+        navigationPosition: 'right',
+        showActiveTooltip: true,
+        anchors: ['hero', 'busy-professional', 'adventure-tour', 'vacation-rental', 'trusted', 'feedback', 'cta-footer'],
+        paddingTop: '80px', // Adjust based on your nav height
+        fixedElements: '#navbar',
+        //responsiveWidth: 992, // Adjust based on your Bootstrap breakpoint
+        afterResponsive: function(isResponsive) {
+          if (isResponsive) {
+            fullpage_api.destroy('all');
+          }
+        },
+        afterRender: function() {
+          // Any post-render adjustments
+        },
+        onLeave: function(origin, destination, direction) {
+          // Any transition logic
+        }
+      });
+    });
+  </script>
+{% endblock inline_javascript %}

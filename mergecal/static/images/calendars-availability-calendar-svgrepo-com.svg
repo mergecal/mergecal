@@ -1,0 +1,15 @@
+<?xml version="1.0" ?>
+<!DOCTYPE svg  PUBLIC '-//W3C//DTD SVG 1.1//EN'  'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'>
+<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+<svg fill="#000000" width="800px" height="800px" viewBox="0 0 48 48" enable-background="new 0 0 48 48" id="Layer_3" version="1.1" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g>
+<polygon points="9,8 9.026,8 12.336,8 13,8 13,6 27.963,6 27.963,8 28.888,8 30.682,8 31.963,8 31.963,6 32.156,6 32.719,6    40.475,6 40.963,6 40.963,2 32.198,2 31.963,2 31.963,0 31.25,0 28.888,0 27.963,0 27.963,2 13,2 13,0 12.336,0 9.026,0 9,0 9,2    0,2 0,3.297 0,6 0,40.297 3.516,40.297 4,40.297 4.031,40.297 4.031,39.725 4.031,39.391 4.031,7.406 4.031,6 9,6  "/>
+<path d="M48,10h-8.765H39V8h-0.713h-2.362H35v2H20.037V8h-0.664h-3.311h-0.026v2h-9v1.297V14v30v4h3.213h0.787h0.031h32.849h4v-4   V24.148v-4V14H48V10z M43.917,44H11.068V24.148h32.849V44z M11.068,20.148v-4.742V14h4.969v2h0.026h3.311h0.664v-2H35v2h0.925   h1.794H39v-2h0.193h0.562h4.161v6.148H11.068z"/>
+<rect height="4" width="5" x="16" y="28.148"/>
+<rect height="4" width="4.992" x="25" y="28.148"/>
+<rect height="4" width="5" x="33.992" y="28.148"/>
+<rect height="4" width="5" x="16" y="36.148"/>
+<rect height="4" width="4.992" x="25" y="36.148"/>
+<rect height="4" width="5" x="33.992" y="36.148"/>
+</g>
+</svg>

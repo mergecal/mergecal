@@ -132,7 +132,9 @@
           {% endblock content %}
         {% endblock main %}
       </div>
-      {% include "_footer.html" %}
+      {% block footer %}
+        {% include "_footer.html" %}
+      {% endblock footer %}
       <!-- /container -->
     {% endblock body %}
     {% block modal %}
