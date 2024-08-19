@@ -1,13 +1,233 @@
-// Custom Bootstrap Color Palette for MergeCal.org
-// Primary Color for MergeCal.org
-$primary: #008080; // Vibrant Teal for standout primary actions and logo
+// Modern SaaS-style SCSS for MergeCal
 
-// d2dbd9 logo color
+// Import Google Fonts
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Space+Grotesk:wght@300..700&display=swap');
 
-// Font family
-$font-family-sans-serif: 'Bricolage Grotesque', sans-serif;
+// Custom variables
+$primary: #008080;
 $font-family-base: 'Bricolage Grotesque', sans-serif;
 
+// Import Bootstrap
 @import "bootstrap/bootstrap";
+
+// Custom styles
+// html {
+//   scroll-behavior: smooth;
+// }
 //
+// body {
+//   font-family: $font-family-base;
+// }
 //
+// .snap-scroll-container {
+//   height: 100vh;
+//   overflow-y: scroll;
+//   scroll-snap-type: y mandatory;
+//   scroll-behavior: smooth;
+// }
+//
+// .snap-section {
+//   height: 100vh;
+//   scroll-snap-align: start;
+//   scroll-snap-stop: always;
+//   display: flex;
+//   align-items: center;
+//   position: relative;
+// }
+//
+// .parallax-section {
+//   background-attachment: fixed;
+//   background-position: center;
+//   background-repeat: no-repeat;
+//   background-size: cover;
+//
+//   &::before {
+//     content: '';
+//     position: absolute;
+//     top: 0;
+//     left: 0;
+//     right: 0;
+//     bottom: 0;
+//     background: linear-gradient(45deg, rgba($primary, 0.1), rgba($primary, 0.05));
+//     z-index: -1;
+//   }
+// }
+//
+// // .card {
+// //   transition: transform 0.3s ease, box-shadow 0.3s ease;
+// //
+// //   &:hover {
+// //     transform: translateY(-5px);
+// //     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+// //   }
+// // }
+//
+// .snap-nav {
+//   position: fixed;
+//   right: 20px;
+//   top: 50%;
+//   transform: translateY(-50%);
+//   z-index: 1000;
+//
+//   ul {
+//     list-style: none;
+//     padding: 0;
+//     margin: 0;
+//   }
+//
+//   li {
+//     margin: 10px 0;
+//   }
+//
+//   a {
+//     display: block;
+//     width: 10px;
+//     height: 10px;
+//     border-radius: 50%;
+//     background-color: rgba($primary, 0.5);
+//     transition: all 0.3s ease;
+//
+//     &.active, &:hover {
+//       background-color: $primary;
+//       transform: scale(1.5);
+//     }
+//   }
+// }
+//
+// // Animations
+// @keyframes fadeInUp {
+//   from {
+//     opacity: 0;
+//     transform: translateY(20px);
+//   }
+//   to {
+//     opacity: 1;
+//     transform: translateY(0);
+//   }
+// }
+//
+// .snap-section {
+//   opacity: 0;
+//   transform: translateY(20px);
+//   transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+//
+//   &.animate {
+//     opacity: 1;
+//     transform: translateY(0);
+//   }
+// }
+//
+// // Hero section specific styles
+// .hero-section {
+//   background-color: var(--bs-body-bg);
+//
+//   .hero-content {
+//     animation: fadeInUp 1s ease-out;
+//   }
+// }
+//
+// // Use case sections
+// .use-case {
+//   color: var(--bs-body-color);
+//
+//   &::before {
+//     content: '';
+//     position: absolute;
+//     top: 0;
+//     left: 0;
+//     right: 0;
+//     bottom: 0;
+//     background: rgba(var(--bs-body-bg-rgb), 0.7);
+//     z-index: -1;
+//   }
+// }
+//
+// // Trusted companies section
+// .trusted-companies {
+//   background-color: var(--bs-body-bg);
+//
+//   img {
+//     filter: grayscale(100%);
+//     opacity: 0.7;
+//     transition: all 0.3s ease;
+//
+//     &:hover {
+//       filter: grayscale(0%);
+//       opacity: 1;
+//     }
+//   }
+// }
+//
+// // User feedback section
+// .user-feedback {
+//   background-color: var(--bs-body-bg);
+//
+//   .card {
+//     background-color: var(--bs-body-bg);
+//     border: 1px solid var(--bs-border-color);
+//   }
+// }
+//
+// // CTA section
+// .cta-section {
+//   background: var(--bs-primary);
+//   color: var(--bs-primary-text-emphasis);
+// }
+//
+// // Utility classes
+// .text-gradient {
+//   background: linear-gradient(45deg, var(--bs-primary), var(--bs-primary-bg-subtle));
+//   -webkit-background-clip: text;
+//   -webkit-text-fill-color: transparent;
+//   background-clip: text;
+//   color: transparent;
+// }
+//
+// .btn-gradient {
+//   background: linear-gradient(45deg, var(--bs-primary), var(--bs-primary-bg-subtle));
+//   border: none;
+//   color: var(--bs-primary-text-emphasis);
+//
+//   &:hover {
+//     background: linear-gradient(45deg, var(--bs-primary-dark), var(--bs-primary));
+//     color: var(--bs-primary-text-emphasis);
+//   }
+// }
+//
+// // Responsive adjustments
+// @media (max-width: 768px) {
+//   .snap-section {
+//     height: auto;
+//     min-height: 100vh;
+//   }
+//
+//   .snap-nav {
+//     display: none;
+//   }
+// }
+//
+// // Dark mode adjustments
+// @include color-mode(dark) {
+//   .use-case::before {
+//     background: rgba(var(--bs-dark-rgb), 0.7);
+//   }
+//
+//   .trusted-companies img {
+//     filter: grayscale(100%) invert(1);
+//
+//     &:hover {
+//       filter: grayscale(0%) invert(1);
+//     }
+//   }
+//
+//   .card {
+//     background-color: var(--bs-dark);
+//     border-color: var(--bs-border-color-translucent);
+//   }
+// }
+//
+// // Animation stopper (for resize events)
+// .resize-animation-stopper * {
+//   animation: none !important;
+//   transition: none !important;
+// }

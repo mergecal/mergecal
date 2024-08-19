@@ -1,52 +1,85 @@
 {% extends "base.html" %}
 
+{% load static %}
+
 {% block title %}
   MergeCal | About
 {% endblock title %}
 {% block content %}
-  <div class="container py-5">
-    <!-- Hero Section with Clear Value Proposition -->
-    <div class="jumbotron bg-primary text-white rounded text-center py-5 mb-5">
-      <h1 class="display-4">About MergeCal</h1>
-      <p class="lead">
-        MergeCal was born from the necessity to streamline multiple calendar feeds into a single, unified view—ideal for sports teams, educational institutions, and personal organization.
-      </p>
-    </div>
-    <!-- Detailed Benefits Section -->
-    <div class="p-5 rounded-lg shadow-sm mb-5 bg-body">
-      <div class="row">
-        <div class="col-md-8 mx-auto">
-          <h2 class="text-center mb-3">Why MergeCal?</h2>
-          <p>
-            MergeCal expertly consolidates sports, corporate, and rental event schedules into a single streamlined calendar, enhancing accessibility and coordination. This integration allows teams, businesses, and property managers to operate more efficiently, reducing conflicts and fostering transparency.
-          </p>
+  <div class="container-fluid p-0">
+    <!-- Hero Section -->
+    <div class="bg-primary text-white py-5 mb-5">
+      <div class="container">
+        <div class="row align-items-center">
+          <div class="col-lg-6 ps-lg-5">
+            <h1 class="display-4 fw-bold mb-3">About MergeCal</h1>
+            <p class="lead">
+              Born from the need to simplify complex scheduling, MergeCal seamlessly unifies multiple calendar feeds into one view—perfect for sports teams, educational institutions, and personal organization.
+            </p>
+          </div>
+          {# djlint:off H021 #}
+          <div class="text-center col-lg-6 d-none d-lg-block">
+            <img src="{% static 'images/calendar-days-svgrepo-com.svg' %}"
+                 alt="MergeCal Illustration"
+                 class="img-fluid"
+                 style="width: 300px;
+                        height: auto" />
+          </div>
+          {# djlint:on #}
         </div>
       </div>
     </div>
-    <!-- About the Creator -->
-    <div class="p-5 rounded-lg shadow-sm mb-5 bg-body-secondary">
-      <div class="row">
-        <div class="col-md-8 mx-auto">
-          <h2 class="text-center mb-3">Meet the Creator</h2>
+    <!-- Meet the Creator Section -->
+    <section class="p-5 rounded-3 mb-5">
+      <div class="row align-items-center">
+        <div class="col-md-4 mb-3 mb-md-0">
+          <img src="{% static 'images/hi.png' %}" alt="Abe Hanoka" class="img-fluid" />
+        </div>
+        <div class="col-md-8">
+          <h2 class="mb-3">Meet the Creator: Abe Hanoka</h2>
           <p>
-            Abe Hanoka, the creator of <a href="https://mergecal.org" target="_blank">MergeCal.org</a> and <a href="https://myhebrewdates.com" target="_blank">MyHebrewDates.com</a>, is a seasoned full-stack developer renowned for his ability to simplify complex processes through innovative software solutions. A self-taught and self-driven problem solver, Abe has effectively used his extensive expertise in Python, Django, and open-source software to develop tools that enhance productivity and process efficiency. His notable contributions to community projects and his role as maintainer of <a href="https://dj-stripe.dev" target="_blank">dj-stripe</a> highlight his commitment to improving software usability and accessibility. Abe's work, particularly in creating solutions like MergeCal, supports diverse user groups ranging from sports teams and educational administrators to freelancers and rental coordinators, ensuring they manage their schedules with ease and efficiency. For freelance inquiries or to discuss potential projects, contact Abe at <a href="mailto:abe@mergecal.org">abe@mergecal.org</a>, or view his professional details on <a href="https://www.linkedin.com/in/abe101" target="_blank">LinkedIn</a> and his <a href="https://habet.dev" target="_blank">portfolio</a>.
+            Hi there! I'm Abe, the creator of MergeCal and <a href="https://myhebrewdates.com" target="_blank">MyHebrewDates</a>. MergeCal was born out of a specific need within the <a href="https://codeandcoffee.org" target="_blank">Code & Coffee</a> community, a vibrant group of developers spanning multiple cities and time zones.
           </p>
+          <p>
+            Code & Coffee needed a way to consolidate calendars from all their groups into a single, manageable feed. This challenge inspired me to build MergeCal, a tool designed to simplify the process of merging multiple calendar feeds. What started as a solution for our community has grown into a platform that I hope can help others facing similar calendar management challenges.
+          </p>
+          <p>
+            When I'm not working on MergeCal or contributing to open-source projects, I offer full-stack web development services as a freelancer. If you have a project that needs a tailored solution or want to discuss how to streamline your own calendar management, I'd be happy to chat.
+          </p>
+          <div class="mt-3">
+            <a href="mailto:abe@mergecal.org" class="btn btn-outline-primary me-2">Get in Touch</a>
+            <a href="https://www.linkedin.com/in/abe101"
+               target="_blank"
+               class="btn btn-outline-primary me-2">Connect on LinkedIn</a>
+            <a href="https://habet.dev"
+               target="_blank"
+               class="btn btn-outline-primary">View My Portfolio</a>
+          </div>
         </div>
       </div>
-    </div>
-    <!-- Contact Section -->
-    <div class="text-center mb-5">
-      <h2>Get in Touch</h2>
-      <a href="mailto:feedback@mergecal.org?subject=Feedback"
-         class="btn btn-outline-primary me-2">Send Feedback</a>
-      <a href="https://github.com/abe-101/mergecal"
-         class="btn btn-outline-primary me-2">GitHub</a>
-      <a href="https://discord.gg/2vqUzSpt6N" class="btn btn-outline-primary">Join Our Discord</a>
-    </div>
+    </section>
+    <!-- Get in Touch Section -->
+    <section class="text-center mb-5">
+      <h2 class="mb-4">Get in Touch</h2>
+      <div class="d-flex justify-content-center flex-wrap">
+        <a href="mailto:feedback@mergecal.org?subject=Feedback"
+           class="btn btn-primary m-2">
+          <i class="bi bi-envelope me-2"></i>Send Feedback
+        </a>
+        <a href="https://github.com/mergecal/mergecal"
+           class="btn btn-outline-secondary m-2">
+          <i class="bi bi-github me-2"></i>GitHub
+        </a>
+        <a href="https://discord.gg/2vqUzSpt6N"
+           class="btn btn-outline-primary m-2">
+          <i class="bi bi-discord me-2"></i>Join Our Discord
+        </a>
+      </div>
+    </section>
     <!-- FAQ Section -->
-    <div class="accordion mb-5" id="faqAccordion">
+    <section class="mb-5">
       <h2 class="text-center mb-4">Frequently Asked Questions</h2>
-      {% include "pages/_faq.html" %}
-    </div>
+      <div class="accordion" id="faqAccordion">{% include "pages/_faq.html" %}</div>
+    </section>
   </div>
 {% endblock content %}
