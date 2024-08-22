@@ -79,3 +79,23 @@ def get_subscription_email_ps(tier: User.SubscriptionTier) -> str:
         User.SubscriptionTier.SUPPORTER: "P.S. If you're open to sharing how you use MergeCal, we'd be interested in featuring your story. Reply to this email if you'd like to participate.",
     }
     return ps.get(tier, "")
+
+
+def send_trial_ending_email(user: User) -> MultiBodyTemplateEmailMessage:
+    subject = "Your MergeCal Trial is Ending Soon"
+    bodies = [
+        "This is a friendly reminder that your MergeCal trial is ending in a few days. To continue using MergeCal, please add a payment method to your account before your trial expires.",
+        "We hope MergeCal has been helpful in simplifying your calendar management. By subscribing, you'll ensure uninterrupted access to the service you've been using during your trial period.",
+        "If you have any questions about subscribing or need assistance with your account, please don't hesitate to reply to this email or contact our support team. We're here to help!",
+    ]
+
+    ps = "P.S. If money is tight and you'd like to continue using MergeCal, please reply to this email. We're happy to offer you a discount to help you stay connected and productive."
+
+    return MultiBodyTemplateEmailMessage(
+        subject=subject,
+        to_users=[user],
+        bodies=bodies,
+        ps=ps,
+        from_email="Abe <abe@mergecal.org>",
+        template_id=MailjetTemplates.THREE_PARAGRAPHS,
+    )

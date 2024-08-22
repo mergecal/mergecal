@@ -11,6 +11,7 @@ from djstripe.models import Event
 from djstripe.models import Invoice
 from djstripe.models import Subscription
 
+from mergecal.billing.emails import send_trial_ending_email
 from mergecal.billing.emails import upgrade_subscription_email
 from mergecal.users.models import User
 
@@ -69,6 +70,9 @@ def handle_trial_will_end(sender: Any, event: Event, **kwargs: dict[str, Any]) -
     customer_id: str = event.data["object"]["customer"]
     customer: Customer = Customer.objects.get(id=customer_id)
     logger.info("Subscription trial will end soon for customer: %s", customer)
+    user: User = customer.subscriber
+    email = send_trial_ending_email(user)
+    email.send()
     # Send email to customer
 
 
