@@ -50,33 +50,32 @@ def downgrade_subscription_email(user: User) -> MultiBodyTemplateEmailMessage:
 def get_subscription_email_bodies(tier: User.SubscriptionTier) -> tuple[list[str], str]:
     base_url = get_site_url()
     account_url = base_url + reverse("calendars:calendar_list")
-
     bodies = {
         User.SubscriptionTier.PERSONAL: [
-            "Thank you for upgrading to MergeCal Personal. We're excited to have you on board and can't wait for you to experience the enhanced features of your new plan.",
-            f"To get started, please visit your Calendar Management page at {account_url}. Here you can set up your merged calendars and explore the new capabilities at your disposal.",
-            "If you have any questions or need assistance, our support team is here to help. We're committed to making your experience with MergeCal as smooth and productive as possible.",
+            "Thank you for upgrading to MergeCal Personal. We're excited to have you with us.",
+            f"Visit your Calendar Management page at {account_url} to set up your merged calendars and explore new capabilities.",
+            "Our support team is available if you need assistance. We're committed to ensuring a smooth experience with MergeCal.",
         ],
         User.SubscriptionTier.BUSINESS: [
-            "Welcome to MergeCal Business. We're thrilled that you've chosen our service for your business needs and we're committed to helping you make the most of it.",
-            f"To leverage your new subscription, visit your enhanced Calendar Management page at {account_url}. Here you can configure your expanded calendar integrations and customize settings to suit your business requirements.",
-            "Our support team is ready to assist you in maximizing these features. We're dedicated to helping your business streamline its calendar management and boost productivity.",
+            "Welcome to MergeCal Business. We appreciate you choosing our service for your organization.",
+            f"Access your enhanced Calendar Management page at {account_url}. Configure your expanded integrations and customize settings for your needs.",
+            "Our team is ready to help you maximize these features and streamline your calendar management.",
         ],
         User.SubscriptionTier.SUPPORTER: [
-            "Thank you for becoming a MergeCal Supporter. Your commitment is invaluable in driving our development and improving MergeCal for everyone.",
-            f"To start exploring your new capabilities, visit your Calendar Management page at {account_url}. You'll find a host of advanced features there, including unlimited calendars and embedding options.",
-            "As a Supporter, your input is especially valuable to us. We welcome your suggestions for new features or improvements. Your support truly makes a difference in shaping the future of MergeCal.",
-            "Reply with your Discord username to join our exclusive community. Connect with power users and get early feature insights.",
+            "Thank you for becoming a MergeCal Supporter. Your commitment helps drive our development.",
+            f"Explore your new capabilities on the Calendar Management page at {account_url}, including unlimited calendars and embedding options.",
+            "As a Supporter, we value your input. We welcome your suggestions for improvements.",
+            "Contact us with your Discord username to join our community and receive early feature updates.",
         ],
     }
-    return bodies.get(tier, ([], ""))
+    return bodies.get(tier, []), ""
 
 
 def get_subscription_email_ps(tier: User.SubscriptionTier) -> str:
     ps = {
-        User.SubscriptionTier.PERSONAL: "P.S. If you're open to sharing how you use MergeCal, we'd be interested in featuring your story. Reply to this email if you'd like to participate.",
-        User.SubscriptionTier.BUSINESS: "P.S. If you're open to sharing how you use MergeCal, we'd be interested in featuring your story. Reply to this email if you'd like to participate.",
-        User.SubscriptionTier.SUPPORTER: "P.S. If you're open to sharing how you use MergeCal, we'd be interested in featuring your story. Reply to this email if you'd like to participate.",
+        User.SubscriptionTier.PERSONAL: "We'd love to hear about your experience with MergeCal. Feel free to share your thoughts.",
+        User.SubscriptionTier.BUSINESS: "We'd be interested in learning how MergeCal benefits your organization. Your feedback is valuable to us.",
+        User.SubscriptionTier.SUPPORTER: "Your insights as a Supporter are crucial. We'd appreciate hearing about your experience with MergeCal.",
     }
     return ps.get(tier, "")
 
