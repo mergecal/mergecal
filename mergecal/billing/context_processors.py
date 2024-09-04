@@ -9,7 +9,7 @@ def trial_status(request):
         customer = request.user.djstripe_customers.first()
         if not customer:
             return {"is_trial": False, "trial_days_left": 0}
-        subscription = customer.subscriptions.first()
+        subscription = customer.subscriptions.filter(status="trialing").first()
         if not subscription:
             return {"is_trial": False, "trial_days_left": 0}
 
