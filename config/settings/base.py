@@ -225,6 +225,7 @@ TEMPLATES = [
                 "django.template.context_processors.tz",
                 "django.contrib.messages.context_processors.messages",
                 "mergecal.users.context_processors.allauth_settings",
+                "mergecal.billing.context_processors.trial_status",
             ],
         },
     },
