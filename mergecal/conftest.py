@@ -42,3 +42,12 @@ def patch_coupon_get():
         return_value=MagicMock(name="beta tester", id="coupon_123"),
     ) as mock_method:
         yield mock_method
+
+
+@pytest.fixture(scope="session", autouse=True)
+def path_subscription_create():
+    with patch(
+        "stripe.Subscription.create",
+        return_value=MagicMock(id="sub_123"),
+    ) as mock_method:
+        yield mock_method
