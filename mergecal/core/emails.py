@@ -74,7 +74,7 @@ class MultiBodyTemplateEmailMessage(EmailMessage):
         )
 
         if settings.DEBUG:
-            self.body = "\n\n".join(bodies)
+            self.body = "\n\n".join(bodies[0])
             if ps:
                 self.body += f"\n\nPS: {ps}"
         if template_id:
