@@ -2,6 +2,8 @@
 import logging
 from typing import Any
 
+import stripe
+from django.conf import settings
 from django.contrib.auth.signals import user_logged_in
 from django.dispatch import receiver
 from django.http import HttpRequest
@@ -9,6 +11,7 @@ from djstripe.event_handlers import djstripe_receiver
 from djstripe.models import Customer
 from djstripe.models import Event
 from djstripe.models import Invoice
+from djstripe.models import Price
 from djstripe.models import Subscription
 
 from mergecal.billing.emails import send_trial_ending_email
@@ -16,6 +19,8 @@ from mergecal.billing.emails import upgrade_subscription_email
 from mergecal.users.models import User
 
 logger = logging.getLogger(__name__)
+
+stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
 def update_user_subscription_tier(user: User, subscription: Subscription) -> None:
@@ -58,11 +63,22 @@ def create_stripe_customer(
     **kwargs: dict[str, Any],
 ) -> None:
     customer, created = Customer.get_or_create(subscriber=user)
-    # if created:
-    #     price = Price.objects.get(lookup_key="personal_monthly")
-    #     coupon = Coupon.objects.get(name="beta")
-    #     customer.add_coupon(coupon)
-    #     customer.subscribe(price=price.id)
+    if created:
+        price = Price.objects.get(lookup_key="business_monthly")
+        stripe.Subscription.create(
+            customer=customer.id,
+            items=[{"price": price.id}],
+            trial_period_days=14,
+            payment_settings={"save_default_payment_method": "on_subscription"},
+            trial_settings={"end_behavior": {"missing_payment_method": "cancel"}},
+        )
+        # coupon = Coupon.objects.get(name="beta")
+        # customer.add_coupon(coupon)
+        logger.info(
+            "Stripe customer created for user: %s and added to plan: %s",
+            user,
+            price,
+        )
 
 
 @djstripe_receiver("customer.subscription.trial_will_end")

@@ -6,6 +6,7 @@ from django.views.generic import DetailView
 from django.views.generic import RedirectView
 from django.views.generic import UpdateView
 
+from mergecal.billing.tasks import update_stripe_subscription
 from mergecal.users.models import User
 
 
@@ -13,6 +14,13 @@ class UserDetailView(LoginRequiredMixin, DetailView):
     model = User
     slug_field = "username"
     slug_url_kwarg = "username"
+
+    def get(self, request, *args, **kwargs):
+        response = super().get(request, *args, **kwargs)
+
+        update_stripe_subscription(self.object.id)
+
+        return response
 
 
 user_detail_view = UserDetailView.as_view()

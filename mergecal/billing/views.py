@@ -43,8 +43,8 @@ class PricingTableView(TemplateView):
 class ManageBillingView(LoginRequiredMixin, RedirectView):
     def get_redirect_url(self, *args, **kwargs):
         customer = self.request.user.djstripe_customers.first()
-        if self.request.user.is_free_tier:
-            return reverse("pricing")
+        # if self.request.user.is_free_tier:
+        #     return reverse("pricing")
 
         return_url = self.request.build_absolute_uri(
             reverse("users:detail", kwargs={"username": self.request.user.username}),
