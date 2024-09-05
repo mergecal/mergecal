@@ -68,7 +68,7 @@ def get_subscription_email_bodies(tier: User.SubscriptionTier) -> tuple[list[str
             "Contact us with your Discord username to join our community and receive early feature updates.",
         ],
     }
-    return bodies.get(tier, []), ""
+    return bodies.get(tier, ([], ""))
 
 
 def get_subscription_email_ps(tier: User.SubscriptionTier) -> str:
