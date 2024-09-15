@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% load i18n %}
+
 {% block title %}
   Pricing
 {% endblock title %}
@@ -8,14 +10,22 @@
   <script async src="https://js.stripe.com/v3/pricing-table.js"></script>
 {% endblock javascript %}
 {% block content %}
-  <div class="container mt-5">
-    <div class="alert alert-info" role="alert">
-      <h4 class="alert-heading">Special Offer for Early Adopters!</h4>
-      <p class="mb-0">
-        Get the Personal Tier for FREE! Use code <strong>FREEBETA</strong> at checkout to start merging your calendars today.
-      </p>
+  {% if not request.user.is_authenticated %}
+    <div class="alert alert-warning alert-dismissible fade show mb-0"
+         role="alert">
+      <div class="container d-flex justify-content-between align-items-center">
+        <span>{% translate "Please sign in to ensure a smooth checkout process." %}</span>
+        <div>
+          <a href="{% url 'account_login' %}" class="btn btn-sm btn-primary me-2">{% translate "Sign In" %}</a>
+          <a href="{% url 'account_signup' %}" class="btn btn-sm btn-secondary">{% translate "Sign Up" %}</a>
+          <button type="button"
+                  class="btn-close"
+                  data-bs-dismiss="alert"
+                  aria-label="Close"></button>
+        </div>
+      </div>
     </div>
-  </div>
+  {% endif %}
   <stripe-pricing-table pricing-table-id="{{ price_table_id }}" publishable-key="{{ stripe_public_key }}"
   {% if customer_session_id %}customer-session-client-secret="{{ customer_session_id }}"{% endif %}
   >
