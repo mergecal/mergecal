@@ -16,6 +16,8 @@ from urllib3.util.retry import Retry
 
 from mergecal.calendars.meetup import fetch_and_create_meetup_calendar
 from mergecal.calendars.meetup import is_meetup_url
+from mergecal.core.utils import is_local_url
+from mergecal.core.utils import parse_calendar_uuid
 
 from .models import Calendar
 from .models import Source
@@ -89,7 +91,23 @@ class CalendarMerger:
 
     def _add_sources(self) -> None:
         existing_uids = set()
+        source_calendars = []
         for source in self.calendar.calendarOf.all():
+            if not is_local_url(source.url):
+                source_calendars.append(source)
+                continue
+
+            # if it's a local URL, we need to fetch the calendar sorurce
+            logger.info("Local URL detected: %s", source.url)
+            uuid = parse_calendar_uuid(source.url)
+            if uuid and uuid != self.calendar.uuid:  # avoid recursive hell
+                try:
+                    sub_calendar = Calendar.objects.get(uuid=uuid)
+                    source_calendars.extend(sub_calendar.calendarOf.all())
+                except Calendar.DoesNotExist:
+                    logger.warning("Calendar not found for UUID: %s", uuid)
+
+        for source in source_calendars:
             self._add_source_events(source, existing_uids)
 
     def _add_source_events(self, source: Source, existing_uids: set) -> None:

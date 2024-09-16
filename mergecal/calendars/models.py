@@ -14,6 +14,8 @@ from requests.exceptions import RequestException
 from mergecal.core.constants import SourceLimits
 from mergecal.core.models import TimeStampedModel
 from mergecal.core.utils import get_site_url
+from mergecal.core.utils import is_local_url
+from mergecal.core.utils import parse_calendar_uuid
 
 TWELVE_HOURS_IN_SECONDS = 43200
 
@@ -28,6 +30,14 @@ def validate_ical_url(url):
         "DNT": "1",  # Do Not Track Request Header
         "Upgrade-Insecure-Requests": "1",
     }
+    # Handle MergeCal URLs
+    if is_local_url(url):
+        calendar_uuid = parse_calendar_uuid(url)
+        if calendar_uuid:
+            if not Calendar.objects.filter(uuid=calendar_uuid).exists():
+                msg = "The specified MergeCal calendar does not exist."
+                raise ValidationError(msg)
+            return  # URL is valid, exit the function
 
     # if url is meetup.com, skip validation
     if "meetup.com" in url:
