@@ -60,13 +60,29 @@
         <!-- Calendar Embed -->
         <div class="col-md-6 mb-4">
           <div class="card h-100">
-            <div class="card-header">
-              <h2 class="card-title">Calendar Preview</h2>
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <h2 class="card-title mb-0">Calendar Preview</h2>
+              <a href="{% url 'calendars:calendar_view' uuid=calendar.uuid %}"
+                 class="btn btn-outline-secondary btn-sm"
+                 aria-label="View Calendar">
+                <i class="bi bi-arrows-angle-expand"></i>
+              </a>
             </div>
-            <div class="card-body">{% include 'calendars/_calendar_embed.html' %}</div>
+            <div class="card-body">
+              {% include 'calendars/_calendar_embed.html' %}
+              <div class="mt-3">
+                <button type="button"
+                        class="btn btn-success"
+                        data-bs-toggle="modal"
+                        data-bs-target="#addToCalendarModal{{ calendar.uuid }}">
+                  <i class="bi bi-calendar-plus"></i> Subscribe to Calendar
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
+      {% include "calendars/_add_to_calendar.html" with calendar=calendar %}
       <!-- Quick Info and Upgrade CTA -->
       <!-- Calendar Sources -->
       <div class="card mb-4">
