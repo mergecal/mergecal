@@ -145,38 +145,33 @@
         day: 'numeric',
         hour: 'numeric',
         minute: '2-digit',
-        timeZoneName: 'short'
       };
 
       if (allDay) {
         options.hour = undefined;
         options.minute = undefined;
-        options.timeZoneName = undefined;
-        return start.toLocaleDateString(undefined, options);
+        return start.toLocaleDateString('en-US', options);
       }
 
-      var startStr = start.toLocaleString(undefined, options);
+      var startStr = start.toLocaleString('en-US', options);
       if (!end) return startStr;
 
-      var endStr = end.toLocaleString(undefined, {
-        hour: 'numeric',
-        minute: '2-digit',
-        timeZoneName: 'short'
-      });
-
+      var endOptions = {
+        ...options
+      };
       // If start and end are on the same day, only show the date once
       if (start.toDateString() === end.toDateString()) {
-        endStr = end.toLocaleString(undefined, {
+        endOptions = {
           hour: 'numeric',
           minute: '2-digit',
-          timeZoneName: 'short'
-        });
-      } else {
-        endStr = end.toLocaleString(undefined, options);
+        };
       }
+
+      var endStr = end.toLocaleString('en-US', endOptions);
 
       return `${startStr} - ${endStr}`;
     }
+
 
     function parseDescription(description) {
       // Check if the content is likely to be HTML
