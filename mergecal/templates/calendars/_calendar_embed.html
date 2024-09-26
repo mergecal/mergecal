@@ -80,7 +80,6 @@
         eventClassNames: 'bg-primary',
         dayMaxEvents: true,
         initialView: 'dayGridMonth',
-        timeZone: '{{ calendar.timezone }}',
         eventSources: [{
           url: "{% url 'calendars:calendar_file' calendar.uuid %}",
           format: 'ics',
