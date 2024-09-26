@@ -9,6 +9,7 @@ celery==5.4.0  # pyup: < 6.0  # https://github.com/celery/celery
 django-celery-beat==2.6.0  # https://github.com/celery/django-celery-beat
 icalendar==6.0.0a0  # https://github.com/collective/icalendar
 beautifulsoup4==4.12.3  # https://www.crummy.com/software/BeautifulSoup/bs4/
+x-wr-timezone==0.0.7  # https://github.com/niccokunzmann/x-wr-timezone
 
 # Django
 # ------------------------------------------------------------------------------

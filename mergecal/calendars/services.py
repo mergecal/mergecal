@@ -1,14 +1,12 @@
 import logging
 from datetime import timedelta
-from zoneinfo import ZoneInfo
 
+import x_wr_timezone
 from django.core.cache import cache
 from django.http import HttpRequest
 from django.utils import timezone
 from icalendar import Calendar as ICalendar
 from icalendar import Event
-from icalendar import Timezone
-from icalendar import TimezoneStandard
 from requests import RequestException
 from requests import Session
 from requests.adapters import HTTPAdapter
@@ -33,6 +31,7 @@ class CalendarMerger:
         self.session = self._create_session()
         self.is_outdated_domain = self._check_outdated_domain()
         self.merged_calendar = None
+        self.existing_tzids = set()
 
     def merge(self) -> str:
         cache_key = f"calendar_str_{self.calendar.uuid}"
@@ -69,25 +68,7 @@ class CalendarMerger:
         new_cal.add("prodid", f"-//{self.calendar.name}//mergecal.org//")
         new_cal.add("version", "2.0")
         new_cal.add("x-wr-calname", self.calendar.name)
-        self._add_timezone(new_cal)
         return new_cal
-
-    def _add_timezone(self, cal: ICalendar) -> None:
-        tzinfo = ZoneInfo(self.calendar.timezone)
-        newtimezone = Timezone()
-        newtimezone.add("tzid", tzinfo.key)
-
-        now = timezone.now()
-        std = TimezoneStandard()
-        std.add(
-            "dtstart",
-            now - timedelta(days=1),
-        )
-        std.add("tzoffsetfrom", timedelta(seconds=-now.utcoffset().total_seconds()))
-        std.add("tzoffsetto", timedelta(seconds=-now.utcoffset().total_seconds()))
-        newtimezone.add_component(std)
-
-        cal.add_component(newtimezone)
 
     def _add_sources(self) -> None:
         existing_uids = set()
@@ -119,6 +100,13 @@ class CalendarMerger:
         if source_calendar:
             for component in source_calendar.walk("VEVENT"):
                 self._process_event(component, source, existing_uids)
+
+            for component in source_calendar.walk("VTIMEZONE"):
+                tzid = component.get("tzid")
+                if tzid in self.existing_tzids:
+                    continue
+                self.existing_tzids.add(tzid)
+                self.merged_calendar.add_component(component)
 
     def _fetch_source_calendar(self, source: Source) -> None | ICalendar:
         url = source.url
@@ -152,8 +140,7 @@ class CalendarMerger:
         except ValueError as e:
             self._add_source_error(source, f"Parsing error: {e!s}")
             return None
-
-        return calendar
+        return x_wr_timezone.to_standard(calendar)
 
     def _process_event(self, event: Event, source: Source, existing_uids: set) -> None:
         uid = event.get("uid")
