@@ -12,6 +12,7 @@ from requests import Session
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
+from mergecal.calendars.calendar_fetcher import CalendarFetcher
 from mergecal.calendars.meetup import fetch_and_create_meetup_calendar
 from mergecal.calendars.meetup import is_meetup_url
 from mergecal.core.utils import is_local_url
@@ -28,7 +29,7 @@ class CalendarMerger:
         self.calendar = calendar
         self.request = request
         self.user = calendar.owner
-        self.session = self._create_session()
+        self.calendar_fetcher = CalendarFetcher()
         self.is_outdated_domain = self._check_outdated_domain()
         self.merged_calendar = None
         self.existing_tzids = set()
@@ -109,38 +110,28 @@ class CalendarMerger:
                 self.merged_calendar.add_component(component)
 
     def _fetch_source_calendar(self, source: Source) -> None | ICalendar:
-        url = source.url
-        headers = {
-            "User-Agent": "MergeCal/1.0 (https://mergecal.org)",
-            "Accept": "text/calendar, application/calendar+xml, application/calendar+json",  # noqa: E501
-            "Accept-Language": "en-US,en;q=0.9",
-            "Cache-Control": "no-cache",
-        }
-
-        session = self.session
-
         def validate_calendar(cal: ICalendar) -> None:
             if not cal.walk():
                 msg = f"Calendar from {url} contains no components"
                 raise ValueError(msg)
 
+        url = source.url
+        calendar_data = self.calendar_fetcher.fetch_calendar(url)
+
         try:
-            response = session.get(url, headers=headers, timeout=30)
-            response.encoding = "utf-8"
-            response.raise_for_status()
-
-            # Log the response content for debugging
-            logger.debug("Response content for %s: %s...", url, response.text[:500])
-
-            calendar = ICalendar.from_ical(response.text)
+            calendar = ICalendar.from_ical(calendar_data)
             validate_calendar(calendar)
+            return x_wr_timezone.to_standard(calendar)
         except RequestException as e:
-            self._add_source_error(source, f"HTTP error: {e!s}")
+            error_message = f"HTTP error: {e!s}"
+            logger.warning(error_message)
+            self._add_source_error(source, error_message)
             return None
         except ValueError as e:
-            self._add_source_error(source, f"Parsing error: {e!s}")
+            error_message = f"Error parsing calendar: {e!s}"
+            logger.warning(error_message)
+            self._add_source_error(source, error_message)
             return None
-        return x_wr_timezone.to_standard(calendar)
 
     def _process_event(self, event: Event, source: Source, existing_uids: set) -> None:
         uid = event.get("uid")

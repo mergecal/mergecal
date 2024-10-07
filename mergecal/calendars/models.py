@@ -2,7 +2,6 @@
 import uuid
 import zoneinfo
 
-import requests
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -11,6 +10,7 @@ from django.utils.translation import gettext_lazy as _
 from icalendar import Calendar as Ical
 from requests.exceptions import RequestException
 
+from mergecal.calendars.calendar_fetcher import CalendarFetcher
 from mergecal.core.constants import SourceLimits
 from mergecal.core.models import TimeStampedModel
 from mergecal.core.utils import get_site_url
@@ -21,16 +21,6 @@ TWELVE_HOURS_IN_SECONDS = 43200
 
 
 def validate_ical_url(url):
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
-        "Accept-Language": "en-US,en;q=0.9",
-        "Accept-Encoding": "gzip, deflate, br",
-        "Connection": "keep-alive",
-        "DNT": "1",  # Do Not Track Request Header
-        "Upgrade-Insecure-Requests": "1",
-    }
-    # Handle MergeCal URLs
     if is_local_url(url):
         calendar_uuid = parse_calendar_uuid(url)
         if calendar_uuid:
@@ -44,9 +34,9 @@ def validate_ical_url(url):
         return
 
     try:
-        response = requests.get(url, headers=headers, timeout=10)
-        response.raise_for_status()
-        cal = Ical.from_ical(response.text)  # noqa: F841
+        fetcher = CalendarFetcher()
+        response = fetcher.fetch_calendar(url)
+        cal = Ical.from_ical(response)  # noqa: F841
     except RequestException as err:
         msg = "Enter a valid URL"
         raise ValidationError(msg) from err
