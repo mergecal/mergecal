@@ -1,5 +1,14 @@
 {% block calendar %}
-  <div id="calendar"></div>
+  <div id="calendarContainer" class="position-relative">
+    <div id="calendarLoading"
+         class="position-absolute top-50 start-50 translate-middle text-center">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-2">Loading calendar...</p>
+    </div>
+    <div id="calendar"></div>
+  </div>
   <div class="modal fade"
        id="eventModal"
        tabindex="-1"
@@ -58,6 +67,7 @@
     document.addEventListener('DOMContentLoaded', function() {
       console.log('DOM content loaded');
       var calendarEl = document.getElementById('calendar');
+      var loadingEl = document.getElementById('calendarLoading');
       if (!calendarEl) {
         console.error('Calendar element not found');
         return;
@@ -80,10 +90,17 @@
         eventClassNames: 'bg-primary',
         dayMaxEvents: true,
         initialView: 'dayGridMonth',
-        eventSources: [{
+        events: {
           url: "{% url 'calendars:calendar_file' calendar.uuid %}",
           format: 'ics',
-        }],
+        },
+        loading: function(isLoading) {
+          if (isLoading) {
+            loadingEl.style.display = 'block';
+          } else {
+            loadingEl.style.display = 'none';
+          }
+        },
         eventClick: function(info) {
           info.jsEvent.preventDefault(); // Prevent the default action (following the link)
           console.log('Event clicked:', info.event);
