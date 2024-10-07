@@ -26,14 +26,18 @@
     {% block javascript %}
       {% compress js %}
         <script defer src="{% static 'js/bootstrap.bundle.js' %}"></script>
-        <script defer src="{% static 'js/ical.min.js' %}"></script>
+        <script defer src="{% static 'js/ical.es5.min.js' %}"></script>
+        <script defer src="{% static 'js/ical.timezones.js' %}"></script>
         <script defer src="{% static 'js/purify.min.js' %}"></script>
+        <script defer src="{% static 'js/luxon.min.js' %}"></script>
         <script defer
                 src="{% static 'js/fullcalendar-scheduler-6.1.15/dist/index.global.min.js' %}"></script>
         <script defer
                 src="{% static 'js/fullcalendar-6.1.15/packages/icalendar/index.global.min.js' %}"></script>
         <script defer
                 src="{% static 'js/fullcalendar-6.1.15/packages/bootstrap5/index.global.min.js' %}"></script>
+        <script defer
+                src="{% static 'js/fullcalendar-6.1.15/packages/luxon3/index.global.min.js' %}"></script>
       {% endcompress %}
     {% endblock javascript %}
   </head>
