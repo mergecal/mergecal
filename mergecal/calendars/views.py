@@ -90,6 +90,11 @@ class CalendarCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         messages.success(self.request, "Calendar created successfully.")
+        logger.info(
+            "User %s created a new calendar %s",
+            self.request.user,
+            form.instance,
+        )
         return super().form_valid(form)
 
     def get_success_url(self):
@@ -118,6 +123,11 @@ class CalendarUpdateView(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         messages.success(self.request, "Calendar updated successfully.")
+        logger.info(
+            "User %s updated the calendar %s",
+            self.request.user,
+            form.instance,
+        )
         return super().form_valid(form)
 
 
@@ -132,6 +142,11 @@ class CalendarDeleteView(LoginRequiredMixin, DeleteView):
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, "Calendar deleted successfully.")
+        logger.info(
+            "User %s deleted the calendar %s",
+            self.request.user,
+            self.get_object(),
+        )
         return super().delete(request, *args, **kwargs)
 
 
@@ -150,6 +165,13 @@ class SourceAddView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.calendar.uuid = self.kwargs["uuid"]
+        messages.success(self.request, "Source added successfully.")
+        logger.info(
+            "User %s added a new source %s to calendar %s",
+            self.request.user,
+            form.instance,
+            self.calendar,
+        )
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
@@ -194,6 +216,11 @@ class SourceEditView(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         form.instance.calendar = self.object.calendar
         messages.success(self.request, "Source updated successfully.")
+        logger.info(
+            "User %s updated the source %s",
+            self.request.user,
+            form.instance,
+        )
         return super().form_valid(form)
 
     def get_success_url(self):
