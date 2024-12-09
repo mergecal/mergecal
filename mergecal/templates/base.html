@@ -10,33 +10,36 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge" />
     <title>
       {% block title %}
-        MergeCal | Unify Multiple Calendar Feeds into One
+        MergeCal | Multiple Calendars, One Simple Feed
       {% endblock title %}
     </title>
+    <!-- Open Graph Meta Tags -->
     <meta property="og:title"
-          content="{% block og_title %}MergeCal | Unify Multiple Calendar Feeds into One{% endblock og_title %}" />
+          content="{% block og_title %}MergeCal | Multiple Calendars, One Simple Feed{% endblock og_title %}" />
     <meta property="og:description"
-          content="{% block og_description %}Simplify your digital life with MergeCal. Combine multiple iCal/ICS feeds into a single, easy-to-manage calendar. Perfect for busy professionals, event organizers, and anyone juggling multiple schedules.{% endblock og_description %}" />
+          content="{% block og_description %}Combine calendars from Google, Apple, Microsoft, and any iCal/ICS feed into one synchronized calendar. When events change in any of your calendars, your combined calendar automatically stays up to date.{% endblock og_description %}" />
     <meta property="og:image"
           content="{% block og_image %}https://mergecal.org{% static 'images/favicon.png' %}{% endblock og_image %}" />
     <meta property="og:url"
           content="{% block og_url %}https://mergecal.org/{% endblock og_url %}" />
     <meta property="og:type" content="website" />
+    <!-- Twitter Card Meta Tags -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title"
-          content="{% block twitter_title %}MergeCal | Unify Multiple Calendar Feeds into One{% endblock twitter_title %}" />
+          content="{% block twitter_title %}MergeCal | Multiple Calendars, One Simple Feed{% endblock twitter_title %}" />
     <meta name="twitter:description"
-          content="{% block twitter_description %}Simplify your digital life with MergeCal. Combine multiple iCal/ICS feeds into a single, easy-to-manage calendar. Perfect for busy professionals, event organizers, and anyone juggling multiple schedules.{% endblock twitter_description %}" />
+          content="{% block twitter_description %}Combine calendars from Google, Apple, Microsoft, and any iCal/ICS feed into one synchronized calendar. Automatic updates keep your combined calendar in perfect sync.{% endblock twitter_description %}" />
     <meta name="twitter:image"
           content="{% block twitter_image %}https://mergecal.org{% static 'images/favicon.png' %}{% endblock twitter_image %}" />
     <meta name="twitter:site" content="@mergecal" />
     <meta name="twitter:creator" content="@mergecal" />
+    <!-- Basic Meta Tags -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description"
-          content="{% block meta_description %}MergeCal simplifies your digital life by merging multiple iCal/ICS feeds into one easy-to-manage calendar. Ideal for busy professionals, event organizers, and anyone juggling multiple schedules. Try MergeCal today and streamline your calendar management.{% endblock meta_description %}" />
+          content="{% block meta_description %}MergeCal combines all your calendars (Google, Apple, Microsoft, and any iCal/ICS feed) into one synchronized feed. Perfect for professionals managing multiple schedules, teams coordinating across platforms, and anyone looking to simplify their calendar management. Start your 14-day free trial today.{% endblock meta_description %}" />
     <meta name="author" content="Abe Hanoka" />
     <meta name="keywords"
-          content="{% block meta_keywords %}iCal merge, ICS combine, calendar aggregator, merge calendar feeds, unified calendar, multiple calendar sync, iCalendar consolidation, calendar integration, schedule simplification, digital calendar management{% endblock meta_keywords %}" />
+          content="{% block meta_keywords %}calendar merger, combine calendars, Google Calendar integration, Apple Calendar sync, Microsoft Outlook calendar, iCal feeds, ICS combination, calendar synchronization, unified calendar feed, multiple calendar management, calendar consolidation, professional calendar tool{% endblock meta_keywords %}" />
     <link rel="icon" href="{% static 'images/favicons/favicon.ico' %}" />
     {% block css %}
       <link rel="stylesheet"

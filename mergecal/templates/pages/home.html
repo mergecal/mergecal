@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %}
-  MergeCal | Merge Multiple Calendars into One
+  MergeCal | Multiple Calendars, One Simple Feed
 {% endblock title %}
 {% load static compress %}
 
@@ -26,16 +26,65 @@
       <div class="container">
         <div class="row align-items-center">
           <div class="col-lg-6 hero-content">
-            <h1 class="display-4 fw-bold mb-4">All Your Calendars in Sync</h1>
+            <h1 class="display-4 fw-bold mb-4">
+              Multiple Calendars,
+              <br />
+              One Simple Feed
+            </h1>
             <p class="lead mb-4">
-              Bring balance by combining all your calendars – the easy way to eliminate schedule conflicts and double bookings for good.
+              Combine calendars from all major providers into one synchronized calendar. When events change in any of your calendars, your combined calendar automatically stays up to date.
             </p>
-            <a href="{% url 'account_signup' %}" class="btn btn-primary btn-lg">✔14-day free trial</a>
+            <!-- Calendar Icons Section -->
+            <div class="d-flex align-items-center gap-4 mb-5">
+              <div class="d-flex flex-wrap gap-3 align-items-center">
+                <div class="bg-body rounded-circle p-2" title="Google Calendar">
+                  <i class="bi bi-google fs-4 text-primary"></i>
+                </div>
+                <div class="bg-body rounded-circle p-2" title="Apple Calendar">
+                  <i class="bi bi-apple fs-4 text-primary"></i>
+                </div>
+                <div class="bg-body rounded-circle p-2" title="Microsoft Outlook">
+                  <i class="bi bi-microsoft fs-4 text-primary"></i>
+                </div>
+                <div class="bg-body rounded-circle p-2" title="Calendar Feed">
+                  <i class="bi bi-calendar-event fs-4 text-primary"></i>
+                </div>
+                <span class="text-body-secondary ms-2 small">and any iCal/ICS feed</span>
+              </div>
+            </div>
+            <a href="{% url 'account_signup' %}" class="btn btn-primary btn-lg">✔ Get Started — It's Free</a>
           </div>
           <div class="col-lg-6 d-none d-lg-block">
-            <img src="{% static 'images/calendars-svgrepo-com.svg' %}"
-                 alt="MergeCal Illustration"
-                 class="img-fluid" />
+            <div class="position-relative p-4">
+              <div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-calendar3 me-2"></i>
+                  <span>Source Calendars</span>
+                </div>
+                <i class="bi bi-arrow-left-right"></i>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-calendar3-week me-2"></i>
+                  <span>Combined Calendar</span>
+                </div>
+              </div>
+              <div class="bg-body-tertiary p-4 rounded-3">
+                <div class="mb-3 p-2 bg-body rounded d-flex align-items-center shadow-sm">
+                  <i class="bi bi-google me-2"></i>
+                  <span class="me-2">Work Schedule</span>
+                  <small class="text-body-secondary">(Google Calendar)</small>
+                </div>
+                <div class="mb-3 p-2 bg-body rounded d-flex align-items-center shadow-sm">
+                  <i class="bi bi-apple me-2"></i>
+                  <span class="me-2">Family Events</span>
+                  <small class="text-body-secondary">(Apple Calendar)</small>
+                </div>
+                <div class="p-2 bg-body rounded d-flex align-items-center shadow-sm">
+                  <i class="bi bi-microsoft me-2"></i>
+                  <span class="me-2">Team Meetings</span>
+                  <small class="text-body-secondary">(Outlook)</small>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -204,7 +253,7 @@
               Start your free trial today!
             </p>
             <a href="{% url 'account_signup' %}"
-               class="btn btn-primary btn-lg px-5 py-3">Get Started — It's Free</a>
+               class="btn btn-primary btn-lg px-5 py-3">✔14-day free trial</a>
             <p class="mt-3">
               <small>No credit card required</small>
             </p>
