@@ -1,6 +1,7 @@
 import logging
 from datetime import timedelta
 
+import sentry_sdk
 import x_wr_timezone
 from django.core.cache import cache
 from django.http import HttpRequest
@@ -46,6 +47,7 @@ class CalendarMerger:
             self.merged_calendar = self._create_new_calendar()
             self._add_sources()
             self._finalize_merged_calendar()
+            self._check_for_free_account()
             calendar_str = self.merged_calendar.to_ical().decode("utf-8")
 
             # Set cache with appropriate duration
@@ -203,6 +205,26 @@ class CalendarMerger:
                 "error": error_message,
             },
         )
+
+    def _check_for_free_account(self) -> None:
+        user = self.calendar.owner
+        if not user.is_free_tier:
+            return
+
+        logger.warning(
+            "User %s (Free Tier) is downloading calendar %s",
+            self.request.user,
+            self.calendar.uuid,
+        )
+        with sentry_sdk.configure_scope() as scope:
+            scope.set_tag("tier", "free")
+            scope.set_user({"id": user.id, "email": user.email})
+            scope.set_extra("calendar_uuid", self.calendar.uuid)
+            scope.set_extra("calendar_name", self.calendar.name)
+            sentry_sdk.capture_message(
+                "Free account detected",
+                level="warning",
+            )
 
     def _finalize_merged_calendar(self) -> None:
         if hasattr(self, "source_errors") and self.source_errors:
