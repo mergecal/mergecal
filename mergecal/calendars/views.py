@@ -258,7 +258,7 @@ class CalendarFileAPIView(APIView):
                 {"error": "Calendar not found"},
                 status=status.HTTP_404_NOT_FOUND,
             )
-        if self.request.user.is_free_tier:
+        if calendar.owner.is_free_tier:
             logger.info(
                 "User %s (Free Tier) is downloading calendar %s",
                 self.request.user,
