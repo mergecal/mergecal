@@ -19,7 +19,7 @@ django-model-utils==4.5.1  # https://github.com/jazzband/django-model-utils
 django-allauth[mfa,socialaccount]  # https://github.com/pennersr/django-allauth
 django-crispy-forms==2.3  # https://github.com/django-crispy-forms/django-crispy-forms
 crispy-bootstrap5==2024.10  # https://github.com/django-crispy-forms/crispy-bootstrap5
-django-compressor==4.4  # https://github.com/django-compressor/django-compressor
+django-compressor==4.5.1  # https://github.com/django-compressor/django-compressor
 django-redis==5.4.0  # https://github.com/jazzband/django-redis
 django-extensions==3.2.3  # https://github.com/django-extensions/django-extensions
 django-libsass==0.9  # https://github.com/torchbox/django-libsass
