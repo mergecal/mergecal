@@ -6,6 +6,7 @@ import x_wr_timezone
 from django.core.cache import cache
 from django.http import HttpRequest
 from django.utils import timezone
+from icalendar import Alarm
 from icalendar import Calendar as ICalendar
 from icalendar import Event
 from requests import RequestException
@@ -216,6 +217,10 @@ class CalendarMerger:
             self.request.user,
             self.calendar.uuid,
         )
+        warning_event = self._create_access_warning_event()
+        if warning_event and self.merged_calendar:
+            self.merged_calendar.add_component(warning_event)
+
         with sentry_sdk.configure_scope() as scope:
             scope.set_tag("tier", "free")
             scope.set_user({"id": user.id, "email": user.email})
@@ -237,3 +242,39 @@ class CalendarMerger:
             error_event.add("dtstart", timezone.now())
             error_event.add("dtend", timezone.now() + timedelta(hours=1))
             self.merged_calendar.add_component(error_event)
+
+    def _create_access_warning_event(self) -> Event:
+        """Creates a warning event for users who need to subscribe."""
+        warning_event = Event()
+
+        # Set event time to today
+        start_time = timezone.now()
+
+        warning_event.add(
+            "summary",
+            "⚠️ Action Required: Your MergeCal Access Will Be Discontinued",
+        )
+        description = (
+            "⚠️ Your MergeCal calendar access will be discontinued soon.\n\n"
+            "🎁 Get 1 Month FREE on our Business Plan with code: FREEMONTH\n\n"
+            "Subscribe now to keep your calendars synchronized:\n"
+            "https://mergecal.org/pricing/"
+        )
+
+        warning_event.add("description", description)
+        warning_event.add("dtstart", start_time)
+        warning_event.add("dtend", start_time + timedelta(hours=24))
+        warning_event.add("priority", 1)  # High priority
+        warning_event.add("uid", f"access-warning-{self.calendar.uuid}")
+
+        # Add alarm to trigger 3 hours from now
+        alarm = Alarm()
+        alarm.add("action", "DISPLAY")
+        alarm.add(
+            "description",
+            "Your MergeCal access will be discontinued. Subscribe to our Business Plan - 1 Month FREE with code: FREEMONTH",  # noqa: E501
+        )
+        alarm.add("trigger", timedelta(hours=3))  # Notify in 3 hours
+        warning_event.add_component(alarm)
+
+        return warning_event
