@@ -1,0 +1,47 @@
+{
+  "template": "https://github.com/cookiecutter/cookiecutter-django",
+  "commit": "b0e6b5ef76133c95fee34adba355a4cc4833fc7b",
+  "checkout": null,
+  "context": {
+    "cookiecutter": {
+      "project_name": "MergeCal",
+      "project_slug": "mergecal",
+      "description": "MergeCal | Multiple Calendars, One Simple Feed",
+      "author_name": "Abe Hanoka",
+      "domain_name": "Mergecal.org",
+      "email": "abe@mergecal.org",
+      "version": "0.1.0",
+      "open_source_license": "GPLv3",
+      "username_type": "username",
+      "timezone": "UTC",
+      "windows": "n",
+      "editor": "None",
+      "use_docker": "n",
+      "postgresql_version": "16",
+      "cloud_provider": "AWS",
+      "mail_service": "Mailjet",
+      "use_async": "n",
+      "use_drf": "n",
+      "frontend_pipeline": "Django Compressor",
+      "use_celery": "y",
+      "use_mailpit": "y",
+      "use_sentry": "y",
+      "use_whitenoise": "y",
+      "use_heroku": "n",
+      "ci_tool": "Github",
+      "keep_local_envs_in_vcs": "n",
+      "debug": "n",
+      "_template": "https://github.com/cookiecutter/cookiecutter-django"
+    }
+  },
+  "directory": null,
+  "skip": [
+    "LICENSE",
+    "README.md",
+    "config/urls.py",
+    "mergecal/conftest.py",
+    "mergecal/static/images/favicons/favicon.ico",
+    "mergecal/static/js/project.js",
+    "mergecal/templates"
+  ]
+}

@@ -273,3 +273,4 @@ tags
 mergecal/media/
 
 .pytest_cache/
+mailpit
