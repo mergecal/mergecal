@@ -19,7 +19,7 @@ Once all translations are done, they need to be compiled into `.mo` files (stand
 python manage.py compilemessages
 ```
 
-Note that the `.po` files are NOT used by the application directly, so if the `.mo` files are out of dates, the content won't appear as translated even if the `.po` files are up-to-date.
+Note that the `.po` files are NOT used by the application directly, so if the `.mo` files are out of date, the content won't appear as translated even if the `.po` files are up-to-date.
 
 ## Production
 

@@ -1,6 +1,6 @@
 {
   "template": "https://github.com/cookiecutter/cookiecutter-django",
-  "commit": "b0e6b5ef76133c95fee34adba355a4cc4833fc7b",
+  "commit": "b1bc92ff2c2bce937bc5c8fb930bc53fcca85234",
   "checkout": null,
   "context": {
     "cookiecutter": {

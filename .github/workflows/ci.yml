@@ -50,7 +50,7 @@ jobs:
           POSTGRES_PASSWORD: postgres
 
     env:
-      CELERY_BROKER_URL: 'redis://localhost:6379/0'
+      REDIS_URL: 'redis://localhost:6379/0'
       # postgres://user:password@host:port/database
       DATABASE_URL: 'postgres://postgres:postgres@localhost:5432/postgres'
 
@@ -74,6 +74,12 @@ jobs:
 
       - name: Install Dependencies
         run: uv pip install --system -r requirements/local.txt
+
+      - name: Check DB Migrations
+        run: python manage.py makemigrations --check
+
+      - name: Run DB Migrations
+        run: python manage.py migrate
 
       - name: Test with pytest
         run: pytest
