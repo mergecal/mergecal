@@ -31,7 +31,7 @@ jobs:
           python-version: '3.10'
 
       - name: Run pre-commit
-        uses: abe-101/pre-commit@fix-how-uv-is-used
+        uses: abe-101/pre-commit@v3.0.3
 
   # With no caching at all the entire ci process takes 4m 30s to complete!
   pytest:
