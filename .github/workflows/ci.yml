@@ -76,10 +76,10 @@ jobs:
         run: uv pip install --system -r requirements/local.txt
 
       - name: Check DB Migrations
-        run: python manage.py makemigrations --check
+        run: python manage.py makemigrations --check --settings=config.settings.test
 
       - name: Run DB Migrations
-        run: python manage.py migrate
+        run: python manage.py migrate --settings=config.settings.test
 
       - name: Test with pytest
         run: pytest
