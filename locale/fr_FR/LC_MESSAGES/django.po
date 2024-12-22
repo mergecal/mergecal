@@ -1,6 +1,6 @@
 # Translations for the MergeCal project
 # Copyright (C) 2024 Abe Hanoka
-# Abe Hanoka <abe@habet.dev>, 2024.
+# Abe Hanoka <abe@mergecal.org>, 2024.
 #
 #, fuzzy
 msgid ""
