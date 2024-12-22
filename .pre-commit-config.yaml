@@ -1,6 +1,8 @@
 exclude: '^docs/|/migrations/|devcontainer.json'
 default_stages: [pre-commit]
 
+default_language_version:
+  python: python3.13
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks

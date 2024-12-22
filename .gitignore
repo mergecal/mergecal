@@ -11,6 +11,7 @@ __pycache__/
 .Python
 build/
 develop-eggs/
+dist/
 downloads/
 eggs/
 .eggs/
@@ -159,8 +160,8 @@ typings/
 !.vscode/extensions.json
 *.code-workspace
 
-# Local History for Visual Studio Code
-.history/
+# Local History for devcontainer
+.devcontainer/bash_history
 
 
 
@@ -269,8 +270,11 @@ Session.vim
 # Auto-generated tag files
 tags
 
+# Redis dump file
+dump.rdb
+
 ### Project template
+mailpit
 mergecal/media/
 
 .pytest_cache/
-mailpit
