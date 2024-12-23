@@ -44,16 +44,16 @@ class TestUserAdmin:
         response = admin_client.get(url)
         assert response.status_code == HTTPStatus.OK
 
-    @pytest.fixture()
+    @pytest.fixture
     def _force_allauth(self, settings):
         settings.DJANGO_ADMIN_FORCE_ALLAUTH = True
         # Reload the admin module to apply the setting change
         import mergecal.users.admin as users_admin
 
-        with contextlib.suppress(admin.sites.AlreadyRegistered):
+        with contextlib.suppress(admin.sites.AlreadyRegistered):  # type: ignore[attr-defined]
             reload(users_admin)
 
-    @pytest.mark.django_db()
+    @pytest.mark.django_db
     @pytest.mark.usefixtures("_force_allauth")
     def test_allauth_login(self, rf, settings):
         request = rf.get("/fake-url")

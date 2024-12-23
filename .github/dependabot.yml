@@ -1,12 +1,12 @@
 # Config for Dependabot updates. See Documentation here:
-# https://help.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
+# https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
 
 version: 2
 updates:
   # Update GitHub actions in workflows
   - package-ecosystem: 'github-actions'
     directory: '/'
-    # Check for updates to GitHub Actions every weekday
+    # Every weekday
     schedule:
       interval: 'daily'
 
@@ -15,6 +15,6 @@ updates:
     # Look for a `requirements.txt` in the `root` directory
     # also 'setup.cfg', 'runtime.txt' and 'requirements/*.txt'
     directory: '/'
-    # Check for updates to GitHub Actions every weekday
+    # Every weekday
     schedule:
       interval: 'daily'

@@ -1,6 +1,8 @@
-# ruff: noqa
-from .base import *  # noqa: F403, F401
-from .base import INSTALLED_APPS, MIDDLEWARE, env
+# ruff: noqa: E501, ERA001
+from .base import *  # noqa: F403
+from .base import INSTALLED_APPS
+from .base import MIDDLEWARE
+from .base import env
 
 # GENERAL
 # ------------------------------------------------------------------------------
@@ -55,7 +57,12 @@ MIDDLEWARE = [
 
 # https://django-debug-toolbar.readthedocs.io/en/latest/configuration.html#debug-toolbar-config
 DEBUG_TOOLBAR_CONFIG = {
-    "DISABLE_PANELS": ["debug_toolbar.panels.redirects.RedirectsPanel"],
+    "DISABLE_PANELS": [
+        "debug_toolbar.panels.redirects.RedirectsPanel",
+        # Disable profiling panel due to an issue with Python 3.12:
+        # https://github.com/jazzband/django-debug-toolbar/issues/1875
+        "debug_toolbar.panels.profiling.ProfilingPanel",
+    ],
     "SHOW_TEMPLATE_CONTEXT": True,
 }
 # https://django-debug-toolbar.readthedocs.io/en/latest/installation.html#internal-ips

@@ -28,12 +28,12 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.13'
 
       - name: Run pre-commit
         uses: abe-101/pre-commit@v3.0.3
 
-  # With no caching at all the entire ci process takes 4m 30s to complete!
+  # With no caching at all the entire ci process takes 3m to complete!
   pytest:
     runs-on: ubuntu-latest
 
@@ -43,14 +43,14 @@ jobs:
         ports:
           - 6379:6379
       postgres:
-        image: postgres:12
+        image: postgres:16
         ports:
           - 5432:5432
         env:
           POSTGRES_PASSWORD: postgres
 
     env:
-      CELERY_BROKER_URL: 'redis://localhost:6379/0'
+      REDIS_URL: 'redis://localhost:6379/0'
       # postgres://user:password@host:port/database
       DATABASE_URL: 'postgres://postgres:postgres@localhost:5432/postgres'
 
@@ -67,13 +67,19 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.12'
 
       - name: Set up uv
         uses: astral-sh/setup-uv@v5
 
       - name: Install Dependencies
         run: uv pip install --system -r requirements/local.txt
+
+      - name: Check DB Migrations
+        run: python manage.py makemigrations --check --settings=config.settings.test
+
+      - name: Run DB Migrations
+        run: python manage.py migrate --settings=config.settings.test
 
       - name: Test with pytest
         run: pytest
