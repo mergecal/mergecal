@@ -73,7 +73,7 @@ class UserAdmin(auth_admin.UserAdmin):
         )
         return format_html('<a href="{}">{} Calendars</a>', url, count)
 
-    actions = ["send_feedback_email"]
+    actions = ["send_feedback_email", "send_shorterm_rental_feedback_email"]
 
     @admin.action(description="Send feedback email")
     def send_feedback_email(self, request, queryset):
@@ -81,6 +81,26 @@ class UserAdmin(auth_admin.UserAdmin):
             to=[user.email for user in queryset],
         )
         message.template_id = MailjetTemplates.FEEDBACK
+        message.from_email = None
+
+        # Prepare merge data for all recipients
+        message.merge_data = {user.email: {"name": user.name} for user in queryset}
+
+        # Send the message
+        message.send()
+
+        self.message_user(
+            request,
+            f"Feedback email sent to {queryset.count()} users",
+            messages.SUCCESS,
+        )
+
+    @admin.action(description="Send shorterm rental feedback email")
+    def send_shorterm_rental_feedback_email(self, request, queryset):
+        message = EmailMessage(
+            to=[user.email for user in queryset],
+        )
+        message.template_id = MailjetTemplates.SHORTERM_RENTAL_FEEDBACK
         message.from_email = None
 
         # Prepare merge data for all recipients
