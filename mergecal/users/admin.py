@@ -73,7 +73,7 @@ class UserAdmin(auth_admin.UserAdmin):
         )
         return format_html('<a href="{}">{} Calendars</a>', url, count)
 
-    actions = ["send_feedback_email"]
+    actions = ["send_feedback_email", "send_shorterm_rental_feedback_email"]
 
     @admin.action(description="Send feedback email")
     def send_feedback_email(self, request, queryset):
