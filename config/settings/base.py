@@ -389,3 +389,4 @@ STRIPE_PRICE_TABLE_ID = env("STRIPE_PRICE_TABLE_ID", default="")
 
 # https://django-dynamic-breadcrumbs.readthedocs.io/en/latest/ref/settings.html#dynamic-breadcrumbs-path-max-depth
 DYNAMIC_BREADCRUMBS_PATH_MAX_DEPTH = 8
+FORMS_URLFIELD_ASSUME_HTTPS = True

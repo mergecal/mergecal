@@ -1,4 +1,5 @@
 # ruff: noqa: E501 ERA001
+import typing
 import uuid
 import zoneinfo
 
@@ -16,6 +17,9 @@ from mergecal.core.models import TimeStampedModel
 from mergecal.core.utils import get_site_url
 from mergecal.core.utils import is_local_url
 from mergecal.core.utils import parse_calendar_uuid
+
+if typing.TYPE_CHECKING:
+    from mergecal.users.models import User
 
 TWELVE_HOURS_IN_SECONDS = 43200
 
@@ -47,8 +51,8 @@ def validate_ical_url(url):
 
 class Calendar(TimeStampedModel):
     name = models.CharField(max_length=255)
-    uuid = models.UUIDField(default=uuid.uuid4, editable=False)
-    owner = models.ForeignKey(
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)
+    owner: "User" = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
     )
@@ -87,7 +91,7 @@ class Calendar(TimeStampedModel):
         ),
     )
 
-    class Meta:
+    class Meta(TimeStampedModel.Meta):
         ordering = ["-pk"]
 
     def __str__(self):
