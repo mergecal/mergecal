@@ -2,6 +2,7 @@
 import logging
 from typing import Any
 
+import sentry_sdk
 import stripe
 from django.conf import settings
 from django.contrib.auth.signals import user_logged_in
@@ -11,6 +12,7 @@ from djstripe.event_handlers import djstripe_receiver
 from djstripe.models import Customer
 from djstripe.models import Event
 from djstripe.models import Invoice
+from djstripe.models import PaymentMethod
 from djstripe.models import Price
 from djstripe.models import Subscription
 
@@ -26,8 +28,6 @@ stripe.api_key = settings.STRIPE_SECRET_KEY
 def update_user_subscription_tier(user: User, subscription: Subscription) -> None:
     new_tier = None
     if subscription.status in ["active", "trialing"]:
-        logger.info("Updating subscription tier for user: %s", user)
-
         match subscription.plan.product.name:
             case User.SubscriptionTier.PERSONAL.label:
                 new_tier = User.SubscriptionTier.PERSONAL
@@ -50,9 +50,6 @@ def update_user_subscription_tier(user: User, subscription: Subscription) -> Non
             #     # Optionally send a downgrade email
             #     email = downgrade_subscription_email(user)
             #     email.send()
-
-    else:
-        logger.info("No change in subscription tier for user: %s", user)
 
 
 @receiver(signal=user_logged_in)
@@ -113,7 +110,6 @@ def handle_subscription_update(
     event: Event,
     **kwargs: dict[str, Any],
 ) -> None:
-    logger.info("Webhook Event Type: %s", event.type)
     customer_id: str = event.data["object"]["customer"]
     try:
         customer: Customer = Customer.objects.get(id=customer_id)
@@ -122,7 +118,6 @@ def handle_subscription_update(
         )
         user: User = customer.subscriber
         update_user_subscription_tier(user, subscription)
-        logger.info("Subscription updated for customer: %s", customer)
     except (Customer.DoesNotExist, Subscription.DoesNotExist):
         logger.exception("Customer or Subscription not found")
 
@@ -160,6 +155,7 @@ def handle_invoice_events(sender: Any, **kwargs: dict[str, Any]) -> None:
         customer: Customer = invoice.customer
         user: User = customer.subscriber
         if event.type == "invoice.paid":
+            logger.info("Invoice paid for user: %s", user)
             # Handle successful payment
             subscription: Subscription = invoice.subscription
             update_user_subscription_tier(user, subscription)
@@ -167,9 +163,30 @@ def handle_invoice_events(sender: Any, **kwargs: dict[str, Any]) -> None:
             "invoice.payment_failed",
             "invoice.payment_action_required",
         ]:
+            logger.info("Invoice payment failed for user: %s", user)
             # Handle failed payment
             user.subscription_tier = User.SubscriptionTier.FREE
             user.save()
         logger.info("Invoice event handled for user: %s", user)
     except (Invoice.DoesNotExist, Customer.DoesNotExist):
         logger.exception("Invoice or Customer not found:")
+
+
+@djstripe_receiver("payment_method.attached")
+def handle_payment_method_attached(sender: Any, **kwargs: dict[str, Any]) -> None:
+    event: Event = kwargs.get("event")
+    logger.info("Invoice Event Type: %s", event.type)
+    payment_method_id: str = event.data["object"]["id"]
+    payment_method: PaymentMethod = PaymentMethod.objects.get(id=payment_method_id)
+    customer: Customer = payment_method.customer
+    user: User = customer.subscriber
+
+    logger.info("Payment method attached for user: %s", user)
+
+    with sentry_sdk.configure_scope() as scope:
+        scope.set_tag("payment_method", "attached")
+        scope.set_user({"id": user.pk, "email": user.email})
+        sentry_sdk.capture_message(
+            "Payment method attached",
+            level="info",
+        )
