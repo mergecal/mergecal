@@ -357,6 +357,10 @@ ACCOUNT_FORMS = {"signup": "mergecal.users.forms.UserSignupForm"}
 SOCIALACCOUNT_ADAPTER = "mergecal.users.adapters.SocialAccountAdapter"
 # https://docs.allauth.org/en/latest/socialaccount/configuration.html
 SOCIALACCOUNT_FORMS = {"signup": "mergecal.users.forms.UserSocialSignupForm"}
+# https://docs.allauth.org/en/latest/socialaccount/configuration.html
+ACCOUNT_LOGIN_BY_CODE_ENABLED = True
+# https://docs.allauth.org/en/latest/socialaccount/configuration.html
+ACCOUNT_SIGNUP_FORM_HONEYPOT_FIELD = "phone_number"
 # django-compressor
 # ------------------------------------------------------------------------------
 # https://django-compressor.readthedocs.io/en/latest/quickstart/#installation
