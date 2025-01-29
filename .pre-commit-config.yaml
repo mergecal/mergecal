@@ -1,4 +1,4 @@
-exclude: '^docs/|/migrations/|devcontainer.json'
+exclude: '^docs/|/migrations/|devcontainer.json|/tests/calendars/.*\.ics'
 default_stages: [pre-commit]
 
 default_language_version:

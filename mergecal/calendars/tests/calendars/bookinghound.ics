@@ -1,0 +1,45 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:Bookinghound
+BEGIN:VEVENT
+SUMMARY:Event: User-friendly uniform structure
+DTSTART;TZID=UTC:20250430T100000Z
+DTEND;TZID=UTC:20250430T113000Z
+DESCRIPTION:Description: Third human according hope actually. Level could
+ glass middle voice suggest the parent.
+LOCATION:USNV Gutierrez\nFPO AE 17505
+END:VEVENT
+BEGIN:VEVENT
+SUMMARY:Event: Open-architected client-server application
+DTSTART;TZID=UTC:20250430T113000Z
+DTEND;TZID=UTC:20250430T124500Z
+DESCRIPTION:Description: Ready long business ready.
+LOCATION:27342 Jennifer Islands Apt. 281\nWest Michaelmouth\, PR 08338
+END:VEVENT
+BEGIN:VEVENT
+SUMMARY:Event: Reverse-engineered high-level algorithm
+DTSTART;TZID=UTC:20250430T124500Z
+DTEND;TZID=UTC:20250430T140000Z
+DESCRIPTION:Description: Market despite under. Themselves during quickly c
+ apital easy eat name. Station authority least wide. Answer student recentl
+ y administration type individual perhaps.
+LOCATION:PSC 2640\, Box 1082\nAPO AE 71636
+END:VEVENT
+BEGIN:VEVENT
+SUMMARY:Event: Horizontal client-server conglomeration
+DTSTART;TZID=UTC:20250430T140000Z
+DTEND;TZID=UTC:20250430T150000Z
+DESCRIPTION:Description: With interest with amount describe fast deep. Why
+  himself political none research customer.
+LOCATION:69176 Kelly Roads\nSouth Joseph\, CT 88856
+END:VEVENT
+BEGIN:VEVENT
+SUMMARY:Event: Configurable radical orchestration
+DTSTART;TZID=UTC:20250501T083000Z
+DTEND;TZID=UTC:20250501T100000Z
+DESCRIPTION:Description: Energy test box health fast occur up. Country dau
+ ghter kid quite seem how. Role candidate center under huge conference wher
+ e.
+LOCATION:16871 Wise Center\nLake Julie\, LA 63560
+END:VEVENT
+END:VCALENDAR
