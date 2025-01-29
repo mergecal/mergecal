@@ -278,3 +278,8 @@ mailpit
 mergecal/media/
 
 .pytest_cache/
+
+# Jupyter notebook files.
+*.ipynb
+.ipynb_checkpoints/
+.virtual_documents/

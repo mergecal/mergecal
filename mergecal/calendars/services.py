@@ -221,15 +221,15 @@ class CalendarMerger:
         if warning_event and self.merged_calendar:
             self.merged_calendar.add_component(warning_event)
 
-        with sentry_sdk.configure_scope() as scope:
-            scope.set_tag("tier", "free")
-            scope.set_user({"id": user.id, "email": user.email})
-            scope.set_extra("calendar_uuid", self.calendar.uuid)
-            scope.set_extra("calendar_name", self.calendar.name)
-            sentry_sdk.capture_message(
-                "Free account detected",
-                level="warning",
-            )
+        scope = sentry_sdk.get_current_scope()
+        scope.set_tag("tier", "free")
+        scope.set_user({"id": user.pk, "email": user.email})
+        scope.set_extra("calendar_uuid", self.calendar.uuid)
+        scope.set_extra("calendar_name", self.calendar.name)
+        sentry_sdk.capture_message(
+            "Free account detected",
+            level="warning",
+        )
 
     def _finalize_merged_calendar(self) -> None:
         if hasattr(self, "source_errors") and self.source_errors:

@@ -1,0 +1,12 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//MergeCal Test Calendar//EN
+BEGIN:VEVENT
+SUMMARY:Event with Location
+DTSTART:20240102T100000Z
+DTEND:20240102T110000Z
+LOCATION:123 Test Street, Test City
+DESCRIPTION:This is an event with location 123 Test Street, Test City
+UID:test-event-003@mergecal.org
+END:VEVENT
+END:VCALENDAR
