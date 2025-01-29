@@ -28,7 +28,7 @@ from mergecal.calendars.forms import CalendarForm
 from mergecal.calendars.forms import SourceForm
 from mergecal.calendars.models import Calendar
 from mergecal.calendars.models import Source
-from mergecal.calendars.services import CalendarMerger
+from mergecal.calendars.services.services import CalendarMerger
 from mergecal.core.utils import get_site_url
 
 logger = logging.getLogger(__name__)

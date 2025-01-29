@@ -17,11 +17,10 @@ from urllib3.util.retry import Retry
 from mergecal.calendars.calendar_fetcher import CalendarFetcher
 from mergecal.calendars.meetup import fetch_and_create_meetup_calendar
 from mergecal.calendars.meetup import is_meetup_url
+from mergecal.calendars.models import Calendar
+from mergecal.calendars.models import Source
 from mergecal.core.utils import is_local_url
 from mergecal.core.utils import parse_calendar_uuid
-
-from .models import Calendar
-from .models import Source
 
 logger = logging.getLogger(__name__)
 
