@@ -25,8 +25,8 @@ if __name__ == "__main__":
         raise
 
     # This allows easy placement of apps within the interior
-    # mergecal directory.
+    # mergecalweb directory.
     current_path = Path(__file__).parent.resolve()
-    sys.path.append(str(current_path / "mergecal"))
+    sys.path.append(str(current_path / "mergecalweb"))
 
     execute_from_command_line(sys.argv)

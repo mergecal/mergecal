@@ -275,7 +275,7 @@ dump.rdb
 
 ### Project template
 mailpit
-mergecal/media/
+mergecalweb/media/
 
 .pytest_cache/
 

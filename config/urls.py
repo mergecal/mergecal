@@ -7,9 +7,9 @@ from django.views import defaults as default_views
 from django.views.generic import TemplateView
 from django.contrib.sitemaps.views import sitemap
 from django.views.generic.base import RedirectView
-from mergecal.billing.views import PricingTableView
-from mergecal.blog.sitemaps import BlogSitemap
-from mergecal.core.sitemaps import StaticViewSitemap
+from mergecalweb.billing.views import PricingTableView
+from mergecalweb.blog.sitemaps import BlogSitemap
+from mergecalweb.core.sitemaps import StaticViewSitemap
 
 
 sitemaps = {
@@ -27,17 +27,17 @@ urlpatterns = [
     # Django Admin, use {% url 'admin:index' %}
     path(settings.ADMIN_URL, admin.site.urls),
     # User management
-    path("users/", include("mergecal.users.urls", namespace="users")),
+    path("users/", include("mergecalweb.users.urls", namespace="users")),
     path("accounts/", include("allauth.urls")),
     # Your stuff: custom urls includes go here
     path(
         "calendars/",
-        include("mergecal.calendars.urls", namespace="calendars"),
+        include("mergecalweb.calendars.urls", namespace="calendars"),
         name="calendars",
     ),
-    path("billing/", include("mergecal.billing.urls", namespace="billing")),
+    path("billing/", include("mergecalweb.billing.urls", namespace="billing")),
     path("pricing/", PricingTableView.as_view(), name="pricing"),
-    path("blog/", include("mergecal.blog.urls", namespace="blog")),
+    path("blog/", include("mergecalweb.blog.urls", namespace="blog")),
     path("tz_detect/", include("tz_detect.urls")),
     path(
         "privacy/",
