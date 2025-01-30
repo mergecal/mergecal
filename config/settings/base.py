@@ -8,8 +8,8 @@ import environ
 from django.contrib import messages
 
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
-# mergecal/
-APPS_DIR = BASE_DIR / "mergecal"
+# mergecalweb/
+APPS_DIR = BASE_DIR / "mergecalweb"
 env = environ.Env()
 
 READ_DOT_ENV_FILE = env.bool("DJANGO_READ_DOT_ENV_FILE", default=True)
@@ -51,7 +51,7 @@ LOCALE_PATHS = [str(BASE_DIR / "locale")]
 DATABASES = {
     "default": env.db(
         "DATABASE_URL",
-        default="postgres:///mergecal",
+        default="postgres:///mergecalweb",
     ),
 }
 DATABASES["default"]["ATOMIC_REQUESTS"] = True
@@ -99,12 +99,12 @@ THIRD_PARTY_APPS = [
 ]
 
 LOCAL_APPS = [
-    "mergecal.users",
+    "mergecalweb.users",
     # Your stuff: custom apps go here
-    "mergecal.calendars.apps.CalendarsConfig",
-    "mergecal.billing.apps.BillingConfig",
-    "mergecal.core.apps.CoreConfig",
-    "mergecal.blog.apps.BlogConfig",
+    "mergecalweb.calendars.apps.CalendarsConfig",
+    "mergecalweb.billing.apps.BillingConfig",
+    "mergecalweb.core.apps.CoreConfig",
+    "mergecalweb.blog.apps.BlogConfig",
     "allauth.socialaccount.providers.google",  # for Google OAuth 2.0
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
@@ -113,7 +113,7 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 # MIGRATIONS
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#migration-modules
-MIGRATION_MODULES = {"sites": "mergecal.contrib.sites.migrations"}
+MIGRATION_MODULES = {"sites": "mergecalweb.contrib.sites.migrations"}
 
 # AUTHENTICATION
 # ------------------------------------------------------------------------------
@@ -177,7 +177,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "mergecal.calendars.middleware.HtmxMessageMiddleware",
+    "mergecalweb.calendars.middleware.HtmxMessageMiddleware",
     "allauth.account.middleware.AccountMiddleware",
     "django_htmx.middleware.HtmxMiddleware",
     "tz_detect.middleware.TimezoneMiddleware",
@@ -226,8 +226,8 @@ TEMPLATES = [
                 "django.template.context_processors.static",
                 "django.template.context_processors.tz",
                 "django.contrib.messages.context_processors.messages",
-                "mergecal.users.context_processors.allauth_settings",
-                "mergecal.billing.context_processors.trial_status",
+                "mergecalweb.users.context_processors.allauth_settings",
+                "mergecalweb.billing.context_processors.trial_status",
             ],
         },
     },
@@ -340,6 +340,8 @@ CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 CELERY_WORKER_SEND_TASK_EVENTS = True
 # https://docs.celeryq.dev/en/stable/userguide/configuration.html#std-setting-task_send_sent_event
 CELERY_TASK_SEND_SENT_EVENT = True
+# https://docs.celeryq.dev/en/stable/userguide/configuration.html#worker-hijack-root-logger
+CELERY_WORKER_HIJACK_ROOT_LOGGER = False
 # django-allauth
 # ------------------------------------------------------------------------------
 ACCOUNT_ALLOW_REGISTRATION = env.bool("DJANGO_ACCOUNT_ALLOW_REGISTRATION", True)
@@ -350,13 +352,13 @@ ACCOUNT_EMAIL_REQUIRED = True
 # https://docs.allauth.org/en/latest/account/configuration.html
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 # https://docs.allauth.org/en/latest/account/configuration.html
-ACCOUNT_ADAPTER = "mergecal.users.adapters.AccountAdapter"
+ACCOUNT_ADAPTER = "mergecalweb.users.adapters.AccountAdapter"
 # https://docs.allauth.org/en/latest/account/forms.html
-ACCOUNT_FORMS = {"signup": "mergecal.users.forms.UserSignupForm"}
+ACCOUNT_FORMS = {"signup": "mergecalweb.users.forms.UserSignupForm"}
 # https://docs.allauth.org/en/latest/socialaccount/configuration.html
-SOCIALACCOUNT_ADAPTER = "mergecal.users.adapters.SocialAccountAdapter"
+SOCIALACCOUNT_ADAPTER = "mergecalweb.users.adapters.SocialAccountAdapter"
 # https://docs.allauth.org/en/latest/socialaccount/configuration.html
-SOCIALACCOUNT_FORMS = {"signup": "mergecal.users.forms.UserSocialSignupForm"}
+SOCIALACCOUNT_FORMS = {"signup": "mergecalweb.users.forms.UserSocialSignupForm"}
 # https://docs.allauth.org/en/latest/socialaccount/configuration.html
 ACCOUNT_LOGIN_BY_CODE_ENABLED = True
 # https://docs.allauth.org/en/latest/socialaccount/configuration.html

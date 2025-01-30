@@ -59,9 +59,6 @@ docs/_build/
 # PyBuilder
 target/
 
-# pyenv
-.python-version
-
 # celery beat schedule file
 celerybeat-schedule
 
@@ -275,7 +272,7 @@ dump.rdb
 
 ### Project template
 mailpit
-mergecal/media/
+mergecalweb/media/
 
 .pytest_cache/
 
