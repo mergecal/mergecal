@@ -20,7 +20,9 @@
       {% compress css %}
         <!-- This file stores project-specific CSS -->
         <link href="{% static 'css/bootstrap.css' %}" rel="stylesheet" />
-        <link rel="stylesheet" type="text/x-scss" href="{% static "scss/custom-bootstrap.scss" %}" />
+        <link rel="stylesheet"
+              type="text/x-scss"
+              href="{% static "scss/custom-bootstrap.scss" %}" />
       {% endcompress %}
     {% endblock css %}
     {% block javascript %}

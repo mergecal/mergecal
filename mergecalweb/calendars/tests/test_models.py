@@ -92,7 +92,7 @@ class TestCalendarModel:
         calendars = []
         for i in range(limit):
             calendar = Calendar.objects.create(
-                name=f"Calendar {i+1}",
+                name=f"Calendar {i + 1}",
                 owner=user,
             )
             calendars.append(calendar)
