@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from mergecalweb.calendars.services.services import CalendarMerger
+from mergecalweb.calendars.services.calendar_merger_service import CalendarMergerService
 
 from .factories import CalendarFactory
 from .factories import SourceFactory
@@ -45,7 +45,7 @@ def test_calendar_merger_with_test_files(
         SourceFactory(url=f"http://example.com/{source}", calendar=calendar)
 
     # Merge calendars
-    merger = CalendarMerger(calendar, mock_request)
+    merger = CalendarMergerService(calendar, mock_request)
     merged_calendar = merger.merge()
 
     # Load and compare with golden file

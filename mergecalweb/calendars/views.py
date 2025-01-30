@@ -28,7 +28,7 @@ from mergecalweb.calendars.forms import CalendarForm
 from mergecalweb.calendars.forms import SourceForm
 from mergecalweb.calendars.models import Calendar
 from mergecalweb.calendars.models import Source
-from mergecalweb.calendars.services.services import CalendarMerger
+from mergecalweb.calendars.services.calendar_merger_service import CalendarMergerService
 from mergecalweb.core.utils import get_site_url
 
 logger = logging.getLogger(__name__)
@@ -259,7 +259,7 @@ class CalendarFileAPIView(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        merger = CalendarMerger(calendar, self.request)
+        merger = CalendarMergerService(calendar, self.request)
         calendar_str = merger.merge()
 
         if not calendar_str:

@@ -25,7 +25,8 @@ from mergecalweb.core.utils import parse_calendar_uuid
 logger = logging.getLogger(__name__)
 
 
-class CalendarMerger:
+class CalendarMergerService:
+    # TODO: remove request - pass in request domain instead
     def __init__(self, calendar: Calendar, request: HttpRequest):
         self.calendar = calendar
         self.request = request

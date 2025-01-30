@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from mergecalweb.calendars.services.services import CalendarMerger
+from mergecalweb.calendars.services.calendar_merger_service import CalendarMergerService
 
 from .factories import SourceFactory
 
@@ -59,7 +59,7 @@ def test_calendar_merger_customizations(
     )
 
     # Create merger instance and merge calendars
-    merger = CalendarMerger(calendar, mock_request)
+    merger = CalendarMergerService(calendar, mock_request)
     merged_calendar = merger.merge()
 
     # Verify customizations are applied
