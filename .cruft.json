@@ -5,7 +5,7 @@
   "context": {
     "cookiecutter": {
       "project_name": "MergeCal",
-      "project_slug": "mergecal",
+      "project_slug": "mergecalweb",
       "description": "MergeCal | Multiple Calendars, One Simple Feed",
       "author_name": "Abe Hanoka",
       "domain_name": "Mergecal.org",
