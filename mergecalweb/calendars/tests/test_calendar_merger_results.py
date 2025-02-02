@@ -10,7 +10,6 @@ from .factories import CalendarFactory
 from .factories import SourceFactory
 
 if TYPE_CHECKING:
-    from django.http import HttpRequest
     from django.test import Client
 
     from mergecalweb.calendars.models import Calendar
@@ -20,7 +19,6 @@ if TYPE_CHECKING:
 @pytest.mark.django_db
 def test_calendar_merger_with_test_files(
     business_user: "User",
-    mock_request: "HttpRequest",
     mock_calendar_request: None,
     client: "Client",
 ) -> None:
@@ -45,7 +43,7 @@ def test_calendar_merger_with_test_files(
         SourceFactory(url=f"http://example.com/{source}", calendar=calendar)
 
     # Merge calendars
-    merger = CalendarMergerService(calendar, mock_request)
+    merger = CalendarMergerService(calendar)
     merged_calendar = merger.merge()
 
     # Load and compare with golden file
@@ -61,7 +59,7 @@ def test_calendar_merger_with_test_files(
         expected_calendar = f.read()
 
     # Simple normalize both calendars
-    merged_calendar = merged_calendar.replace("\r\n", "\n").strip()
-    expected_calendar = expected_calendar.replace("\r\n", "\n").strip()
+    merged_calendar = "\n".join(s.rstrip() for s in merged_calendar.splitlines())
+    expected_calendar = "\n".join(s.rstrip() for s in expected_calendar.splitlines())
 
     assert merged_calendar == expected_calendar

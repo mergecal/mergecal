@@ -6,7 +6,6 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.db.models import Count
 from django.db.models import Prefetch
-from django.http import Http404
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -248,18 +247,12 @@ class CalendarFileAPIView(APIView):
         return self.process_calendar_request(uuid)
 
     def process_calendar_request(self, uuid):
-        try:
-            calendar = get_object_or_404(
-                Calendar.objects.select_related("owner"),
-                uuid=uuid,
-            )
-        except Http404:
-            return Response(
-                {"error": "Calendar not found"},
-                status=status.HTTP_404_NOT_FOUND,
-            )
+        calendar = get_object_or_404(
+            Calendar.objects.select_related("owner"),
+            uuid=uuid,
+        )
 
-        merger = CalendarMergerService(calendar, self.request)
+        merger = CalendarMergerService(calendar)
         calendar_str = merger.merge()
 
         if not calendar_str:

@@ -9,7 +9,6 @@ from mergecalweb.calendars.services.calendar_merger_service import CalendarMerge
 from .factories import SourceFactory
 
 if TYPE_CHECKING:
-    from django.http import HttpRequest
     from django.test import Client
 
     from mergecalweb.calendars.models import Calendar
@@ -18,7 +17,6 @@ if TYPE_CHECKING:
 @pytest.mark.django_db
 def test_calendar_merger_with_test_files(
     calendar: "Calendar",
-    mock_request: "HttpRequest",
     mock_calendar_request: None,
     client: "Client",
 ) -> None:
@@ -38,7 +36,7 @@ def test_calendar_merger_with_test_files(
     )
 
     # Create merger instance and merge calendars
-    merger = CalendarMergerService(calendar, mock_request)
+    merger = CalendarMergerService(calendar)
     merged_calendar = merger.merge()
 
     # Verify events from all test calendars are present
