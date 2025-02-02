@@ -1,5 +1,6 @@
 import logging
 from datetime import timedelta
+from typing import Final
 
 from django.core.cache import cache
 from django.utils import timezone
@@ -17,9 +18,13 @@ logger = logging.getLogger(__name__)
 
 
 class CalendarMergerService:
-    def __init__(self, calendar: Calendar, existing_uuids=None) -> None:
-        self.calendar = calendar
-        self.source_service = SourceService(existing_uuids)
+    def __init__(
+        self,
+        calendar: Calendar,
+        existing_uuids: set[str] | None = None,
+    ) -> None:
+        self.calendar: Final[Calendar] = calendar
+        self.existing_uuids: Final[set[str] | None] = existing_uuids
 
     def merge(self) -> str:
         """Merge all calendar sources into a single iCal string"""
@@ -46,15 +51,25 @@ class CalendarMergerService:
     def _process_sources(self) -> list[SourceData]:
         """Process all calendar sources"""
         sources = self.calendar.calendarOf.all()
-        return self.source_service.process_sources(sources)
+        source_service = SourceService(self.existing_uuids)
+        return source_service.process_sources(sources)
 
     def _merge_calendars(self, calendars: list[ICalendar]) -> ICalendar:
+        prodid = f"-//{self.calendar.name}//mergecal.org//"
+        version = "2.0"
+        if len(calendars) == 0:
+            # TODO: need to return a valid calendar with at least one component
+            calendar = ICalendar()
+            calendar.add("prodid", prodid)
+            calendar.add("version", version)
+            calendar.add("x-wr-calname", self.calendar.name)
+            return calendar
+
         """Merge calendars using CalendarMerger with appropriate settings."""
         merger = CalendarMerger(
             calendars,
-            prodid=f"-//{self.calendar.name}//mergecal.org//",
-            version="2.0",
-            method=None,  # Add method if needed for specific calendar types
+            prodid=prodid,
+            version=version,
         )
         icalendar: ICalendar = merger.merge()
         icalendar.add("x-wr-calname", self.calendar.name)
