@@ -14,6 +14,10 @@ from .source_data import SourceData
 logger = logging.getLogger(__name__)
 
 
+class LocalUrlError(Exception):
+    pass
+
+
 class SourceProcessor:
     def __init__(self, source: Source) -> None:
         self.source = source
@@ -24,7 +28,8 @@ class SourceProcessor:
         source_data = SourceData(source=self.source)
 
         if is_local_url(self.source.url):
-            return source_data
+            msg = f"Local URL {self.source.url} is not allowed."
+            raise LocalUrlError(msg)
 
         try:
             ical = self._fetch_and_validate()

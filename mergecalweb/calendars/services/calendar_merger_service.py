@@ -17,9 +17,9 @@ logger = logging.getLogger(__name__)
 
 
 class CalendarMergerService:
-    def __init__(self, calendar: Calendar) -> None:
+    def __init__(self, calendar: Calendar, existing_uuids=None) -> None:
         self.calendar = calendar
-        self.source_service = SourceService()
+        self.source_service = SourceService(existing_uuids)
 
     def merge(self) -> str:
         """Merge all calendar sources into a single iCal string"""

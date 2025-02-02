@@ -15,8 +15,11 @@ logger = logging.getLogger(__name__)
 
 
 class SourceService:
-    def __init__(self) -> None:
-        self.processed_uuids: set[str] = set()
+    def __init__(self, existing_uuids=None) -> None:
+        if existing_uuids is None:
+            self.processed_uuids: set[str] = set()
+        else:
+            self.processed_uuids = existing_uuids
 
     def process_sources(self, sources: list[Source]) -> list[SourceData]:
         """Process multiple sources, handling special source types"""
@@ -55,7 +58,7 @@ class SourceService:
         # Import here to avoid circular imports
         from .calendar_merger_service import CalendarMergerService
 
-        merger = CalendarMergerService(sub_calendar)
+        merger = CalendarMergerService(sub_calendar, self.processed_uuids)
         calendar_str = merger.merge()
         ical = ICalendar.from_ical(calendar_str)
 
