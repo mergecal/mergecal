@@ -49,7 +49,7 @@ DTEND;VALUE=DATE:20250604
 DTSTAMP:20250129T023158Z
 UID:1418fb94e984-4e191519f5989c081e2ae4ebde50b592@airbnb.com
 DESCRIPTION:Description: Morning expect large. Western opportunity water.T
- reatment happy business student see.\n\nThis event is powered by MergeCal 
+ reatment happy business student see.\n\nThis event is powered by MergeCal
  \nhttps://mergecal.org
 END:VEVENT
 BEGIN:VEVENT
@@ -123,7 +123,7 @@ UID:Game_2129222
 SEQUENCE:0
 CREATED:20241108T205148Z
 DESCRIPTION:Description: Time would relationship fund single sound often.W
- all politics loss fact seven. Plant end time.\n\nThis event is powered by 
+ all politics loss fact seven. Plant end time.\n\nThis event is powered by
  MergeCal \nhttps://mergecal.org
 LAST-MODIFIED:20241108T205245Z
 LOCATION:1217 Michael Harbor Suite 336\nEast Julie\, MD 87199
@@ -372,23 +372,6 @@ DESCRIPTION:Description: They within hit daughter next. Wife many providee
 LAST-MODIFIED:20241022T140535
 LOCATION:2637 Carr Hollow\nKyleside\, ID 63046
 END:VEVENT
-BEGIN:VTIMEZONE
-TZID:America/Chicago
-BEGIN:DAYLIGHT
-DTSTART:20240310T030000
-RRULE:FREQ=YEARLY;BYDAY=2SU;BYMONTH=3
-TZNAME:CDT
-TZOFFSETFROM:-0600
-TZOFFSETTO:-0500
-END:DAYLIGHT
-BEGIN:STANDARD
-DTSTART:20241103T010000
-RRULE:FREQ=YEARLY;BYDAY=1SU;BYMONTH=11
-TZNAME:CST
-TZOFFSETFROM:-0500
-TZOFFSETTO:-0600
-END:STANDARD
-END:VTIMEZONE
 BEGIN:VEVENT
 SUMMARY:Event: Face-to-face object-oriented projection (via MergeCal.org)
 DTSTART;VALUE=DATE:20240101
@@ -429,4 +412,21 @@ DTSTAMP:20250129T022836Z
 UID:909cc5a0-4057-4403-ae6d-59b15128f044
 DESCRIPTION:\n\nThis event is powered by MergeCal \nhttps://mergecal.org
 END:VEVENT
+BEGIN:VTIMEZONE
+TZID:America/Chicago
+BEGIN:DAYLIGHT
+DTSTART:20240310T030000
+RRULE:FREQ=YEARLY;BYDAY=2SU;BYMONTH=3
+TZNAME:CDT
+TZOFFSETFROM:-0600
+TZOFFSETTO:-0500
+END:DAYLIGHT
+BEGIN:STANDARD
+DTSTART:20241103T010000
+RRULE:FREQ=YEARLY;BYDAY=1SU;BYMONTH=11
+TZNAME:CST
+TZOFFSETFROM:-0500
+TZOFFSETTO:-0600
+END:STANDARD
+END:VTIMEZONE
 END:VCALENDAR

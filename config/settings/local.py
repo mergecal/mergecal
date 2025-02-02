@@ -51,7 +51,7 @@ MIDDLEWARE = [
     # "kolo.middleware.KoloMiddleware",
     *MIDDLEWARE,
     # https://django-debug-toolbar.readthedocs.io/en/latest/installation.html#middleware
-    # "debug_toolbar.middleware.DebugToolbarMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django_browser_reload.middleware.BrowserReloadMiddleware",
 ]
 

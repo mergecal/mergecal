@@ -5,22 +5,9 @@ from urllib.parse import urlparse
 
 from django.conf import settings
 from django.contrib.sites.models import Site
-from django.core.cache import cache
 
 logger = logging.getLogger(__name__)
 CACHE_TIMEOUT = 3600  # 1 hour in seconds
-
-
-def get_current_site_domain():
-    """
-    Get the current site's domain, using cache to minimize database queries.
-    """
-    cached_domain = cache.get("current_site_domain")
-    if cached_domain is None:
-        current_site = Site.objects.get_current()
-        cached_domain = current_site.domain
-        cache.set("current_site_domain", cached_domain, CACHE_TIMEOUT)
-    return cached_domain
 
 
 def get_site_url() -> str:
@@ -30,7 +17,7 @@ def get_site_url() -> str:
         str: The full URL of the site, including the scheme.
     """
     url_scheme = "http" if settings.DEBUG else "https"
-    current_site_domain = get_current_site_domain()
+    current_site_domain = Site.objects.get_current().domain
     return f"{url_scheme}://{current_site_domain}"
 
 
@@ -59,7 +46,8 @@ def is_local_url(url: str) -> bool:
     Returns:
     bool: True if the URL is from the current site, False otherwise.
     """
-    current_site_domain = get_current_site_domain()
+    current_site_domain = Site.objects.get_current().domain
+
     parsed_url = urlparse(url)
     url_domain = parsed_url.netloc
 

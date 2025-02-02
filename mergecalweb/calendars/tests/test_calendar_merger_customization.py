@@ -3,12 +3,11 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from mergecalweb.calendars.services.services import CalendarMerger
+from mergecalweb.calendars.services.calendar_merger_service import CalendarMergerService
 
 from .factories import SourceFactory
 
 if TYPE_CHECKING:
-    from django.http import HttpRequest
     from django.test import Client
 
     from mergecalweb.calendars.models import Calendar
@@ -17,7 +16,6 @@ if TYPE_CHECKING:
 @pytest.mark.django_db
 def test_calendar_merger_customizations(
     calendar: "Calendar",
-    mock_request: "HttpRequest",
     mock_calendar_request: None,
     client: "Client",
 ) -> None:
@@ -59,7 +57,7 @@ def test_calendar_merger_customizations(
     )
 
     # Create merger instance and merge calendars
-    merger = CalendarMerger(calendar, mock_request)
+    merger = CalendarMergerService(calendar)
     merged_calendar = merger.merge()
 
     # Verify customizations are applied
