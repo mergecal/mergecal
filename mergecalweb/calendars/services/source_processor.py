@@ -10,9 +10,7 @@ from urllib3.exceptions import HTTPError
 from mergecalweb.calendars.calendar_fetcher import CalendarFetcher
 from mergecalweb.calendars.exceptions import CalendarValidationError
 from mergecalweb.calendars.exceptions import CustomizationWithoutCalendarError
-from mergecalweb.calendars.exceptions import LocalUrlError
 from mergecalweb.calendars.models import Source
-from mergecalweb.core.utils import is_local_url
 
 from .source_data import SourceData
 
@@ -28,17 +26,6 @@ class SourceProcessor:
         self.source: Final[Source] = source
         self.fetcher: Final[CalendarFetcher] = CalendarFetcher()
         self.source_data: Final[SourceData] = SourceData(source=self.source)
-
-    def process(self) -> SourceData:
-        """Process a single source and return processed data"""
-        if is_local_url(self.source.url):
-            msg = f"Local URL {self.source.url} is not allowed."
-            raise LocalUrlError(msg)
-
-        ical = self.fetch_and_validate()
-        if ical:
-            self.customize_calendar()
-        return self.source_data
 
     def fetch_and_validate(self) -> None:
         """Fetch and validate remote calendar."""
@@ -81,6 +68,9 @@ class SourceProcessor:
             return
 
         for event in ical.walk("VEVENT"):
+            if not self._should_include_event(event):
+                ical.subcomponents.remove(event)
+                continue
             if not self.source.include_title:
                 event["summary"] = self.source.custom_prefix or self.source.name
             elif self.source.custom_prefix:
@@ -105,3 +95,15 @@ class SourceProcessor:
             f"{description}\n\n{self.BRANDING_TEXT} \n{self.BRANDING_URL}"
         )
         event["summary"] = f"{summary} {self.BRANDING_SUFFIX}"
+
+    def _should_include_event(self, event: Event) -> bool:
+        source = self.source
+        calendar = source.calendar
+        if not calendar.owner.can_customize_sources or not source.exclude_keywords:
+            return True
+
+        exclude_keywords = [
+            kw.strip().lower() for kw in source.exclude_keywords.split(",")
+        ]
+        event_title = event.get("summary", "").lower()
+        return not any(kw in event_title for kw in exclude_keywords)
