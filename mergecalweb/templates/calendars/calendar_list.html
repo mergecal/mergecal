@@ -7,7 +7,7 @@
   My Merged Calendars
 {% endblock title %}
 {% block content %}
-  <div class="container mt-4">
+  <div class="container mt-4 mb-5">
     <h1 class="mb-4">My Merged Calendars</h1>
     <div class="row mb-4">
       <div class="col-md-6">
@@ -39,7 +39,48 @@
               <h6>Merged Sources ({{ calendar.source_count }})</h6>
               <ul class="list-group list-group-flush mb-3">
                 {% for source in calendar.recent_sources %}
-                  <li class="list-group-item">{{ source.name }} - {{ source.url|urlize }}</li>
+                  <li class="list-group-item">
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div class="text-break">{{ source.name }} - {{ source.url|urlize }}</div>
+                      <div class="d-flex gap-1 ms-2 flex-wrap justify-content-end">
+                        {% if source.custom_prefix %}
+                          <span class="badge bg-info small"
+                                data-bs-toggle="tooltip"
+                                title="Custom prefix for events">
+                            <i class="bi bi-tag"></i> {{ source.custom_prefix }}
+                          </span>
+                        {% endif %}
+                        {% if not source.include_title %}
+                          <span class="badge bg-secondary small"
+                                data-bs-toggle="tooltip"
+                                title="Event titles hidden">
+                            <i class="bi bi-eye-slash"></i> Title
+                          </span>
+                        {% endif %}
+                        {% if not source.include_description %}
+                          <span class="badge bg-secondary small"
+                                data-bs-toggle="tooltip"
+                                title="Event descriptions hidden">
+                            <i class="bi bi-eye-slash"></i> Desc
+                          </span>
+                        {% endif %}
+                        {% if not source.include_location %}
+                          <span class="badge bg-secondary small"
+                                data-bs-toggle="tooltip"
+                                title="Event locations hidden">
+                            <i class="bi bi-eye-slash"></i> Loc
+                          </span>
+                        {% endif %}
+                        {% if source.exclude_keywords %}
+                          <span class="badge bg-warning text-dark small"
+                                data-bs-toggle="tooltip"
+                                title="Excluding events with keywords: {{ source.exclude_keywords }}">
+                            <i class="bi bi-filter"></i>
+                          </span>
+                        {% endif %}
+                      </div>
+                    </div>
+                  </li>
                 {% endfor %}
                 {% if calendar.source_count > 5 %}
                   <li class="list-group-item text-muted">And {{ calendar.source_count|add:"-5" }} more...</li>

@@ -10,7 +10,7 @@
   {% endif %}
 {% endblock title %}
 {% block content %}
-  <div class="container-fluid mt-4">
+  <div class="container-fluid mt-4 mb-5">
     <nav aria-label="breadcrumb">
       <ol class="breadcrumb">
         <li class="breadcrumb-item">
@@ -116,6 +116,7 @@
                 <tr>
                   <th>Name</th>
                   <th>URL</th>
+                  <th>Customizations</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -127,6 +128,45 @@
                       <a href="{{ source.url }}"
                          target="_blank"
                          class="text-truncate d-inline-block">{{ source.url }}</a>
+                    </td>
+                    <td>
+                      <div class="d-flex gap-1 justify-content-end">
+                        {% if source.custom_prefix %}
+                          <span class="badge bg-info small"
+                                data-bs-toggle="tooltip"
+                                title="Custom prefix for events">
+                            <i class="bi bi-tag"></i> {{ source.custom_prefix }}
+                          </span>
+                        {% endif %}
+                        {% if not source.include_title %}
+                          <span class="badge bg-secondary small"
+                                data-bs-toggle="tooltip"
+                                title="Event titles hidden">
+                            <i class="bi bi-eye-slash"></i> Title
+                          </span>
+                        {% endif %}
+                        {% if not source.include_description %}
+                          <span class="badge bg-secondary small"
+                                data-bs-toggle="tooltip"
+                                title="Event descriptions hidden">
+                            <i class="bi bi-eye-slash"></i> Desc
+                          </span>
+                        {% endif %}
+                        {% if not source.include_location %}
+                          <span class="badge bg-secondary small"
+                                data-bs-toggle="tooltip"
+                                title="Event locations hidden">
+                            <i class="bi bi-eye-slash"></i> Loc
+                          </span>
+                        {% endif %}
+                        {% if source.exclude_keywords %}
+                          <span class="badge bg-warning text-dark small"
+                                data-bs-toggle="tooltip"
+                                title="Excluding events with keywords: {{ source.exclude_keywords }}">
+                            <i class="bi bi-filter"></i>
+                          </span>
+                        {% endif %}
+                      </div>
                     </td>
                     <td>
                       <div class="btn-group" role="group">
@@ -175,7 +215,7 @@
                   </div>
                 {% empty %}
                   <tr>
-                    <td colspan="3" class="text-center">No sources added yet.</td>
+                    <td colspan="4" class="text-center">No sources added yet.</td>
                   </tr>
                 {% endfor %}
               </tbody>

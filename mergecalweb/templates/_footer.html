@@ -1,80 +1,125 @@
-<footer id="footer" class="footer mt-auto py-4 bg-body-tertiary">
+<footer id="footer" class="footer mt-auto py-4 bg-body-tertiary border-top">
   <div class="container">
     <div class="row gy-4">
-      <div class="col-md-4">
-        <h5 class="text-body-emphasis mb-3">MergeCal</h5>
+      <div class="col-md-3">
+        <h5 class="text-body-emphasis mb-3">
+          <i class="bi bi-calendar-event me-2"></i>MergeCal
+        </h5>
         <p class="text-body-secondary mb-0">Multiple Calendars, One Simple Feed</p>
+        <p class="text-body-secondary mt-2 mb-0">
+          <i class="bi bi-envelope-fill me-2"></i>feedback@mergecal.org
+        </p>
       </div>
-      <div class="col-md-4">
-        <h5 class="text-body-emphasis mb-3">Quick Links</h5>
+      <div class="col-md-3">
+        <h5 class="text-body-emphasis mb-3">
+          <i class="bi bi-link-45deg me-2"></i>Quick Links
+        </h5>
         <ul class="list-unstyled">
-          <li>
-            <a href="{% url 'home' %}" class="link-secondary text-decoration-none">Home</a>
+          <li class="mb-2">
+            <a href="{% url 'home' %}" class="link-secondary text-decoration-none">
+              <i class="bi bi-house me-2"></i>Home
+            </a>
           </li>
-          <li>
-            <a href="{% url 'about' %}" class="link-secondary text-decoration-none">About</a>
+          <li class="mb-2">
+            <a href="{% url 'about' %}" class="link-secondary text-decoration-none">
+              <i class="bi bi-info-circle me-2"></i>About
+            </a>
           </li>
-          <li>
+          <li class="mb-2">
             <a href="{% url 'blog:list' %}"
-               class="link-secondary text-decoration-none">Blog</a>
+               class="link-secondary text-decoration-none">
+              <i class="bi bi-journal-text me-2"></i>Blog
+            </a>
           </li>
-          <li>
+          <li class="mb-2">
             <a href="{% url 'pricing' %}"
-               class="link-secondary text-decoration-none">Pricing</a>
+               class="link-secondary text-decoration-none">
+              <i class="bi bi-tag me-2"></i>Pricing
+            </a>
           </li>
         </ul>
       </div>
-      <div class="col-md-4">
-        <h5 class="text-body-emphasis mb-3">Connect</h5>
-        <div class="d-flex flex-wrap">
+      <div class="col-md-3">
+        <h5 class="text-body-emphasis mb-3">
+          <i class="bi bi-plug me-2"></i>Integrations
+        </h5>
+        <ul class="list-unstyled">
+          <li class="mb-2">
+            <a href="{% url 'meetup' %}" class="link-secondary text-decoration-none">
+              <i class="bi bi-calendar-plus me-2"></i>Meetup.com
+            </a>
+          </li>
+          <li class="mb-2">
+            <a href="{% url 'discord' %}"
+               class="link-secondary text-decoration-none">
+              <i class="bi bi-discord me-2"></i>Discord
+            </a>
+          </li>
+          <li class="mb-2">
+            <a href="#" class="link-secondary text-decoration-none disabled">
+              <i class="bi bi-calendar4-week me-2"></i>More Coming Soon
+            </a>
+          </li>
+        </ul>
+      </div>
+      <div class="col-md-3">
+        <h5 class="text-body-emphasis mb-3">
+          <i class="bi bi-globe me-2"></i>Connect
+        </h5>
+        <div class="d-flex flex-wrap gap-3">
           <a href="mailto:feedback@mergecal.org?subject=Feedback"
-             class="link-secondary me-3 mb-2 fs-5"
+             class="link-secondary"
              aria-label="Send Feedback">
-            <i class="bi bi-envelope"></i>
+            <i class="bi bi-envelope-fill fs-5"></i>
           </a>
           <a href="https://github.com/mergecal/mergecal"
-             class="link-secondary me-3 mb-2 fs-5"
+             class="link-secondary"
              aria-label="GitHub">
-            <i class="bi bi-github"></i>
+            <i class="bi bi-github fs-5"></i>
           </a>
           <a href="https://www.facebook.com/mergecal"
-             class="link-secondary me-3 mb-2 fs-5"
+             class="link-secondary"
              aria-label="Facebook">
-            <i class="bi bi-facebook"></i>
+            <i class="bi bi-facebook fs-5"></i>
           </a>
           <a href="https://discord.gg/2vqUzSpt6N"
-             class="link-secondary me-3 mb-2 fs-5"
+             class="link-secondary"
              aria-label="Join Our Discord">
-            <i class="bi bi-discord"></i>
+            <i class="bi bi-discord fs-5"></i>
           </a>
           <a href="https://twitter.com/mergecal"
-             class="link-secondary me-3 mb-2 fs-5"
+             class="link-secondary"
              aria-label="Twitter">
-            <i class="bi bi-twitter-x"></i>
+            <i class="bi bi-twitter-x fs-5"></i>
           </a>
           <a href="https://www.reddit.com/r/mergecal/"
-             class="link-secondary me-3 mb-2 fs-5"
+             class="link-secondary"
              aria-label="Reddit">
-            <i class="bi bi-reddit"></i>
+            <i class="bi bi-reddit fs-5"></i>
           </a>
           <a href="https://www.linkedin.com/company/mergecal/"
-             class="link-secondary me-3 mb-2 fs-5"
+             class="link-secondary"
              aria-label="LinkedIn">
-            <i class="bi bi-linkedin"></i>
+            <i class="bi bi-linkedin fs-5"></i>
           </a>
         </div>
-        <p class="text-body-secondary mt-2 mb-0">Email: feedback@mergecal.org</p>
       </div>
     </div>
     <hr class="my-4 border-top" />
-    <div class="row">
+    <div class="row align-items-center">
       <div class="col-md-6 text-center text-md-start">
-        <p class="text-body-secondary mb-0">© {% now "Y" %} MergeCal. All rights reserved.</p>
+        <p class="text-body-secondary mb-md-0">
+          <i class="bi bi-c-circle me-2"></i>{% now "Y" %} MergeCal. All rights reserved.
+        </p>
       </div>
       <div class="col-md-6 text-center text-md-end">
         <a href="{% url 'privacy' %}"
-           class="link-secondary text-decoration-none me-3">Privacy Policy</a>
-        <a href="{% url 'terms' %}" class="link-secondary text-decoration-none">Terms of Service</a>
+           class="link-secondary text-decoration-none me-3">
+          <i class="bi bi-shield-lock me-2"></i>Privacy Policy
+        </a>
+        <a href="{% url 'terms' %}" class="link-secondary text-decoration-none">
+          <i class="bi bi-file-text me-2"></i>Terms of Service
+        </a>
       </div>
     </div>
   </div>
