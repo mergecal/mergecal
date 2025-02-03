@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %}
+  MergeCal | Sync Discord Server Events to Calendar
+{% endblock title %}
+{% block og_title %}
+  Get Discord Server Events in Your Calendar | MergeCal
+{% endblock og_title %}
+{% block og_description %}
+  Subscribe to your Discord server's events through a simple iCal feed. Add it to Google Calendar, Apple Calendar, or Outlook and never miss a community event again.
+{% endblock og_description %}
+{% block meta_description %}
+  Turn your Discord server events into a calendar feed that works with any calendar app. Simple iCal integration keeps your community events synced with Google Calendar, Apple Calendar, or Outlook.
+{% endblock meta_description %}
+{% block twitter_title %}
+  Get Discord Server Events in Your Calendar
+{% endblock twitter_title %}
+{% block twitter_description %}
+  Subscribe to your Discord server's events through a simple iCal feed. Get community events in your favorite calendar app automatically.
+{% endblock twitter_description %}
+{% block meta_keywords %}
+  discord server events calendar, discord event sync, discord calendar feed, discord ical feed, discord event calendar, sync discord events, discord server calendar, discord event notifications, discord event scheduler
+{% endblock meta_keywords %}
+{% block structured_data %}
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Discord Server Events Calendar Feed",
+      "applicationCategory": "Calendar Integration",
+      "description": "Convert your Discord server events into a calendar feed that works with any calendar app",
+      "operatingSystem": "Web",
+      "featureList": [
+        "Discord server events to iCal feed",
+        "Works with any calendar app",
+        "Automatic event updates",
+        "Simple setup process"
+      ]
+    }
+  </script>
+{% endblock structured_data %}
+{% block content %}
+  <div class="container-fluid p-0">
+    <!-- Hero Section -->
+    <div class="bg-body-tertiary py-5">
+      <div class="container">
+        <div class="row align-items-center">
+          <div class="col-lg-8 mx-auto text-center">
+            <div class="mb-4">
+              <i class="bi bi-discord text-primary display-1"></i>
+            </div>
+            <h1 class="display-4 fw-bold mb-4">Discord Server Events in Your Calendar</h1>
+            <div class="card border-primary">
+              <div class="card-body">
+                <p class="lead mb-0">
+                  <i class="bi bi-calendar-event me-2"></i>
+                  Coming soon: Subscribe to your Discord server's events through a simple iCal feed.
+                  Add it to your favorite calendar app and never miss a community event again.
+                </p>
+              </div>
+            </div>
+            <div class="mt-5">
+              <a href="https://discord.gg/2vqUzSpt6N" class="btn btn-primary btn-lg">
+                <i class="bi bi-discord me-2"></i>Join Our Discord for Updates
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock content %}

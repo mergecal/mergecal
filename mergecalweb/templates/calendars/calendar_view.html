@@ -4,14 +4,20 @@
   mergecal | {{ calendar.name }}
 {% endblock title %}
 {% block content %}
-  <div class="container mt-4">
+  <div class="container mt-4 mb-5">
     <div class="row align-items-center mb-4">
       <div class="col-md-4">
         {% if user.is_authenticated %}
           <a href="{% url 'calendars:calendar_list' %}"
-             class="btn btn-outline-primary">
+             class="btn btn-outline-primary me-2">
             <i class="bi bi-arrow-left"></i> Back to My Calendars
           </a>
+          {% if calendar.owner == user %}
+            <a href="{% url 'calendars:calendar_update' calendar.uuid %}"
+               class="btn btn-primary">
+              <i class="bi bi-pencil"></i> Edit Calendar
+            </a>
+          {% endif %}
         {% endif %}
       </div>
       <div class="col-md-4 text-center">

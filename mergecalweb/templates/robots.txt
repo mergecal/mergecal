@@ -9,5 +9,7 @@ Allow: /about/
 Allow: /pricing/
 Allow: /blog/
 Allow: /blog/*
+Allow: /meetup/
+Allow: /discord/
 
 Sitemap: https://mergecal.org/sitemap.xml

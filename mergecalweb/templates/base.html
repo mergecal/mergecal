@@ -1,6 +1,4 @@
-{% load static i18n compress %}
-{% load tz_detect %}
-{% load django_htmx %}
+{% load static i18n compress tz_detect django_htmx htmx_modal_forms %}
 
 <!DOCTYPE html>
 {% get_current_language as LANGUAGE_CODE %}
@@ -86,9 +84,9 @@
       </script>
       <!-- place project specific Javascript in this file -->
       {% compress js %}
-        {% django_htmx_script %}
         <script defer src="{% static 'js/bootstrap.bundle.js' %}"></script>
         <script defer src="{% static 'js/htmx.min.js' %}"></script>
+        {% django_htmx_script %}
         <script defer src="{% static 'js/ical.es5.min.js' %}"></script>
         <script defer src="{% static 'js/ical.timezones.js' %}"></script>
         <script defer src="{% static 'js/purify.min.js' %}"></script>
@@ -103,79 +101,34 @@
                 src="{% static 'js/fullcalendar-6.1.15/packages/luxon3/index.global.min.js' %}"></script>
         <script defer src="{% static 'js/project.js' %}"></script>
         <script defer src="{% static 'js/theme-toggler.js' %}"></script>
+        <script defer src="{% static 'toasts.js' %}"></script>
+        {% htmx_modal_script %}
       {% endcompress %}
     {% endblock javascript %}
   </head>
   <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
         class="{% block bodyclass %}{% endblock bodyclass %}">
-    {% block navbar %}
-      {% include '_navbar.html' %}
-    {% endblock navbar %}
-    {% block body %}
-      <div class="mb-1"></div>
-      <div class="container mt-2 mb-5">
-        <div data-toast-container
-             class="toast-container position-fixed top-0 end-0 p-3">
-          <div data-toast-template
-               class="toast align-items-center border-0"
-               role="alert"
-               aria-live="assertive"
-               aria-atomic="true">
-            <div class="d-flex">
-              <div data-toast-body class="toast-body"></div>
-              <button type="button"
-                      class="btn-close btn-close-white me-2 m-auto"
-                      data-bs-dismiss="toast"
-                      aria-label="Close"></button>
-            </div>
-          </div>
-          {% for message in messages %}
-            <div class="toast align-items-center border-0 {{ message.tags }}"
-                 role="alert"
-                 aria-live="assertive"
-                 aria-atomic="true">
-              <div class="d-flex">
-                <div data-toast-body class="toast-body">{{ message.message }}</div>
-                <button type="button"
-                        class="btn-close btn-close-white me-2 m-auto"
-                        data-bs-dismiss="toast"
-                        aria-label="Close"></button>
-              </div>
-            </div>
-          {% endfor %}
+    <div class="d-flex flex-column min-vh-100">
+      {% block navbar %}
+        {% include '_navbar.html' %}
+      {% endblock navbar %}
+      {% block body %}
+        <div class="container">
+          <div class="mb-1"></div>
+          {% block main %}
+            {% include 'trialing.html' %}
+            {% block content %}
+              <p>Use this document as a way to quick start any new project.</p>
+            {% endblock content %}
+          {% endblock main %}
         </div>
-        {% block main %}
-          {% if is_trial %}
-            <div class="alert alert-warning alert-dismissible fade show rounded-0 mb-0"
-                 role="alert">
-              <div class="container">
-                <strong>Trial ending:</strong> {{ trial_days_left }} day
-                {% if trial_days_left != 1 %}s{% endif %}
-                left.
-                <form method="post"
-                      action="{% url 'billing:manage_billing' %}"
-                      class="d-inline">
-                  {% csrf_token %}
-                  <button type="submit" class="btn btn-link alert-link p-0 m-0 align-baseline">Upgrade now</button>
-                </form>
-                to continue using the service.
-                <button type="button"
-                        class="btn-close"
-                        data-bs-dismiss="alert"
-                        aria-label="Close"></button>
-              </div>
-            </div>
-          {% endif %}
-          {% block content %}
-            <p>Use this document as a way to quick start any new project.</p>
-          {% endblock content %}
-        {% endblock main %}
       </div>
-      {% block footer %}
-        {% include "_footer.html" %}
-      {% endblock footer %}
-      <!-- /container -->
     {% endblock body %}
+    {% block footer %}
+      {% include "_footer.html" %}
+    {% endblock footer %}
+    {% include 'toasts.html' %}
+    <!-- /container -->
     {% block modal %}
     {% endblock modal %}
     {% block inline_javascript %}
@@ -189,8 +142,6 @@
     </script>
       {% endcomment %}
     {% endblock inline_javascript %}
-    {% load tz_detect %}
-
     {% tz_detect %}
   </body>
 </html>

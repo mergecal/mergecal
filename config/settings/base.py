@@ -87,6 +87,7 @@ THIRD_PARTY_APPS = [
     "allauth.mfa",
     "allauth.socialaccount",
     "allauth.usersessions",
+    "allauth.socialaccount.providers.google",  # for Google OAuth 2.0
     "django_celery_beat",
     "django_extensions",
     "rest_framework",
@@ -96,6 +97,8 @@ THIRD_PARTY_APPS = [
     "tz_detect",
     "taggit",
     "django_social_share",
+    "django_htmx_modal_forms",
+    "django_htmx_messages",
 ]
 
 LOCAL_APPS = [
@@ -105,7 +108,6 @@ LOCAL_APPS = [
     "mergecalweb.billing.apps.BillingConfig",
     "mergecalweb.core.apps.CoreConfig",
     "mergecalweb.blog.apps.BlogConfig",
-    "allauth.socialaccount.providers.google",  # for Google OAuth 2.0
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -177,10 +179,10 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "mergecalweb.calendars.middleware.HtmxMessageMiddleware",
     "allauth.account.middleware.AccountMiddleware",
     "django_htmx.middleware.HtmxMiddleware",
     "tz_detect.middleware.TimezoneMiddleware",
+    "django_htmx_messages.middleware.HtmxMessageMiddleware",
 ]
 
 # STATIC
