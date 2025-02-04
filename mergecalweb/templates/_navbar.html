@@ -61,6 +61,11 @@
                 <i class="bi bi-discord me-2"></i>Discord
               </a>
             </li>
+            <li>
+              <a class="dropdown-item" href="{% url 'twitch' %}">
+                <i class="bi bi-twitch me-2"></i>Twitch
+              </a>
+            </li>
           </ul>
         </li>
         {% if request.user.is_authenticated %}

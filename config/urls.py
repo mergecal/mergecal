@@ -34,6 +34,11 @@ urlpatterns = [
         TemplateView.as_view(template_name="pages/discord.html"),
         name="discord",
     ),
+    path(
+        "twitch/",
+        TemplateView.as_view(template_name="pages/twitch.html"),
+        name="twitch",
+    ),
     # Django Admin, use {% url 'admin:index' %}
     path(settings.ADMIN_URL, admin.site.urls),
     # User management
