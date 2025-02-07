@@ -88,6 +88,17 @@
                   </p>
                 </div>
               </div>
+              {% if not user.is_authenticated %}
+                <div class="row p-1 mt-3">
+                  <div class="col-12 text-center">
+                    <p class="text-danger">
+                      You are not logged in. Please
+                      <a href="{% url 'account_signup' %}" class="text-decoration-none">create an account</a>
+                      using the email {{ customer.email }} to manage your subscription.
+                    </p>
+                  </div>
+                </div>
+              {% endif %}
               {% comment %}
               <div class="row p-1">
                 <div class="col-6 text-start">
