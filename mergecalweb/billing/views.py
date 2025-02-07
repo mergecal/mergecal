@@ -70,7 +70,8 @@ def checkout_session_success(request: HttpRequest) -> HttpResponse:
         except stripe.error.StripeError as e:
             return JsonResponse({"error": str(e)}, status=400)
 
-        update_user_subscription_tier(request.user, session.subscription)
+        if request.user.is_authenticated:
+            update_user_subscription_tier(request.user, session.subscription)
         logger.info("retrieved session %s", session)
         context = {
             "session": session,
