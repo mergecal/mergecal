@@ -59,18 +59,17 @@ def create_stripe_customer(
     user: User,
     **kwargs: dict[str, Any],
 ) -> None:
-    try:
-        customers = Customer.objects.filter(email=user.email)
-        for customer in customers:
-            if not customer.subscriber:
-                logger.warning(
-                    "Stripe Customer %s without subscriber attaching to user: %s",
-                    customer,
-                    user,
-                )
-                customer.subscriber = user
-                customer.save()
-    except Customer.DoesNotExist:
+    customers = Customer.objects.filter(email=user.email)
+    for customer in customers:
+        if not customer.subscriber:
+            logger.warning(
+                "Stripe Customer %s without subscriber attaching to user: %s",
+                customer,
+                user,
+            )
+            customer.subscriber = user
+            customer.save()
+    if not customers:
         customer, created = Customer.get_or_create(subscriber=user)
         if created:
             price = Price.objects.get(lookup_key="business_monthly")
