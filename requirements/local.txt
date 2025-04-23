@@ -38,5 +38,5 @@ django-browser-reload==1.15.0  # https://github.com/adamchainz/django-browser-re
 
 # Jupitor
 jupyter==1.1.1  # https://jupyter.org/
-jupyterlab==4.3.4  # https://github.com/jupyterlab/jupyterlab
+jupyterlab==4.4.1  # https://github.com/jupyterlab/jupyterlab
 jupyterlab_vim==4.1.4  # https://github.com/jupyterlab-contrib/jupyterlab-vim
