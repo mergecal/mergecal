@@ -10,7 +10,8 @@ from urllib3.util.retry import Retry
 
 logger = logging.getLogger(__name__)
 
-CACHE_TIMEOUT = timedelta(minutes=2)
+# CACHE_TIMEOUT = timedelta(minutes=2)
+CACHE_TIMEOUT = timedelta(seconds=2)
 DEFAULT_TIMEOUT = 30  # seconds
 
 

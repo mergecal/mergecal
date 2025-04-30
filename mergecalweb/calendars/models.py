@@ -146,6 +146,10 @@ class Calendar(TimeStampedModel):
     def get_calendar_view_url(self):
         return reverse("calendars:calendar_view", kwargs={"uuid": self.uuid})
 
+    # add ehtod to return complete domian for calendar view
+    def get_calendar_view_domain_url(self):
+        return f"{get_site_url()}{self.get_calendar_view_url()}"
+
     def get_calendar_iframe(self):
         domain_name = get_site_url()
         iframe_url = reverse("calendars:calendar_iframe", kwargs={"uuid": self.uuid})

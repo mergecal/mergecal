@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% load static %}
+{% load static socialaccount %}
 
 {% block title %}
   User: {{ object.username }}
@@ -40,6 +40,7 @@
                   {% csrf_token %}
                   <button type="submit" class="btn btn-outline-primary">Manage billing</button>
                 </form>
+                <a href="{% provider_login_url "google" process="connect" %}">Connect a Google account</a>
                 <!-- End Manage Billing Form -->
               </div>
               <!-- End Action buttons -->
