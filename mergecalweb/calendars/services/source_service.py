@@ -3,7 +3,6 @@ import logging
 from icalendar import Calendar as ICalendar
 
 from mergecalweb.calendars.meetup import fetch_and_create_meetup_calendar
-from mergecalweb.calendars.meetup import is_meetup_url
 from mergecalweb.calendars.models import Calendar
 from mergecalweb.calendars.models import Source
 from mergecalweb.core.utils import is_local_url
@@ -31,8 +30,6 @@ class SourceService:
 
             if is_local_url(source.url):
                 self._process_local_source(processor.source_data)
-            elif is_meetup_url(source.url):
-                self._process_meetup_source(processor.source_data)
             else:
                 processor.fetch_and_validate()
 

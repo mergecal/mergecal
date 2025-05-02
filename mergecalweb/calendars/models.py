@@ -33,10 +33,6 @@ def validate_ical_url(url):
                 raise ValidationError(msg)
             return  # URL is valid, exit the function
 
-    # if url is meetup.com, skip validation
-    if "meetup.com" in url:
-        return
-
     try:
         fetcher = CalendarFetcher()
         response = fetcher.fetch_calendar(url)
