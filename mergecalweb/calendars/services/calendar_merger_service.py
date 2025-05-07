@@ -26,14 +26,7 @@ class CalendarMergerService:
         self.calendar: Final[Calendar] = calendar
         self.existing_uuids: Final[set[str] | None] = existing_uuids
 
-    def merge(self) -> str:
-        """Merge all calendar sources into a single iCal string"""
-        cache_key = f"calendar_str_{self.calendar.uuid}"
-        cached_calendar = cache.get(cache_key)
-
-        if cached_calendar is not None:
-            return cached_calendar
-
+    def get_merged_calendar(self) -> ICalendar:
         processed_sources: list[SourceData] = self._process_sources()
         valid_calendars: list[ICalendar] = [
             s.ical for s in processed_sources if s.ical is not None
@@ -42,7 +35,17 @@ class CalendarMergerService:
         merged_calendar: ICalendar = self._merge_calendars(valid_calendars)
         self._add_error_events(merged_calendar, processed_sources)
         self._add_tier_warnings(merged_calendar)
+        return merged_calendar
 
+    def merge(self) -> str:
+        """Merge all calendar sources into a single iCal string"""
+        cache_key = f"calendar_str_{self.calendar.uuid}"
+        cached_calendar = cache.get(cache_key)
+
+        if cached_calendar is not None:
+            return cached_calendar
+
+        merged_calendar = self.get_merged_calendar()
         calendar_str = merged_calendar.to_ical().decode("utf-8")
         cache.set(cache_key, calendar_str, self.calendar.effective_update_frequency)
 
