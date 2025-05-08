@@ -33,6 +33,7 @@ class SourceProcessor:
             calendar_data = self.fetcher.fetch_calendar(self.source.url)
             ical = ICalendar.from_ical(calendar_data)
             self._validate_calendar_components(ical)
+            ical.add_missing_timezones()
             try:
                 self.source_data.ical = x_wr_timezone.to_standard(ical)
             except AttributeError:
