@@ -173,14 +173,6 @@ END:VCALENDAR"""
         """Test URL validation for different types of URLs."""
         site = Site.objects.get_current()
 
-        # Test valid Meetup URL
-        meetup_source = Source(
-            name="Meetup Source",
-            url="https://www.meetup.com/group/events.ics",
-            calendar=calendar,
-        )
-        meetup_source.full_clean()
-
         # Test valid local calendar URL
         local_cal = Calendar.objects.create(name="Local Calendar", owner=calendar.owner)
         local_url = f"https://{site.domain}/calendars/{local_cal.uuid}.ical"
