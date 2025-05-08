@@ -1,7 +1,6 @@
 import logging
 from typing import Final
 
-import x_wr_timezone
 from icalendar import Calendar as ICalendar
 from icalendar import Event
 from requests.exceptions import RequestException
@@ -34,12 +33,7 @@ class SourceProcessor:
             ical = ICalendar.from_ical(calendar_data)
             self._validate_calendar_components(ical)
             ical.add_missing_timezones()
-            try:
-                self.source_data.ical = x_wr_timezone.to_standard(ical)
-            except AttributeError:
-                # skip do to bug in x_wr_timezone
-                # https://github.com/niccokunzmann/x-wr-timezone/issues/25
-                self.source_data.ical = ical
+            self.source_data.ical = ical
 
         except (RequestException, HTTPError) as e:
             logger.warning("Failed to fetch calendar %s: %s", self.source.url, str(e))
