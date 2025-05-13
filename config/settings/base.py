@@ -108,6 +108,7 @@ LOCAL_APPS = [
     "mergecalweb.billing.apps.BillingConfig",
     "mergecalweb.core.apps.CoreConfig",
     "mergecalweb.blog.apps.BlogConfig",
+    "mergecalweb.integrations.apps.IntegrationsConfig",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -365,6 +366,24 @@ SOCIALACCOUNT_FORMS = {"signup": "mergecalweb.users.forms.UserSocialSignupForm"}
 ACCOUNT_LOGIN_BY_CODE_ENABLED = True
 # https://docs.allauth.org/en/latest/socialaccount/configuration.html
 ACCOUNT_SIGNUP_FORM_HONEYPOT_FIELD = "phone_number"
+# https://docs.allauth.org/en/latest/socialaccount/configuration.html
+SOCIALACCOUNT_STORE_TOKENS = True
+# https://docs.allauth.org/en/latest/socialaccount/providers/google.html#django-configuration
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        "SCOPE": [
+            "profile",
+            "email",
+            # "https://www.googleapis.com/auth/calendar.app.created",
+            # "https://www.googleapis.com/auth/calendar.calendarlist.readonly",
+            "https://www.googleapis.com/auth/calendar",
+        ],
+        "AUTH_PARAMS": {
+            "access_type": "offline",
+        },
+        "OAUTH_PKCE_ENABLED": True,
+    },
+}
 # django-compressor
 # ------------------------------------------------------------------------------
 # https://django-compressor.readthedocs.io/en/latest/quickstart/#installation
