@@ -1,5 +1,7 @@
+import contextlib
 import logging
 from typing import Final
+from zoneinfo import ZoneInfoNotFoundError
 
 import x_wr_timezone
 from icalendar import Calendar as ICalendar
@@ -33,10 +35,11 @@ class SourceProcessor:
             calendar_data = self.fetcher.fetch_calendar(self.source.url)
             ical = ICalendar.from_ical(calendar_data)
             self._validate_calendar_components(ical)
-            ical.add_missing_timezones()
+            with contextlib.suppress(KeyError):
+                ical.add_missing_timezones()
             try:
                 self.source_data.ical = x_wr_timezone.to_standard(ical)
-            except AttributeError:
+            except (AttributeError, ZoneInfoNotFoundError):
                 # skip do to bug in x_wr_timezone
                 # https://github.com/niccokunzmann/x-wr-timezone/issues/25
                 self.source_data.ical = ical
