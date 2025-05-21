@@ -33,8 +33,7 @@ class SourceProcessor:
         """Fetch and validate remote calendar."""
         try:
             calendar_data = self.fetcher.fetch_calendar(self.source.url)
-            ical = ICalendar.from_ical(calendar_data)
-            self._validate_calendar_components(ical)
+            ical = self._validate_calendar_components(calendar_data)
             with contextlib.suppress(KeyError):
                 ical.add_missing_timezones()
             try:
@@ -45,26 +44,24 @@ class SourceProcessor:
                 self.source_data.ical = ical
 
         except (RequestException, HTTPError) as e:
-            logger.warning("Failed to fetch calendar %s: %s", self.source.url, str(e))
             self.source_data.error = str(e)
         except CalendarValidationError as e:
-            logger.warning(
-                "Calendar validation failed for %s: %s",
-                self.source.url,
-                str(e),
-            )
-            self.source_data.error = str(e)
-        except ValueError as e:
-            logger.warning("Invalid calendar data from %s: %s", self.source.url, str(e))
             self.source_data.error = str(e)
 
-    def _validate_calendar_components(self, ical: ICalendar) -> None:
+    def _validate_calendar_components(self, calendar_data: str) -> ICalendar:
         """Validate calendar components."""
+        try:
+            ical = ICalendar.from_ical(calendar_data)
+        except ValueError as e:
+            msg = f'URL did not return valid ICalendar data.\nError Message: "{e}"'
+            raise CalendarValidationError(msg) from e
+
         if not ical.walk():
-            msg = f"Calendar from {self.source.url} contains no components"
+            msg = "Calendar contains no components"
             raise CalendarValidationError(msg)
 
         # TODO: Explore other type of calendar validation
+        return ical
 
     def customize_calendar(self) -> None:
         """Apply source-specific customizations to calendar"""
