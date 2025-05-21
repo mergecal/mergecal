@@ -2,6 +2,8 @@ from django.contrib import admin
 from django.db.models import Count
 from django.utils.html import format_html
 
+from mergecalweb.core.utils import get_site_url
+
 from .models import Calendar
 from .models import Source
 
@@ -15,6 +17,7 @@ class CalendarAdmin(admin.ModelAdmin):
     list_display = (
         "name",
         "owner_email",
+        "calendar_file_url_link",
         "timezone",
         "uuid_link",
         "source_count",
@@ -45,12 +48,13 @@ class CalendarAdmin(admin.ModelAdmin):
                     "include_source",
                     "created",
                     "modified",
+                    "calendar_file_url_link",
                 ),
             },
         ),
         ("customization", {"fields": ("update_frequency_seconds", "remove_branding")}),
     )
-    readonly_fields = ("uuid", "created", "modified")
+    readonly_fields = ("uuid", "created", "modified", "calendar_file_url_link")
 
     @admin.display(ordering="source_count")
     def source_count(self, obj):
@@ -71,6 +75,14 @@ class CalendarAdmin(admin.ModelAdmin):
     def uuid_link(self, obj):
         url = obj.get_calendar_view_url()
         return format_html('<a href="{}">{}</a>', url, obj.uuid)
+
+    @admin.display(description="File URL")
+    def calendar_file_url_link(self, obj):
+        url = obj.get_calendar_file_url()
+        # If you want the full domain, use get_site_url() as in your iframe method
+        domain = get_site_url()
+        full_url = f"{domain}{url}"
+        return format_html('<a href="{}" target="_blank">File Link</a>', full_url)
 
 
 @admin.register(Source)
