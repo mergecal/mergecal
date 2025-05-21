@@ -2,7 +2,7 @@ from django.urls import path
 
 from mergecalweb.calendars.views import CalendarCreateView
 from mergecalweb.calendars.views import CalendarDeleteView
-from mergecalweb.calendars.views import CalendarFileAPIView
+from mergecalweb.calendars.views import CalendarFileView
 from mergecalweb.calendars.views import CalendarUpdateView
 from mergecalweb.calendars.views import SourceAddView
 from mergecalweb.calendars.views import SourceEditView
@@ -25,8 +25,8 @@ urlpatterns = [
         name="source_add",
     ),
     path("source/<int:pk>/delete/", source_delete, name="source_delete"),
-    path("<uuid>.ical", CalendarFileAPIView.as_view(), name="calendar_file"),
-    path("<uuid>.ics", CalendarFileAPIView.as_view(), name="calendar_file_ics"),
+    path("<uuid>.ical", CalendarFileView.as_view(), name="calendar_file"),
+    path("<uuid>.ics", CalendarFileView.as_view(), name="calendar_file_ics"),
     path("<uuid>/calendar/", calendar_view, name="calendar_view"),
     path("iframe/<uuid>/", calendar_iframe, name="calendar_iframe"),
 ]

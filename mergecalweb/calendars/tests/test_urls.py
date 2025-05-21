@@ -45,13 +45,13 @@ class TestCalendarUrls:
         url = reverse("calendars:calendar_file", kwargs={"uuid": calendar.uuid})
         assert url == f"/calendars/{calendar.uuid}.ical"
         resolver = resolve(url)
-        assert resolver.func.view_class == views.CalendarFileAPIView
+        assert resolver.func.view_class == views.CalendarFileView
 
         # Test .ics extension
         url = reverse("calendars:calendar_file_ics", kwargs={"uuid": calendar.uuid})
         assert url == f"/calendars/{calendar.uuid}.ics"
         resolver = resolve(url)
-        assert resolver.func.view_class == views.CalendarFileAPIView
+        assert resolver.func.view_class == views.CalendarFileView
 
     def test_source_urls(self, calendar: Calendar, source: Source) -> None:
         """Test source-related URL patterns."""

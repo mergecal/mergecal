@@ -13,15 +13,13 @@ from django.shortcuts import redirect
 from django.shortcuts import render
 from django.urls import reverse
 from django.urls import reverse_lazy
+from django.views import View
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.http import require_POST
 from django.views.generic import CreateView
 from django.views.generic import DeleteView
 from django.views.generic import ListView
 from django.views.generic import UpdateView
-from rest_framework import status
-from rest_framework.response import Response
-from rest_framework.views import APIView
 
 from mergecalweb.calendars.forms import CalendarForm
 from mergecalweb.calendars.forms import SourceForm
@@ -238,7 +236,7 @@ def source_delete(request, pk):
     return redirect("calendars:calendar_update", uuid=uuid)
 
 
-class CalendarFileAPIView(APIView):
+class CalendarFileView(View):
     def get(self, request, uuid):
         return self.process_calendar_request(uuid)
 
@@ -255,14 +253,15 @@ class CalendarFileAPIView(APIView):
         calendar_str = merger.merge()
 
         if not calendar_str:
-            return Response(
-                {"error": "Failed to generate calendar data"},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            return HttpResponse(
+                "Failed to generate calendar data",
+                status=500,
+                content_type="text/plain",
             )
 
         response = HttpResponse(calendar_str, content_type="text/calendar")
-        response["Content-Disposition"] = f'attachment; filename="{uuid}.ics"'  # E702
-        if calendar.owner.is_free_tier:
+        response["Content-Disposition"] = f'attachment; filename="{uuid}.ics"'
+        if getattr(calendar.owner, "is_free_tier", False):
             response["Cache-Control"] = "public, max-age=43200"  # 12 hours in seconds
         return response
 
