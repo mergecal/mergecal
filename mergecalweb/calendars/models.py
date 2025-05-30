@@ -33,15 +33,18 @@ def validate_ical_url(url):
                 raise ValidationError(msg)
             return  # URL is valid, exit the function
 
+    # if url is meetup.com, skip validation
+    if "meetup.com" in url:
+        return
     try:
         fetcher = CalendarFetcher()
         response = fetcher.fetch_calendar(url)
         cal = Ical.from_ical(response)  # noqa: F841
     except RequestException as err:
-        msg = "Enter a valid URL"
+        msg = f"Enter a valid URL. Details: {err}"
         raise ValidationError(msg) from err
     except ValueError as err:
-        msg = "Enter a valid iCalendar feed"
+        msg = f"Enter a valid iCalendar feed. Details: {err}"
         raise ValidationError(msg) from err
 
 

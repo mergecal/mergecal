@@ -1,8 +1,13 @@
+# ruff: noqa: SLF001
 import logging
 
 from icalendar import Calendar as ICalendar
+from requests.exceptions import RequestException
+from urllib3.exceptions import HTTPError
 
+from mergecalweb.calendars.exceptions import CalendarValidationError
 from mergecalweb.calendars.meetup import fetch_and_create_meetup_calendar
+from mergecalweb.calendars.meetup import is_meetup_url
 from mergecalweb.calendars.models import Calendar
 from mergecalweb.calendars.models import Source
 from mergecalweb.core.utils import is_local_url
@@ -30,6 +35,16 @@ class SourceService:
 
             if is_local_url(source.url):
                 self._process_local_source(processor.source_data)
+            elif is_meetup_url(source.url):
+                try:
+                    logger.debug("Processing Meetup source: %s", source.url)
+                    calendar_data = processor.fetcher.fetch_calendar(source.url)
+                    ical = processor._validate_calendar_components(calendar_data)
+                    processor.source_data.ical = ical
+                except (RequestException, HTTPError, CalendarValidationError) as e:
+                    logger.debug("using api to fetch meetup calendar: %s", e)
+                    self._process_meetup_source(processor.source_data)
+
             else:
                 processor.fetch_and_validate()
 
