@@ -38,5 +38,5 @@ django-htmx-messages==0.1.1  # https://github.com/abe-101/django-htmx-messages
 djangorestframework==3.15.2  # https://github.com/encode/django-rest-framework
 
 # Stripe
-stripe==10.4.0  # https://github.com/stripe/stripe-python
+stripe==12.0.1  # https://github.com/stripe/stripe-python
 dj-stripe==2.9.0b3  # https://github.com/dj-stripe/dj-stripe
