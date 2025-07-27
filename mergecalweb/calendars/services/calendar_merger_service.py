@@ -28,6 +28,10 @@ class CalendarMergerService:
 
     def merge(self) -> str:
         """Merge all calendar sources into a single iCal string"""
+        if self.calendar.owner.is_free_tier:
+            ical = self._add_tier_warnings()
+            return ical.to_ical().decode("utf-8")
+
         cache_key = f"calendar_str_{self.calendar.uuid}"
         cached_calendar = cache.get(cache_key)
 
@@ -41,7 +45,6 @@ class CalendarMergerService:
 
         merged_calendar: ICalendar = self._merge_calendars(valid_calendars)
         self._add_error_events(merged_calendar, processed_sources)
-        self._add_tier_warnings(merged_calendar)
 
         calendar_str = merged_calendar.to_ical().decode("utf-8")
         cache.set(cache_key, calendar_str, self.calendar.effective_update_frequency)
@@ -110,20 +113,24 @@ class CalendarMergerService:
         error_event.add("dtend", timezone.now() + timedelta(hours=1))
         merged_calendar.add_component(error_event)
 
-    def _add_tier_warnings(self, merged_calendar: ICalendar) -> None:
+    def _add_tier_warnings(self) -> ICalendar:
         """Add warning events for free tier users"""
-        if not self.calendar.owner.is_free_tier:
-            return
+        prodid = f"-//{self.calendar.name}//mergecal.org//"
+        version = "2.0"
+        calendar = ICalendar()
+        calendar.add("prodid", prodid)
+        calendar.add("version", version)
+        calendar.add("x-wr-calname", self.calendar.name)
 
         warning_event = Event()
         start_time = timezone.now()
 
         warning_event.add(
             "summary",
-            "⚠️ Action Required: Your MergeCal Access Will Be Discontinued",
+            "⚠️ Action Required: Your MergeCal Access Has Been Discontinued",
         )
         description = (
-            "⚠️ Your MergeCal calendar access will be discontinued soon.\n\n"
+            "⚠️ Your MergeCal calendar has been discontinued.\n\n"
             "🎁 Get 1 Month FREE on our Business Plan with code: FREEMONTH\n\n"
             "Subscribe now to keep your calendars synchronized:\n"
             "https://mergecal.org/pricing/"
@@ -140,10 +147,11 @@ class CalendarMergerService:
         alarm.add("action", "DISPLAY")
         alarm.add(
             "description",
-            "Your MergeCal access will be discontinued. Subscribe to our Business Plan - "  # noqa: E501
+            "Your MergeCal access has been discontinued. Subscribe to our Business Plan - "  # noqa: E501
             "1 Month FREE with code: FREEMONTH",
         )
         alarm.add("trigger", timedelta(hours=3))
         warning_event.add_component(alarm)
 
-        merged_calendar.add_component(warning_event)
+        calendar.add_component(warning_event)
+        return calendar
