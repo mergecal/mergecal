@@ -9,6 +9,7 @@ from django.contrib.sitemaps.views import sitemap
 from django.views.generic.base import RedirectView
 from mergecalweb.billing.views import PricingTableView
 from mergecalweb.blog.sitemaps import BlogSitemap
+from mergecalweb.calendars.views import url_validator
 from mergecalweb.core.sitemaps import StaticViewSitemap
 
 
@@ -53,6 +54,7 @@ urlpatterns = [
     path("billing/", include("mergecalweb.billing.urls", namespace="billing")),
     path("pricing/", PricingTableView.as_view(), name="pricing"),
     path("blog/", include("mergecalweb.blog.urls", namespace="blog")),
+    path("validator/", url_validator, name="url_validator"),
     path("tz_detect/", include("tz_detect.urls")),
     path(
         "privacy/",

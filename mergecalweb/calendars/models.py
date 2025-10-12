@@ -145,6 +145,26 @@ class Calendar(TimeStampedModel):
     def get_calendar_view_url(self):
         return reverse("calendars:calendar_view", kwargs={"uuid": self.uuid})
 
+    def get_validator_url(self):
+        """
+        Generate URL for the validator page with this calendar and all its sources.
+        MergeCal URL is added first, followed by all source URLs.
+        """
+        from urllib.parse import urlencode
+
+        domain_name = get_site_url()
+        # Start with the merged calendar URL
+        urls = [f"{domain_name}{self.get_calendar_file_url()}"]
+
+        # Add all source URLs
+        urls.extend(source.url for source in self.calendarOf.all())
+
+        # Build query string with urls[] parameters
+        query_params = [("urls[]", url) for url in urls]
+        query_string = urlencode(query_params)
+
+        return f"{reverse('url_validator')}?{query_string}"
+
     def get_calendar_iframe(self):
         domain_name = get_site_url()
         iframe_url = reverse("calendars:calendar_iframe", kwargs={"uuid": self.uuid})
