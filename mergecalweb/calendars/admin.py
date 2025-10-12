@@ -18,6 +18,7 @@ class CalendarAdmin(admin.ModelAdmin):
         "name",
         "owner_email",
         "calendar_file_url_link",
+        "validator_button",
         "timezone",
         "uuid_link",
         "source_count",
@@ -49,12 +50,19 @@ class CalendarAdmin(admin.ModelAdmin):
                     "created",
                     "modified",
                     "calendar_file_url_link",
+                    "validator_link",
                 ),
             },
         ),
         ("customization", {"fields": ("update_frequency_seconds", "remove_branding")}),
     )
-    readonly_fields = ("uuid", "created", "modified", "calendar_file_url_link")
+    readonly_fields = (
+        "uuid",
+        "created",
+        "modified",
+        "calendar_file_url_link",
+        "validator_link",
+    )
 
     @admin.display(ordering="source_count")
     def source_count(self, obj):
@@ -83,6 +91,22 @@ class CalendarAdmin(admin.ModelAdmin):
         domain = get_site_url()
         full_url = f"{domain}{url}"
         return format_html('<a href="{}" target="_blank">File Link</a>', full_url)
+
+    @admin.display(description="Validator")
+    def validator_button(self, obj):
+        validator_url = obj.get_validator_url()
+        return format_html(
+            '<a href="{}" target="_blank" class="button">Validate</a>',
+            validator_url,
+        )
+
+    @admin.display(description="Validator URL")
+    def validator_link(self, obj):
+        validator_url = obj.get_validator_url()
+        return format_html(
+            '<a href="{}" target="_blank" class="button">🔍 Open Validator</a>',
+            validator_url,
+        )
 
 
 @admin.register(Source)
