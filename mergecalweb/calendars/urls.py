@@ -10,6 +10,7 @@ from mergecalweb.calendars.views import UserCalendarListView
 from mergecalweb.calendars.views import calendar_iframe
 from mergecalweb.calendars.views import calendar_view
 from mergecalweb.calendars.views import source_delete
+from mergecalweb.calendars.views import url_validator
 
 app_name = "calendars"
 
@@ -29,4 +30,5 @@ urlpatterns = [
     path("<uuid>.ics", CalendarFileView.as_view(), name="calendar_file_ics"),
     path("<uuid>/calendar/", calendar_view, name="calendar_view"),
     path("iframe/<uuid>/", calendar_iframe, name="calendar_iframe"),
+    path("url-validator/", url_validator, name="url_validator"),
 ]

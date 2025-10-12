@@ -1,0 +1,563 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %}
+  iCal Feed Validator - Admin Tool
+{% endblock title %}
+{% block content %}
+  <div class="container mt-4 mb-5">
+    <!-- Header -->
+    <header class="mb-4">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+          <h1 class="display-5 mb-1">
+            <i class="bi bi-calendar-check text-primary"></i>
+            iCal Feed Validator
+          </h1>
+          <p class="text-muted mb-0">
+            Validate multiple iCalendar feeds side-by-side
+            <span class="badge bg-danger ms-2">Admin Only</span>
+          </p>
+        </div>
+        <button id="copyLinkBtn" class="btn btn-primary">
+          <i class="bi bi-link-45deg"></i>
+          Copy Link
+        </button>
+      </div>
+    </header>
+    <!-- Add Calendar Section -->
+    <div class="card mb-4">
+      <div class="card-body">
+        <h5 class="card-title">Add Calendar Feed</h5>
+        <div class="row g-2">
+          <div class="col-md-9">
+            <input type="url"
+                   id="calendarUrlInput"
+                   class="form-control"
+                   placeholder="Enter iCalendar feed URL (e.g., https://example.com/calendar.ics)"
+                   aria-label="Calendar URL input" />
+          </div>
+          <div class="col-md-3">
+            <button id="addCalendarBtn" class="btn btn-success w-100">
+              <i class="bi bi-plus-circle"></i>
+              Add Calendar
+            </button>
+          </div>
+        </div>
+        <div class="mt-2">
+          <small class="text-muted">
+            <span id="calendarCount">0</span>/10 calendars
+          </small>
+        </div>
+      </div>
+    </div>
+    <!-- Alert Area for Messages -->
+    <div id="alertArea"></div>
+    <!-- Calendar Cards Grid -->
+    <div id="calendarsGrid" class="row">
+      <!-- Calendar cards will be inserted here -->
+    </div>
+    <!-- Empty State -->
+    <div id="emptyState" class="text-center py-5">
+      <i class="bi bi-calendar-plus text-muted fs-1"></i>
+      <h3 class="text-muted mt-3">No calendars added yet</h3>
+      <p class="text-muted">Add a calendar URL above to get started</p>
+    </div>
+  </div>
+{% endblock content %}
+{% block inline_javascript %}
+  <script>
+    // Application state
+    const state = {
+      calendars: [], // Array of {id, url, status, results}
+      maxCalendars: 10
+    };
+
+    // DOM elements
+    const elements = {
+      calendarUrlInput: document.getElementById('calendarUrlInput'),
+      addCalendarBtn: document.getElementById('addCalendarBtn'),
+      copyLinkBtn: document.getElementById('copyLinkBtn'),
+      calendarsGrid: document.getElementById('calendarsGrid'),
+      emptyState: document.getElementById('emptyState'),
+      calendarCount: document.getElementById('calendarCount'),
+      alertArea: document.getElementById('alertArea')
+    };
+
+    // Initialize app
+    function init() {
+      loadCalendarsFromURL();
+      setupEventListeners();
+      updateUI();
+    }
+
+    // Load calendars from URL parameters
+    function loadCalendarsFromURL() {
+      const params = new URLSearchParams(window.location.search);
+      const urls = params.getAll('urls[]');
+
+      urls.forEach(url => {
+        if (url && state.calendars.length < state.maxCalendars) {
+          addCalendar(url, false); // false = don't update URL
+        }
+      });
+    }
+
+    // Setup event listeners
+    function setupEventListeners() {
+      elements.addCalendarBtn.addEventListener('click', handleAddCalendar);
+      elements.calendarUrlInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          handleAddCalendar();
+        }
+      });
+      elements.copyLinkBtn.addEventListener('click', handleCopyLink);
+    }
+
+    // Handle adding a calendar
+    function handleAddCalendar() {
+      const url = elements.calendarUrlInput.value.trim();
+
+      if (!url) {
+        showAlert('Please enter a calendar URL', 'warning');
+        return;
+      }
+
+      // Basic URL validation
+      try {
+        new URL(url);
+      } catch (e) {
+        showAlert('Please enter a valid URL', 'danger');
+        return;
+      }
+
+      if (state.calendars.length >= state.maxCalendars) {
+        showAlert(`Maximum of ${state.maxCalendars} calendars reached`, 'warning');
+        return;
+      }
+
+      // Check for duplicates
+      if (state.calendars.some(cal => cal.url === url)) {
+        showAlert('This calendar URL has already been added', 'warning');
+        return;
+      }
+
+      addCalendar(url);
+      elements.calendarUrlInput.value = '';
+      showAlert('Calendar added successfully', 'success', 2000);
+    }
+
+    // Add calendar to state
+    function addCalendar(url, updateURL = true) {
+      const calendar = {
+        id: Date.now() + Math.random(), // Unique ID
+        url: url,
+        status: 'pending', // pending, validating, success, error
+        results: null
+      };
+
+      state.calendars.push(calendar);
+
+      if (updateURL) {
+        updateURLParams();
+      }
+
+      // Only add the new card instead of re-rendering everything
+      const card = createCalendarCard(calendar);
+      elements.calendarsGrid.appendChild(card);
+
+      updateCalendarCount();
+      updateEmptyState();
+      updateAddButtonState();
+    }
+
+    // Remove calendar
+    function removeCalendar(id) {
+      state.calendars = state.calendars.filter(cal => cal.id !== id);
+      updateURLParams();
+      updateUI();
+    }
+
+    // Update URL parameters without page reload
+    function updateURLParams() {
+      const params = new URLSearchParams();
+      state.calendars.forEach(cal => {
+        params.append('urls[]', cal.url);
+      });
+
+      const newURL = params.toString() ?
+        `${window.location.pathname}?${params.toString()}` :
+        window.location.pathname;
+
+      window.history.pushState({}, '', newURL);
+    }
+
+    // Validate a calendar
+    async function validateCalendar(id) {
+      const calendar = state.calendars.find(cal => cal.id === id);
+      if (!calendar) return;
+
+      calendar.status = 'validating';
+      calendar.results = null;
+      updateCalendarCard(calendar);
+
+      try {
+        // Use the Cloudflare Worker proxy to validate the calendar
+        const proxyURL = `https://validator.mergecal.org/?calendarUrl=${encodeURIComponent(calendar.url)}`;
+
+        const response = await fetch(proxyURL);
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        calendar.results = data;
+        calendar.status = determineStatus(data);
+
+      } catch (error) {
+        calendar.status = 'error';
+        calendar.results = {
+          error: true,
+          message: `Failed to validate: ${error.message}`
+        };
+      }
+
+      updateCalendarCard(calendar);
+    }
+
+    // Determine status from validation results
+    function determineStatus(data) {
+      if (data.error) return 'error';
+      if (!data.totals) return 'error';
+
+      const errorCount = parseInt(data.totals.errors) || 0;
+      const warningCount = parseInt(data.totals.warnings) || 0;
+
+      if (errorCount > 0) return 'error';
+      if (warningCount > 0) return 'warning';
+      return 'success';
+    }
+
+    // Update UI
+    function updateUI() {
+      updateCalendarCount();
+      renderCalendarCards();
+      updateEmptyState();
+      updateAddButtonState();
+    }
+
+    // Update calendar count
+    function updateCalendarCount() {
+      elements.calendarCount.textContent = state.calendars.length;
+    }
+
+    // Update empty state visibility
+    function updateEmptyState() {
+      elements.emptyState.style.display = state.calendars.length === 0 ? 'block' : 'none';
+    }
+
+    // Update add button state
+    function updateAddButtonState() {
+      elements.addCalendarBtn.disabled = state.calendars.length >= state.maxCalendars;
+    }
+
+    // Render all calendar cards
+    function renderCalendarCards() {
+      elements.calendarsGrid.innerHTML = '';
+      state.calendars.forEach(calendar => {
+        const card = createCalendarCard(calendar);
+        elements.calendarsGrid.appendChild(card);
+      });
+    }
+
+    // Create a calendar card element
+    function createCalendarCard(calendar) {
+      const col = document.createElement('div');
+      col.className = 'col-md-6 col-lg-4';
+
+      const card = document.createElement('div');
+      card.className = 'card h-100 shadow-sm mb-4';
+      card.id = `calendar-${calendar.id}`;
+
+      // Card header with URL and actions
+      const cardHeader = document.createElement('div');
+      cardHeader.className = 'card-header d-flex justify-content-between align-items-start';
+      cardHeader.innerHTML = `
+                <div class="flex-grow-1 me-2">
+                    <div class="font-monospace small text-break text-secondary" title="${escapeHtml(calendar.url)}">
+                        ${truncateURL(calendar.url, 40)}
+                    </div>
+                </div>
+                <button class="btn btn-sm btn-danger" onclick="removeCalendar(${calendar.id})" aria-label="Remove calendar">
+                    <i class="bi bi-trash"></i>
+                </button>
+            `;
+
+      // Card body with validation button and results
+      const cardBody = document.createElement('div');
+      cardBody.className = 'card-body';
+
+      const validateBtn = document.createElement('button');
+      validateBtn.className = 'btn btn-primary w-100 mb-3';
+      validateBtn.onclick = () => validateCalendar(calendar.id);
+      validateBtn.innerHTML = '<i class="bi bi-check-circle"></i> Validate';
+
+      const resultsArea = document.createElement('div');
+      resultsArea.className = 'mt-3 overflow-auto';
+      resultsArea.style.maxHeight = '400px';
+      resultsArea.id = `results-${calendar.id}`;
+
+      cardBody.appendChild(validateBtn);
+      cardBody.appendChild(resultsArea);
+
+      card.appendChild(cardHeader);
+      card.appendChild(cardBody);
+      col.appendChild(card);
+
+      // Render results if they exist
+      if (calendar.status !== 'pending') {
+        renderResults(calendar);
+      }
+
+      return col;
+    }
+
+    // Update a specific calendar card
+    function updateCalendarCard(calendar) {
+      const resultsArea = document.getElementById(`results-${calendar.id}`);
+      if (!resultsArea) return;
+
+      renderResults(calendar);
+    }
+
+    // Render validation results
+    function renderResults(calendar) {
+      const resultsArea = document.getElementById(`results-${calendar.id}`);
+      if (!resultsArea) return;
+
+      resultsArea.innerHTML = '';
+
+      // Show loading state
+      if (calendar.status === 'validating') {
+        resultsArea.innerHTML = `
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Validating...</span>
+                        </div>
+                        <p class="mt-2 text-muted">Validating calendar...</p>
+                    </div>
+                `;
+        return;
+      }
+
+      // Show error state
+      if (calendar.results && calendar.results.error) {
+        resultsArea.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        <strong>Validation Error</strong><br />
+                        ${escapeHtml(calendar.results.message)}
+                    </div>
+                `;
+        return;
+      }
+
+      // Show validation results
+      if (calendar.results && calendar.results.totals) {
+        const data = calendar.results;
+        const totals = data.totals;
+
+        // Status badge
+        const statusBadge = getStatusBadge(calendar.status);
+        resultsArea.innerHTML += statusBadge;
+
+        // Statistics grid
+        const statsHTML = `
+                    <div class="row row-cols-2 row-cols-md-3 g-2 mt-3">
+                        <div class="col">
+                            <div class="bg-body-secondary p-3 rounded text-center">
+                                <div class="fs-4 fw-bold text-primary">${totals.lines || 0}</div>
+                                <div class="small text-muted text-uppercase">Lines</div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="bg-body-secondary p-3 rounded text-center">
+                                <div class="fs-4 fw-bold text-primary">${totals.events || 0}</div>
+                                <div class="small text-muted text-uppercase">Events</div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="bg-body-secondary p-3 rounded text-center">
+                                <div class="fs-4 fw-bold text-primary">${totals.timezones || 0}</div>
+                                <div class="small text-muted text-uppercase">Timezones</div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="bg-body-secondary p-3 rounded text-center">
+                                <div class="fs-4 fw-bold text-primary">${totals.todos || 0}</div>
+                                <div class="small text-muted text-uppercase">Todos</div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="bg-body-secondary p-3 rounded text-center">
+                                <div class="fs-4 fw-bold text-primary">${totals.journals || 0}</div>
+                                <div class="small text-muted text-uppercase">Journals</div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="bg-body-secondary p-3 rounded text-center">
+                                <div class="fs-4 fw-bold text-primary">${totals.freebusys || 0}</div>
+                                <div class="small text-muted text-uppercase">Free/Busy</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+        resultsArea.innerHTML += statsHTML;
+
+        // Calendar size
+        if (totals.calsize) {
+          resultsArea.innerHTML += `
+                        <div class="text-muted small mb-3">
+                            <i class="bi bi-file-earmark"></i>
+                            Calendar size: ${formatBytes(totals.calsize)}
+                        </div>
+                    `;
+        }
+
+        // Errors
+        const errorCount = parseInt(totals.errors) || 0;
+        if (errorCount > 0 && data.errors) {
+          resultsArea.innerHTML += `
+                        <div class="mt-3">
+                            <h6 class="text-danger">
+                                <i class="bi bi-x-circle-fill"></i>
+                                Errors (${errorCount})
+                            </h6>
+                            ${renderIssues(data.errors, 'error')}
+                        </div>
+                    `;
+        }
+
+        // Warnings
+        const warningCount = parseInt(totals.warnings) || 0;
+        if (warningCount > 0 && data.warnings) {
+          resultsArea.innerHTML += `
+                        <div class="mt-3">
+                            <h6 class="text-warning">
+                                <i class="bi bi-exclamation-triangle-fill"></i>
+                                Warnings (${warningCount})
+                            </h6>
+                            ${renderIssues(data.warnings, 'warning')}
+                        </div>
+                    `;
+        }
+      }
+    }
+
+    // Get status badge HTML
+    function getStatusBadge(status) {
+      const badges = {
+        success: '<div class="alert alert-success"><i class="bi bi-check-circle-fill"></i> <strong>Valid!</strong> No errors found.</div>',
+        warning: '<div class="alert alert-warning"><i class="bi bi-exclamation-triangle-fill"></i> <strong>Valid with warnings</strong></div>',
+        error: '<div class="alert alert-danger"><i class="bi bi-x-circle-fill"></i> <strong>Invalid</strong> Errors found.</div>'
+      };
+      return badges[status] || '';
+    }
+
+    // Render issues (errors or warnings)
+    function renderIssues(issues, type) {
+      if (!Array.isArray(issues)) return '';
+
+      return issues.map(issue => {
+        const bgColor = type === 'error' ? 'bg-danger-subtle' : 'bg-warning-subtle';
+        const borderColor = type === 'error' ? 'border-danger' : 'border-warning';
+        return `
+                    <div class="${bgColor} border-start border-4 ${borderColor} p-3 rounded mb-2">
+                        <div class="d-flex justify-content-between align-items-start mb-1">
+                            <strong>Line ${issue.linenum || 'N/A'}</strong>
+                        </div>
+                        <div>${escapeHtml(issue.message || 'No message')}</div>
+                        ${issue.moreinfo ? `<div class="mt-1"><small class="text-muted">${escapeHtml(issue.moreinfo)}</small></div>` : ''}
+                        ${issue.refurl ? `<div class="mt-1"><small><a href="${escapeHtml(issue.refurl)}" target="_blank" rel="noopener noreferrer">Reference: ${escapeHtml(issue.ref || 'Documentation')} <i class="bi bi-box-arrow-up-right"></i></a></small></div>` : ''}
+                    </div>
+                `;
+      }).join('');
+    }
+
+    // Handle copy link
+    async function handleCopyLink() {
+      try {
+        await navigator.clipboard.writeText(window.location.href);
+
+        const originalHTML = elements.copyLinkBtn.innerHTML;
+        elements.copyLinkBtn.innerHTML = '<i class="bi bi-check-lg"></i> Copied!';
+        elements.copyLinkBtn.classList.remove('btn-primary');
+        elements.copyLinkBtn.classList.add('btn-success');
+
+        setTimeout(() => {
+          elements.copyLinkBtn.innerHTML = originalHTML;
+          elements.copyLinkBtn.classList.remove('btn-success');
+          elements.copyLinkBtn.classList.add('btn-primary');
+        }, 2000);
+
+      } catch (error) {
+        showAlert('Failed to copy link to clipboard', 'danger');
+      }
+    }
+
+    // Show alert message
+    function showAlert(message, type = 'info', duration = 5000) {
+      const alertId = 'alert-' + Date.now();
+      const alertHTML = `
+                <div id="${alertId}" class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    ${escapeHtml(message)}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            `;
+
+      elements.alertArea.insertAdjacentHTML('beforeend', alertHTML);
+
+      if (duration > 0) {
+        setTimeout(() => {
+          const alert = document.getElementById(alertId);
+          if (alert) {
+            const bsAlert = bootstrap.Alert.getInstance(alert);
+            if (bsAlert) {
+              bsAlert.close();
+            } else {
+              alert.remove();
+            }
+          }
+        }, duration);
+      }
+    }
+
+    // Utility: Truncate URL for display
+    function truncateURL(url, maxLength) {
+      if (url.length <= maxLength) return escapeHtml(url);
+      return escapeHtml(url.substring(0, maxLength)) + '...';
+    }
+
+    // Utility: Escape HTML
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // Utility: Format bytes
+    function formatBytes(bytes) {
+      if (bytes === 0) return '0 Bytes';
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+    }
+
+    // Initialize the application
+    init();
+  </script>
+{% endblock inline_javascript %}

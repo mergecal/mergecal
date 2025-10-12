@@ -1,6 +1,7 @@
 import logging
 
 from django.contrib import messages
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
@@ -291,3 +292,20 @@ def calendar_iframe(request: HttpRequest, uuid: str) -> HttpResponse:
         referer or "Unknown",
     )
     return render(request, "calendars/calendar_iframe.html", {"calendar": calendar})
+
+
+@staff_member_required
+def url_validator(request: HttpRequest) -> HttpResponse:
+    """
+    URL validator view for superusers to validate calendar source URLs.
+    """
+    logger.info(
+        "User %s accessed the URL validator",
+        request.user,
+    )
+
+    context = {
+        "page_title": "URL Validator",
+    }
+
+    return render(request, "calendars/url_validator.html", context)
