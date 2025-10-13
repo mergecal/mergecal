@@ -301,7 +301,11 @@ def calendar_iframe(request: HttpRequest, uuid: str) -> HttpResponse:
         calendar.uuid,
         referer or "Unknown",
     )
-    return render(request, "calendars/calendar_iframe.html", {"calendar": calendar})
+    return render(
+        request,
+        "calendars/calendar_iframe.html",
+        {"calendar": calendar, "embed_referer": referer},
+    )
 
 
 @staff_member_required
