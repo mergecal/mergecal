@@ -53,7 +53,7 @@ class CalendarFetcher:
             )
             return cached_data
 
-        logger.info(
+        logger.debug(
             "Calendar fetch cache miss, fetching from remote",
             extra={
                 "event": LogEvent.CALENDAR_FETCH_CACHE_MISS,
@@ -75,7 +75,7 @@ class CalendarFetcher:
             calendar_data = response.text
 
             fetch_duration = time.time() - start_time
-            logger.info(
+            logger.debug(
                 "Calendar fetched successfully from remote source",
                 extra={
                     "event": LogEvent.CALENDAR_FETCH_SUCCESS,

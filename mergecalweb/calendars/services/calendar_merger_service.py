@@ -31,7 +31,7 @@ class CalendarMergerService:
     def merge(self) -> str:
         """Merge all calendar sources into a single iCal string"""
         start_time = time.time()
-        logger.info(
+        logger.debug(
             "Starting calendar merge",
             extra={
                 "event": LogEvent.CALENDAR_MERGE_START,
@@ -72,7 +72,7 @@ class CalendarMergerService:
             )
             return cached_calendar
 
-        logger.info(
+        logger.debug(
             "Calendar merge cache miss, generating",
             extra={
                 "event": LogEvent.CALENDAR_MERGE_CACHE_MISS,
@@ -88,7 +88,7 @@ class CalendarMergerService:
 
         successful_count = len(valid_calendars)
         failed_count = len([s for s in processed_sources if s.error is not None])
-        logger.info(
+        logger.debug(
             "Calendar sources processed",
             extra={
                 "event": LogEvent.CALENDAR_SOURCES_PROCESSED,

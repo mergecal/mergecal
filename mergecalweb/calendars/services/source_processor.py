@@ -74,7 +74,7 @@ class SourceProcessor:
                 )
                 self.source_data.ical = ical
 
-            logger.info(
+            logger.debug(
                 "Source fetched and validated successfully",
                 extra={
                     "event": LogEvent.SOURCE_FETCH_SUCCESS,
@@ -189,7 +189,7 @@ class SourceProcessor:
                 self._add_branding(event)
                 events_customized += 1
 
-        logger.info(
+        logger.debug(
             "Source customization completed",
             extra={
                 "event": LogEvent.SOURCE_CUSTOMIZATION_COMPLETE,
