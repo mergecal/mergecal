@@ -181,38 +181,32 @@ LOGGING = {
         },
     },
     "handlers": {
-        "file": {
+        "console": {
             "level": "DEBUG",
-            "class": "logging.handlers.RotatingFileHandler",
-            "filename": LOG_FILE_LOCATION + "/django.log",
-            "maxBytes": 1024 * 1024 * 5,  # 5 MB
-            "backupCount": 5,  # Keep 5 old files
-            "formatter": "verbose",
-        },
-        "error_file": {
-            "level": "ERROR",
-            "class": "logging.handlers.RotatingFileHandler",
-            "filename": LOG_FILE_LOCATION + "/django_error.log",
-            "maxBytes": 1024 * 1024 * 5,  # 5 MB
-            "backupCount": 5,  # Keep 5 old files
+            "class": "logging.StreamHandler",
             "formatter": "verbose",
         },
     },
-    "root": {"level": "INFO", "handlers": ["file"]},
+    "root": {"level": "INFO", "handlers": ["console"]},
     "loggers": {
         "django.db.backends": {
             "level": "ERROR",
-            "handlers": ["error_file"],
+            "handlers": ["console"],
             "propagate": False,
         },
         "sentry_sdk": {
             "level": "ERROR",
-            "handlers": ["error_file"],
+            "handlers": ["console"],
             "propagate": False,
         },
         "django.security.DisallowedHost": {
             "level": "ERROR",
-            "handlers": ["error_file"],
+            "handlers": ["console"],
+            "propagate": False,
+        },
+        "compressor": {
+            "handlers": ["console"],
+            "level": "INFO",  # Set to DEBUG for more information
             "propagate": False,
         },
     },
