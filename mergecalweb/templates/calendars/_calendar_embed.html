@@ -73,14 +73,22 @@
         return;
       }
 
-      // Get the parent URL (the page embedding this iframe)
+      // Get the embed URL - try multiple methods for best coverage
       var embedUrl = '';
+
+      // Try to get parent URL via JavaScript (works for same-origin or permissive iframes)
       try {
-        // Try to get parent URL if accessible (same origin)
-        embedUrl = window.parent !== window ? window.parent.location.href : window.location.href;
+        if (window.parent !== window) {
+          embedUrl = window.parent.location.href;
+        }
       } catch (e) {
-        // If cross-origin, try to get referrer or use current location
-        embedUrl = document.referrer || window.location.href;
+        // Cross-origin restriction, try document.referrer
+        embedUrl = document.referrer;
+      }
+
+      // If JS methods failed, fall back to server-side HTTP Referer header
+      if (!embedUrl) {
+        embedUrl = "{{ embed_referer|default:''|escapejs }}";
       }
 
       var calendar = new FullCalendar.Calendar(calendarEl, {
