@@ -239,16 +239,26 @@ def source_delete(request, pk):
 
 class CalendarFileView(View):
     def get(self, request, uuid):
-        return self.process_calendar_request(uuid)
+        return self.process_calendar_request(request, uuid)
 
     def post(self, request, uuid):
-        return self.process_calendar_request(uuid)
+        return self.process_calendar_request(request, uuid)
 
-    def process_calendar_request(self, uuid):
+    def process_calendar_request(self, request, uuid):
         calendar = get_object_or_404(
             Calendar.objects.select_related("owner"),
             uuid=uuid,
         )
+
+        # Capture the embed URL if provided
+        embed_url = request.GET.get("embed_url")
+        if embed_url:
+            logger.info(
+                "Calendar %s (uuid: %s) accessed from embed URL: %s",
+                calendar.name,
+                uuid,
+                embed_url,
+            )
 
         merger = CalendarMergerService(calendar)
         calendar_str = merger.merge()

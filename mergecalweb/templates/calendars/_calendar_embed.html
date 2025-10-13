@@ -73,6 +73,16 @@
         return;
       }
 
+      // Get the parent URL (the page embedding this iframe)
+      var embedUrl = '';
+      try {
+        // Try to get parent URL if accessible (same origin)
+        embedUrl = window.parent !== window ? window.parent.location.href : window.location.href;
+      } catch (e) {
+        // If cross-origin, try to get referrer or use current location
+        embedUrl = document.referrer || window.location.href;
+      }
+
       var calendar = new FullCalendar.Calendar(calendarEl, {
         schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
         themeSystem: 'bootstrap5',
@@ -91,7 +101,7 @@
         dayMaxEvents: true,
         initialView: 'dayGridMonth',
         events: {
-          url: "{% url 'calendars:calendar_file' calendar.uuid %}",
+          url: "{% url 'calendars:calendar_file' calendar.uuid %}" + (embedUrl ? '?embed_url=' + encodeURIComponent(embedUrl) : ''),
           format: 'ics',
         },
         loading: function(isLoading) {
