@@ -31,19 +31,27 @@ class CalendarMergerService:
         """Merge all calendar sources into a single iCal string"""
         start_time = time.time()
         logger.info(
-            "Calendar merge: Starting - calendar=%s, uuid=%s, owner=%s, tier=%s",
-            self.calendar.name,
-            self.calendar.uuid,
-            self.calendar.owner.username,
-            self.calendar.owner.subscription_tier,
+            "Starting calendar merge",
+            extra={
+                "event": "calendar_merge_start",
+                "calendar_uuid": self.calendar.uuid,
+                "calendar_name": self.calendar.name,
+                "owner_id": self.calendar.owner.pk,
+                "owner_username": self.calendar.owner.username,
+                "owner_tier": self.calendar.owner.subscription_tier,
+            },
         )
 
         if self.calendar.owner.is_free_tier:
             logger.warning(
-                "Calendar merge: Free tier user - returning warning calendar - "
-                "calendar=%s, owner=%s",
-                self.calendar.name,
-                self.calendar.owner.username,
+                "Free tier user accessing calendar, returning warning",
+                extra={
+                    "event": "calendar_merge_free_tier_warning",
+                    "calendar_uuid": self.calendar.uuid,
+                    "calendar_name": self.calendar.name,
+                    "owner_id": self.calendar.owner.pk,
+                    "owner_username": self.calendar.owner.username,
+                },
             )
             ical = self._add_tier_warnings()
             return ical.to_ical().decode("utf-8")
@@ -52,18 +60,24 @@ class CalendarMergerService:
         cached_calendar = cache.get(cache_key)
 
         if cached_calendar is not None:
-            logger.info(
-                "Calendar merge: Cache HIT - calendar=%s, uuid=%s, size=%d bytes",
-                self.calendar.name,
-                self.calendar.uuid,
-                len(cached_calendar),
+            logger.debug(
+                "Calendar merge cache hit",
+                extra={
+                    "event": "calendar_merge_cache_hit",
+                    "calendar_uuid": self.calendar.uuid,
+                    "calendar_name": self.calendar.name,
+                    "size_bytes": len(cached_calendar),
+                },
             )
             return cached_calendar
 
         logger.info(
-            "Calendar merge: Cache MISS - generating calendar - calendar=%s, uuid=%s",
-            self.calendar.name,
-            self.calendar.uuid,
+            "Calendar merge cache miss, generating",
+            extra={
+                "event": "calendar_merge_cache_miss",
+                "calendar_uuid": self.calendar.uuid,
+                "calendar_name": self.calendar.name,
+            },
         )
 
         processed_sources: list[SourceData] = self._process_sources()
@@ -74,12 +88,15 @@ class CalendarMergerService:
         successful_count = len(valid_calendars)
         failed_count = len([s for s in processed_sources if s.error is not None])
         logger.info(
-            "Calendar merge: Sources processed - calendar=%s, total=%d, "
-            "successful=%d, failed=%d",
-            self.calendar.name,
-            len(processed_sources),
-            successful_count,
-            failed_count,
+            "Calendar sources processed",
+            extra={
+                "event": "calendar_sources_processed",
+                "calendar_uuid": self.calendar.uuid,
+                "calendar_name": self.calendar.name,
+                "total_sources": len(processed_sources),
+                "successful_sources": successful_count,
+                "failed_sources": failed_count,
+            },
         )
 
         merged_calendar: ICalendar = self._merge_calendars(valid_calendars)
@@ -90,13 +107,17 @@ class CalendarMergerService:
 
         merge_duration = time.time() - start_time
         logger.info(
-            "Calendar merge: SUCCESS - calendar=%s, uuid=%s, size=%d bytes, "
-            "duration=%.2fs, cache_ttl=%ds",
-            self.calendar.name,
-            self.calendar.uuid,
-            len(calendar_str),
-            merge_duration,
-            self.calendar.effective_update_frequency,
+            "Calendar merge completed successfully",
+            extra={
+                "event": "calendar_merge_success",
+                "calendar_uuid": self.calendar.uuid,
+                "calendar_name": self.calendar.name,
+                "owner_id": self.calendar.owner.pk,
+                "owner_username": self.calendar.owner.username,
+                "size_bytes": len(calendar_str),
+                "duration_seconds": round(merge_duration, 2),
+                "cache_ttl_seconds": self.calendar.effective_update_frequency,
+            },
         )
 
         return calendar_str
