@@ -28,6 +28,7 @@ from mergecalweb.calendars.forms import SourceForm
 from mergecalweb.calendars.models import Calendar
 from mergecalweb.calendars.models import Source
 from mergecalweb.calendars.services.calendar_merger_service import CalendarMergerService
+from mergecalweb.core.logging_events import LogEvent
 from mergecalweb.core.utils import get_site_url
 
 logger = logging.getLogger(__name__)
@@ -93,7 +94,7 @@ class CalendarCreateView(LoginRequiredMixin, CreateView):
         logger.info(
             "User created new calendar",
             extra={
-                "event": "calendar_created",
+                "event": LogEvent.CALENDAR_CREATED,
                 "user_id": user.pk,
                 "username": user.username,
                 "email": user.email,
@@ -135,7 +136,7 @@ class CalendarUpdateView(LoginRequiredMixin, UpdateView):
         logger.info(
             "User updated calendar",
             extra={
-                "event": "calendar_updated",
+                "event": LogEvent.CALENDAR_UPDATED,
                 "user_id": user.pk,
                 "username": user.username,
                 "email": user.email,
@@ -163,7 +164,7 @@ class CalendarDeleteView(LoginRequiredMixin, DeleteView):
         logger.info(
             "User deleted calendar",
             extra={
-                "event": "calendar_deleted",
+                "event": LogEvent.CALENDAR_DELETED,
                 "user_id": user.pk,
                 "username": user.username,
                 "email": user.email,
@@ -196,7 +197,7 @@ class SourceAddView(LoginRequiredMixin, CreateView):
         logger.info(
             "User added source to calendar",
             extra={
-                "event": "source_added",
+                "event": LogEvent.SOURCE_ADDED,
                 "user_id": user.pk,
                 "username": user.username,
                 "email": user.email,
@@ -256,7 +257,7 @@ class SourceEditView(LoginRequiredMixin, UpdateView):
         logger.info(
             "User updated source",
             extra={
-                "event": "source_updated",
+                "event": LogEvent.SOURCE_UPDATED,
                 "user_id": user.pk,
                 "username": user.username,
                 "email": user.email,
@@ -287,7 +288,7 @@ def source_delete(request, pk):
     logger.info(
         "User deleted source from calendar",
         extra={
-            "event": "source_deleted",
+            "event": LogEvent.SOURCE_DELETED,
             "user_id": user.pk,
             "username": user.username,
             "email": user.email,
@@ -328,7 +329,7 @@ class CalendarFileView(View):
         logger.info(
             "Calendar file access request",
             extra={
-                "event": "calendar_file_access",
+                "event": LogEvent.CALENDAR_FILE_ACCESS,
                 "calendar_uuid": uuid,
                 "calendar_name": calendar.name,
                 "owner_id": calendar.owner.pk,
@@ -350,7 +351,7 @@ class CalendarFileView(View):
             logger.error(
                 "Calendar merge failed during file access",
                 extra={
-                    "event": "calendar_file_merge_failed",
+                    "event": LogEvent.CALENDAR_FILE_MERGE_FAILED,
                     "calendar_uuid": uuid,
                     "calendar_name": calendar.name,
                     "owner_id": calendar.owner.pk,
@@ -372,7 +373,7 @@ class CalendarFileView(View):
         logger.info(
             "Calendar file served successfully",
             extra={
-                "event": "calendar_file_success",
+                "event": LogEvent.CALENDAR_FILE_SUCCESS,
                 "calendar_uuid": uuid,
                 "calendar_name": calendar.name,
                 "owner_id": calendar.owner.pk,
@@ -395,7 +396,7 @@ def calendar_view(request: HttpRequest, uuid: str) -> HttpResponse:
         logger.info(
             "User viewing calendar web page",
             extra={
-                "event": "calendar_web_view",
+                "event": LogEvent.CALENDAR_WEB_VIEW,
                 "user_id": user.pk,
                 "username": user.username,
                 "email": user.email,
@@ -429,7 +430,7 @@ def calendar_iframe(request: HttpRequest, uuid: str) -> HttpResponse:
     logger.info(
         "Calendar iframe embedded on external site",
         extra={
-            "event": "calendar_iframe_view",
+            "event": LogEvent.CALENDAR_IFRAME_VIEW,
             "calendar_uuid": calendar.uuid,
             "calendar_name": calendar.name,
             "owner_id": calendar.owner.pk,
@@ -455,7 +456,7 @@ def url_validator(request: HttpRequest) -> HttpResponse:
     logger.info(
         "Staff member accessed URL validator tool",
         extra={
-            "event": "url_validator_access",
+            "event": LogEvent.URL_VALIDATOR_ACCESS,
             "user_id": user.pk,
             "username": user.username,
             "email": user.email,

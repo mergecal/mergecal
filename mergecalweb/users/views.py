@@ -10,6 +10,7 @@ from django.views.generic import RedirectView
 from django.views.generic import UpdateView
 
 from mergecalweb.billing.tasks import update_stripe_subscription
+from mergecalweb.core.logging_events import LogEvent
 from mergecalweb.users.models import User
 
 logger = logging.getLogger(__name__)
@@ -27,7 +28,7 @@ class UserDetailView(LoginRequiredMixin, DetailView):
         logger.debug(
             "User accessing profile page",
             extra={
-                "event": "user_profile_view",
+                "event": LogEvent.USER_PROFILE_VIEW,
                 "profile_username": profile_username,
                 "viewer_id": viewer.pk,
                 "viewer_username": viewer.username,
@@ -40,7 +41,7 @@ class UserDetailView(LoginRequiredMixin, DetailView):
         logger.info(
             "Triggering subscription sync for profile user",
             extra={
-                "event": "user_profile_subscription_sync",
+                "event": LogEvent.USER_PROFILE_SUBSCRIPTION_SYNC,
                 "user_id": self.object.pk,
                 "username": self.object.username,
                 "email": self.object.email,
@@ -76,7 +77,7 @@ class UserUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
         logger.info(
             "User updated profile information",
             extra={
-                "event": "user_profile_updated",
+                "event": LogEvent.USER_PROFILE_UPDATED,
                 "user_id": user.pk,
                 "username": user.username,
                 "email": user.email,

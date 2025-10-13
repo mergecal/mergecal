@@ -1,5 +1,4 @@
 # calendar_fetcher.py
-
 import logging
 import time
 from datetime import timedelta
@@ -8,6 +7,8 @@ import requests
 from django.core.cache import cache
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
+
+from mergecalweb.core.logging_events import LogEvent
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +46,7 @@ class CalendarFetcher:
             logger.debug(
                 "Calendar fetch cache hit",
                 extra={
-                    "event": "calendar_fetch_cache_hit",
+                    "event": LogEvent.CALENDAR_FETCH_CACHE_HIT,
                     "url": url[:200],
                     "size_bytes": len(cached_data),
                 },
@@ -55,7 +56,7 @@ class CalendarFetcher:
         logger.info(
             "Calendar fetch cache miss, fetching from remote",
             extra={
-                "event": "calendar_fetch_cache_miss",
+                "event": LogEvent.CALENDAR_FETCH_CACHE_MISS,
                 "url": url[:200],
             },
         )
@@ -77,7 +78,7 @@ class CalendarFetcher:
             logger.info(
                 "Calendar fetched successfully from remote source",
                 extra={
-                    "event": "calendar_fetch_success",
+                    "event": LogEvent.CALENDAR_FETCH_SUCCESS,
                     "url": url[:200],
                     "status_code": response.status_code,
                     "size_bytes": len(calendar_data),
@@ -90,7 +91,7 @@ class CalendarFetcher:
             logger.debug(
                 "Calendar data cached",
                 extra={
-                    "event": "calendar_fetch_cached",
+                    "event": LogEvent.CALENDAR_FETCH_CACHED,
                     "cache_key": cache_key[:200],
                     "ttl_seconds": CACHE_TIMEOUT.total_seconds(),
                     "size_bytes": len(calendar_data),
@@ -103,7 +104,7 @@ class CalendarFetcher:
             logger.exception(
                 "Calendar fetch failed from remote source",
                 extra={
-                    "event": "calendar_fetch_failed",
+                    "event": LogEvent.CALENDAR_FETCH_FAILED,
                     "url": url[:200],
                     "error_type": type(e).__name__,
                     "duration_seconds": round(fetch_duration, 2),

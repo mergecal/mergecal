@@ -13,6 +13,7 @@ from mergecalweb.calendars.calendar_fetcher import CalendarFetcher
 from mergecalweb.calendars.exceptions import CalendarValidationError
 from mergecalweb.calendars.exceptions import CustomizationWithoutCalendarError
 from mergecalweb.calendars.models import Source
+from mergecalweb.core.logging_events import LogEvent
 
 from .source_data import SourceData
 
@@ -34,7 +35,7 @@ class SourceProcessor:
         logger.debug(
             "Starting source fetch and validation",
             extra={
-                "event": "source_fetch_start",
+                "event": LogEvent.SOURCE_FETCH_START,
                 "source_id": self.source.pk,
                 "source_name": self.source.name,
                 "source_url": self.source.url[:200],
@@ -54,7 +55,7 @@ class SourceProcessor:
                 logger.debug(
                     "Source timezone standardization successful",
                     extra={
-                        "event": "source_timezone_standardized",
+                        "event": LogEvent.SOURCE_TIMEZONE_STANDARDIZED,
                         "source_id": self.source.pk,
                         "source_name": self.source.name,
                     },
@@ -65,7 +66,7 @@ class SourceProcessor:
                 logger.warning(
                     "Source timezone standardization skipped due to error",
                     extra={
-                        "event": "source_timezone_skip",
+                        "event": LogEvent.SOURCE_TIMEZONE_SKIP,
                         "source_id": self.source.pk,
                         "source_name": self.source.name,
                         "error": str(e),
@@ -76,7 +77,7 @@ class SourceProcessor:
             logger.info(
                 "Source fetched and validated successfully",
                 extra={
-                    "event": "source_fetch_success",
+                    "event": LogEvent.SOURCE_FETCH_SUCCESS,
                     "source_id": self.source.pk,
                     "source_name": self.source.name,
                     "source_url": self.source.url[:200],
@@ -89,7 +90,7 @@ class SourceProcessor:
             logger.exception(
                 "Source fetch failed due to network error",
                 extra={
-                    "event": "source_fetch_network_error",
+                    "event": LogEvent.SOURCE_FETCH_NETWORK_ERROR,
                     "source_id": self.source.pk,
                     "source_name": self.source.name,
                     "source_url": self.source.url[:200],
@@ -102,7 +103,7 @@ class SourceProcessor:
             logger.exception(
                 "Source fetch failed due to validation error",
                 extra={
-                    "event": "source_fetch_validation_error",
+                    "event": LogEvent.SOURCE_FETCH_VALIDATION_ERROR,
                     "source_id": self.source.pk,
                     "source_name": self.source.name,
                     "source_url": self.source.url[:200],
@@ -137,7 +138,7 @@ class SourceProcessor:
         logger.debug(
             "Starting source customization",
             extra={
-                "event": "source_customization_start",
+                "event": LogEvent.SOURCE_CUSTOMIZATION_START,
                 "source_id": self.source.pk,
                 "source_name": self.source.name,
                 "can_customize": owner_can_customize,
@@ -150,7 +151,7 @@ class SourceProcessor:
             logger.debug(
                 "Source customization skipped, user lacks permission",
                 extra={
-                    "event": "source_customization_skipped",
+                    "event": LogEvent.SOURCE_CUSTOMIZATION_SKIPPED,
                     "source_id": self.source.pk,
                     "source_name": self.source.name,
                     "owner_tier": self.source.calendar.owner.subscription_tier,
@@ -191,7 +192,7 @@ class SourceProcessor:
         logger.info(
             "Source customization completed",
             extra={
-                "event": "source_customization_complete",
+                "event": LogEvent.SOURCE_CUSTOMIZATION_COMPLETE,
                 "source_id": self.source.pk,
                 "source_name": self.source.name,
                 "calendar_uuid": self.source.calendar.uuid,

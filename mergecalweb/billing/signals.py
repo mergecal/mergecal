@@ -18,6 +18,7 @@ from djstripe.models import Subscription
 
 from mergecalweb.billing.emails import send_trial_ending_email
 from mergecalweb.billing.emails import upgrade_subscription_email
+from mergecalweb.core.logging_events import LogEvent
 from mergecalweb.users.models import User
 
 logger = logging.getLogger(__name__)
@@ -45,7 +46,7 @@ def update_user_subscription_tier(user: User, subscription: Subscription) -> Non
         logger.info(
             "Subscription tier changed",
             extra={
-                "event": "subscription_tier_change",
+                "event": LogEvent.SUBSCRIPTION_TIER_CHANGE,
                 "user_id": user.pk,
                 "username": user.username,
                 "email": user.email,
@@ -77,7 +78,7 @@ def create_stripe_customer(
             logger.warning(
                 "Orphaned Stripe customer attached to user",
                 extra={
-                    "event": "stripe_customer_attached",
+                    "event": LogEvent.STRIPE_CUSTOMER_ATTACHED,
                     "customer_id": customer.id,
                     "user_id": user.pk,
                     "username": user.username,
@@ -102,7 +103,7 @@ def create_stripe_customer(
             logger.info(
                 "Stripe customer created with trial subscription",
                 extra={
-                    "event": "stripe_customer_created",
+                    "event": LogEvent.STRIPE_CUSTOMER_CREATED,
                     "user_id": user.pk,
                     "username": user.username,
                     "email": user.email,
@@ -123,7 +124,7 @@ def handle_trial_will_end(sender: Any, event: Event, **kwargs: dict[str, Any]) -
         logger.warning(
             "Trial ending webhook received for customer without user",
             extra={
-                "event": "trial_ending_no_user",
+                "event": LogEvent.TRIAL_ENDING_NO_USER,
                 "customer_id": customer_id,
                 "webhook_type": event.type,
             },
@@ -133,7 +134,7 @@ def handle_trial_will_end(sender: Any, event: Event, **kwargs: dict[str, Any]) -
     logger.info(
         "Trial ending soon, sending reminder email",
         extra={
-            "event": "trial_ending",
+            "event": LogEvent.TRIAL_ENDING,
             "user_id": user.pk,
             "username": user.username,
             "email": user.email,
@@ -159,7 +160,7 @@ def handle_checkout_session_completed(
     logger.info(
         "Checkout session completed",
         extra={
-            "event": "checkout_completed",
+            "event": LogEvent.CHECKOUT_COMPLETED,
             "customer_id": customer_id,
             "user_id": user.pk if user else None,
             "username": user.username if user else None,
@@ -187,7 +188,7 @@ def handle_subscription_update(
         logger.warning(
             "Subscription webhook received for customer without user",
             extra={
-                "event": "subscription_update_no_user",
+                "event": LogEvent.SUBSCRIPTION_UPDATE_NO_USER,
                 "customer_id": customer_id,
                 "subscription_id": subscription.id,
                 "subscription_status": subscription.status,
@@ -199,7 +200,7 @@ def handle_subscription_update(
     logger.info(
         "Subscription webhook received, updating user tier",
         extra={
-            "event": "subscription_update_processing",
+            "event": LogEvent.SUBSCRIPTION_UPDATE,
             "user_id": user.pk,
             "username": user.username,
             "email": user.email,
@@ -228,7 +229,7 @@ def handle_subscription_end(
         logger.warning(
             "Subscription end webhook received for customer without user",
             extra={
-                "event": "subscription_end_no_user",
+                "event": LogEvent.SUBSCRIPTION_END_NO_USER,
                 "customer_id": customer_id,
                 "webhook_type": event.type,
             },
@@ -242,7 +243,7 @@ def handle_subscription_end(
     logger.info(
         "Subscription ended, user downgraded to free tier",
         extra={
-            "event": "subscription_ended",
+            "event": LogEvent.SUBSCRIPTION_ENDED,
             "user_id": user.pk,
             "username": user.username,
             "email": user.email,
@@ -269,7 +270,7 @@ def handle_invoice_events(sender: Any, event: Event, **kwargs: dict[str, Any]) -
         logger.warning(
             "Invoice webhook received for customer without user",
             extra={
-                "event": "invoice_event_no_user",
+                "event": LogEvent.INVOICE_EVENT_NO_USER,
                 "customer_id": customer.id,
                 "invoice_id": invoice_id,
                 "webhook_type": event.type,
@@ -282,7 +283,7 @@ def handle_invoice_events(sender: Any, event: Event, **kwargs: dict[str, Any]) -
         logger.info(
             "Invoice paid successfully",
             extra={
-                "event": "invoice_paid",
+                "event": LogEvent.INVOICE_PAID,
                 "user_id": user.pk,
                 "username": user.username,
                 "email": user.email,
@@ -303,7 +304,7 @@ def handle_invoice_events(sender: Any, event: Event, **kwargs: dict[str, Any]) -
         logger.warning(
             "Invoice payment failed, downgrading to free tier",
             extra={
-                "event": "invoice_payment_failed",
+                "event": LogEvent.INVOICE_PAYMENT_FAILED,
                 "user_id": user.pk,
                 "username": user.username,
                 "email": user.email,
@@ -323,7 +324,7 @@ def handle_invoice_events(sender: Any, event: Event, **kwargs: dict[str, Any]) -
         logger.info(
             "Invoice event received",
             extra={
-                "event": "invoice_event",
+                "event": LogEvent.INVOICE_EVENT,
                 "user_id": user.pk,
                 "username": user.username,
                 "email": user.email,
@@ -350,7 +351,7 @@ def handle_payment_method_attached(
         logger.warning(
             "Payment method attached but customer not found",
             extra={
-                "event": "payment_method_no_customer",
+                "event": LogEvent.PAYMENT_METHOD_NO_CUSTOMER,
                 "payment_method_id": payment_method_id,
                 "payment_method_type": payment_method.type,
             },
@@ -362,7 +363,7 @@ def handle_payment_method_attached(
         logger.warning(
             "Payment method attached but user not found for customer",
             extra={
-                "event": "payment_method_no_user",
+                "event": LogEvent.PAYMENT_METHOD_NO_USER,
                 "payment_method_id": payment_method_id,
                 "customer_id": customer.id,
                 "payment_method_type": payment_method.type,
@@ -376,7 +377,7 @@ def handle_payment_method_attached(
     logger.info(
         "Payment method attached to customer",
         extra={
-            "event": "payment_method_attached",
+            "event": LogEvent.PAYMENT_METHOD_ATTACHED,
             "user_id": user.pk,
             "username": user.username,
             "email": user.email,

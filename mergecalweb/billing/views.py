@@ -15,6 +15,7 @@ from django.views.generic import TemplateView
 from djstripe.models import Session
 
 from mergecalweb.billing.signals import update_user_subscription_tier
+from mergecalweb.core.logging_events import LogEvent
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +43,7 @@ class PricingTableView(TemplateView):
             logger.info(
                 "User accessed pricing table",
                 extra={
-                    "event": "pricing_table_view",
+                    "event": LogEvent.PRICING_TABLE_VIEW,
                     "user_id": user.pk,
                     "username": user.username,
                     "email": user.email,
@@ -72,7 +73,7 @@ class ManageBillingView(LoginRequiredMixin, RedirectView):
         logger.info(
             "User accessing billing portal",
             extra={
-                "event": "billing_portal_access",
+                "event": LogEvent.BILLING_PORTAL_ACCESS,
                 "user_id": user.pk,
                 "username": user.username,
                 "email": user.email,
@@ -105,7 +106,7 @@ def checkout_session_success(request: HttpRequest) -> HttpResponse:
             logger.info(
                 "Checkout session retrieved and user tier updated",
                 extra={
-                    "event": "checkout_session_retrieved",
+                    "event": LogEvent.CHECKOUT_SESSION_RETRIEVED,
                     "user_id": request.user.pk,
                     "username": request.user.username,
                     "email": request.user.email,
@@ -135,7 +136,7 @@ def checkout_session_success(request: HttpRequest) -> HttpResponse:
         logger.info(
             "User accessed checkout success page",
             extra={
-                "event": "checkout_success_page_view",
+                "event": LogEvent.CHECKOUT_SUCCESS_PAGE_VIEW,
                 "user_id": user.pk,
                 "username": user.username,
                 "email": user.email,
