@@ -39,10 +39,22 @@ def update_user_subscription_tier(user: User, subscription: Subscription) -> Non
         new_tier = User.SubscriptionTier.FREE
 
     if user.subscription_tier != new_tier:
-        # old_tier = user.subscription_tier
+        old_tier = user.subscription_tier
         user.subscription_tier = new_tier
         user.save()
-        logger.info("User %s has been updated to %s tier", user, new_tier)
+        logger.info(
+            "Subscription tier changed",
+            extra={
+                "event": "subscription_tier_change",
+                "user_id": user.pk,
+                "username": user.username,
+                "email": user.email,
+                "old_tier": old_tier,
+                "new_tier": new_tier,
+                "subscription_status": subscription.status,
+                "plan_name": subscription.plan.product.name,
+            },
+        )
         if new_tier != User.SubscriptionTier.FREE:
             email = upgrade_subscription_email(user, new_tier)
             email.send()
@@ -63,9 +75,14 @@ def create_stripe_customer(
     for customer in customers:
         if not customer.subscriber:
             logger.warning(
-                "Stripe Customer %s without subscriber attaching to user: %s",
-                customer,
-                user,
+                "Orphaned Stripe customer attached to user",
+                extra={
+                    "event": "stripe_customer_attached",
+                    "customer_id": customer.id,
+                    "user_id": user.pk,
+                    "username": user.username,
+                    "email": user.email,
+                },
             )
             customer.subscriber = user
             customer.save()
@@ -83,9 +100,16 @@ def create_stripe_customer(
             # coupon = Coupon.objects.get(name="beta")
             # customer.add_coupon(coupon)
             logger.info(
-                "Stripe customer created for user: %s and added to plan: %s",
-                user,
-                price,
+                "Stripe customer created with trial subscription",
+                extra={
+                    "event": "stripe_customer_created",
+                    "user_id": user.pk,
+                    "username": user.username,
+                    "email": user.email,
+                    "customer_id": customer.id,
+                    "plan": price.lookup_key,
+                    "trial_days": 14,
+                },
             )
 
 
@@ -93,15 +117,29 @@ def create_stripe_customer(
 def handle_trial_will_end(sender: Any, event: Event, **kwargs: dict[str, Any]) -> None:
     customer_id: str = event.data["object"]["customer"]
     customer: Customer = Customer.objects.get(id=customer_id)
-    logger.info("Subscription trial will end soon for customer: %s", customer)
 
     user: User | None = customer.subscriber
     if not user:
         logger.warning(
-            "Subscriber not found for customer: %s, skipping trial ending email",
-            customer,
+            "Trial ending webhook received for customer without user",
+            extra={
+                "event": "trial_ending_no_user",
+                "customer_id": customer_id,
+                "webhook_type": event.type,
+            },
         )
         return
+
+    logger.info(
+        "Trial ending soon, sending reminder email",
+        extra={
+            "event": "trial_ending",
+            "user_id": user.pk,
+            "username": user.username,
+            "email": user.email,
+            "customer_id": customer_id,
+        },
+    )
 
     email = send_trial_ending_email(user)
     email.send()
@@ -116,8 +154,18 @@ def handle_checkout_session_completed(
 ) -> None:
     customer_id: str = event.data["object"]["customer"]
     customer: Customer = Customer.objects.get(id=customer_id)
-    # subscription: Subscription = Subscription.objects.get(
-    logger.info("Checkout session completed for customer: %s", customer)
+    user: User | None = customer.subscriber
+
+    logger.info(
+        "Checkout session completed",
+        extra={
+            "event": "checkout_completed",
+            "customer_id": customer_id,
+            "user_id": user.pk if user else None,
+            "username": user.username if user else None,
+            "email": user.email if user else None,
+        },
+    )
     # Send email to customer
 
 
@@ -137,10 +185,30 @@ def handle_subscription_update(
     user: User | None = customer.subscriber
     if not user:
         logger.warning(
-            "Subscriber/User not found for customer: %s, skipping updating user tier",
-            customer,
+            "Subscription webhook received for customer without user",
+            extra={
+                "event": "subscription_update_no_user",
+                "customer_id": customer_id,
+                "subscription_id": subscription.id,
+                "subscription_status": subscription.status,
+                "webhook_type": event.type,
+            },
         )
         return
+
+    logger.info(
+        "Subscription webhook received, updating user tier",
+        extra={
+            "event": "subscription_update_processing",
+            "user_id": user.pk,
+            "username": user.username,
+            "email": user.email,
+            "customer_id": customer_id,
+            "subscription_id": subscription.id,
+            "subscription_status": subscription.status,
+            "webhook_type": event.type,
+        },
+    )
 
     update_user_subscription_tier(user, subscription)
 
@@ -152,20 +220,38 @@ def handle_subscription_end(
     event: Event,
     **kwargs: dict[str, Any],
 ) -> None:
-    logger.info("Webhook Event Type: %s", event.type)
     customer_id: str = event.data["object"]["customer"]
     customer: Customer = Customer.objects.get(id=customer_id)
     user: User | None = customer.subscriber
+
     if not user:
         logger.warning(
-            "Subscriber/User not found for customer: %s, skipping updating user to free tier",  # noqa: E501
-            customer,
+            "Subscription end webhook received for customer without user",
+            extra={
+                "event": "subscription_end_no_user",
+                "customer_id": customer_id,
+                "webhook_type": event.type,
+            },
         )
         return
 
+    old_tier = user.subscription_tier
     user.subscription_tier = User.SubscriptionTier.FREE
     user.save()
-    logger.info("Subscription ended for customer: %s", customer)
+
+    logger.info(
+        "Subscription ended, user downgraded to free tier",
+        extra={
+            "event": "subscription_ended",
+            "user_id": user.pk,
+            "username": user.username,
+            "email": user.email,
+            "customer_id": customer_id,
+            "old_tier": old_tier,
+            "new_tier": User.SubscriptionTier.FREE,
+            "webhook_type": event.type,
+        },
+    )
 
 
 @djstripe_receiver("invoice.created")
@@ -174,32 +260,80 @@ def handle_subscription_end(
 @djstripe_receiver("invoice.payment_action_required")
 @djstripe_receiver("invoice.paid")
 def handle_invoice_events(sender: Any, event: Event, **kwargs: dict[str, Any]) -> None:
-    logger.info("Invoice Event Type: %s", event.type)
     invoice_id: str = event.data["object"]["id"]
     invoice: Invoice = Invoice.objects.get(id=invoice_id)
     customer: Customer = invoice.customer
     user: User | None = customer.subscriber
+
     if not user:
         logger.warning(
-            "Subscriber/User not found for customer: %s, skipping handling invoice event",  # noqa: E501
-            customer,
+            "Invoice webhook received for customer without user",
+            extra={
+                "event": "invoice_event_no_user",
+                "customer_id": customer.id,
+                "invoice_id": invoice_id,
+                "webhook_type": event.type,
+            },
         )
         return
 
     if event.type == "invoice.paid":
-        logger.info("Invoice paid for user: %s", user)
-        # Handle successful payment
         subscription: Subscription = invoice.subscription
+        logger.info(
+            "Invoice paid successfully",
+            extra={
+                "event": "invoice_paid",
+                "user_id": user.pk,
+                "username": user.username,
+                "email": user.email,
+                "customer_id": customer.id,
+                "invoice_id": invoice_id,
+                "subscription_id": subscription.id,
+                "amount_paid": invoice.amount_paid,
+                "currency": invoice.currency,
+            },
+        )
+        # Handle successful payment
         update_user_subscription_tier(user, subscription)
     elif event.type in [
         "invoice.payment_failed",
         "invoice.payment_action_required",
     ]:
-        logger.info("Invoice payment failed for user: %s", user)
+        old_tier = user.subscription_tier
+        logger.warning(
+            "Invoice payment failed, downgrading to free tier",
+            extra={
+                "event": "invoice_payment_failed",
+                "user_id": user.pk,
+                "username": user.username,
+                "email": user.email,
+                "customer_id": customer.id,
+                "invoice_id": invoice_id,
+                "old_tier": old_tier,
+                "webhook_type": event.type,
+                "amount_due": invoice.amount_due,
+                "currency": invoice.currency,
+            },
+        )
         # Handle failed payment
         user.subscription_tier = User.SubscriptionTier.FREE
         user.save()
-    logger.info("Invoice event handled for user: %s", user)
+    else:
+        # For invoice.created, invoice.finalized
+        logger.info(
+            "Invoice event received",
+            extra={
+                "event": "invoice_event",
+                "user_id": user.pk,
+                "username": user.username,
+                "email": user.email,
+                "customer_id": customer.id,
+                "invoice_id": invoice_id,
+                "webhook_type": event.type,
+                "amount_due": invoice.amount_due,
+                "currency": invoice.currency,
+            },
+        )
 
 
 @djstripe_receiver("payment_method.attached")
@@ -208,29 +342,55 @@ def handle_payment_method_attached(
     event: Event,
     **kwargs: dict[str, Any],
 ) -> None:
-    logger.info("Invoice Event Type: %s", event.type)
     payment_method_id: str = event.data["object"]["id"]
     payment_method: PaymentMethod = PaymentMethod.objects.get(id=payment_method_id)
     customer: Customer | None = payment_method.customer
+
     if not customer:
-        logger.exception(
-            "Customer not found for payment method: %s, skipping handling payment method attached",  # noqa: E501
-            payment_method,
+        logger.warning(
+            "Payment method attached but customer not found",
+            extra={
+                "event": "payment_method_no_customer",
+                "payment_method_id": payment_method_id,
+                "payment_method_type": payment_method.type,
+            },
         )
         return
+
     user: User | None = customer.subscriber
     if not user:
-        logger.exception(
-            "Subscriber/User not found for customer: %s, skipping handling payment method attached",  # noqa: E501
-            customer,
+        logger.warning(
+            "Payment method attached but user not found for customer",
+            extra={
+                "event": "payment_method_no_user",
+                "payment_method_id": payment_method_id,
+                "customer_id": customer.id,
+                "payment_method_type": payment_method.type,
+            },
         )
+        return
 
-    logger.info("Payment method attached for user: %s", user)
+    card_brand = payment_method.card.brand if payment_method.card else None
+    card_last4 = payment_method.card.last4 if payment_method.card else None
+
+    logger.info(
+        "Payment method attached to customer",
+        extra={
+            "event": "payment_method_attached",
+            "user_id": user.pk,
+            "username": user.username,
+            "email": user.email,
+            "customer_id": customer.id,
+            "payment_method_id": payment_method_id,
+            "payment_method_type": payment_method.type,
+            "payment_method_brand": card_brand,
+            "payment_method_last4": card_last4,
+        },
+    )
 
     with sentry_sdk.configure_scope() as scope:
         scope.set_tag("payment_method", "attached")
-        if user:
-            scope.set_user({"id": user.pk, "email": user.email})
+        scope.set_user({"id": user.pk, "email": user.email})
         sentry_sdk.capture_message(
             "Payment method attached",
             level="info",

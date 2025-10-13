@@ -36,7 +36,25 @@ class PricingTableView(TemplateView):
                 components={"pricing_table": {"enabled": True}},
             )
             ctx["customer_session_id"] = customer_session.client_secret
-        logger.info("User %s accessed the pricing table view", self.request.user)
+
+        user = self.request.user
+        if user.is_authenticated:
+            logger.info(
+                "User accessed pricing table",
+                extra={
+                    "event": "pricing_table_view",
+                    "user_id": user.pk,
+                    "username": user.username,
+                    "email": user.email,
+                    "current_tier": user.subscription_tier,
+                },
+            )
+        else:
+            logger.info(
+                "Anonymous user accessed pricing table",
+                extra={"event": "pricing_table_view_anonymous"},
+            )
+
         return ctx
 
 
@@ -49,7 +67,19 @@ class ManageBillingView(LoginRequiredMixin, RedirectView):
         return_url = self.request.build_absolute_uri(
             reverse("users:detail", kwargs={"username": self.request.user.username}),
         )
-        logger.info("User %s accessed the manage billing view", self.request.user)
+
+        user = self.request.user
+        logger.info(
+            "User accessing billing portal",
+            extra={
+                "event": "billing_portal_access",
+                "user_id": user.pk,
+                "username": user.username,
+                "email": user.email,
+                "customer_id": customer.id,
+                "current_tier": user.subscription_tier,
+            },
+        )
 
         portal_session = stripe.billing_portal.Session.create(
             customer=customer.id,
@@ -72,7 +102,27 @@ def checkout_session_success(request: HttpRequest) -> HttpResponse:
 
         if request.user.is_authenticated:
             update_user_subscription_tier(request.user, session.subscription)
-        logger.info("retrieved session %s", session)
+            logger.info(
+                "Checkout session retrieved and user tier updated",
+                extra={
+                    "event": "checkout_session_retrieved",
+                    "user_id": request.user.pk,
+                    "username": request.user.username,
+                    "email": request.user.email,
+                    "session_id": session_id,
+                    "customer_id": session.customer.id,
+                    "subscription_id": session.subscription.id,
+                },
+            )
+        else:
+            logger.info(
+                "Checkout session retrieved for unauthenticated user",
+                extra={
+                    "event": "checkout_session_retrieved_anonymous",
+                    "session_id": session_id,
+                },
+            )
+
         context = {
             "session": session,
             "customer": session.customer,
@@ -80,5 +130,21 @@ def checkout_session_success(request: HttpRequest) -> HttpResponse:
         }
         return render(request, "billing/_success.html", context)
 
-    logger.info("User %s accessed the checkout session return view", request.user)
+    user = request.user
+    if user.is_authenticated:
+        logger.info(
+            "User accessed checkout success page",
+            extra={
+                "event": "checkout_success_page_view",
+                "user_id": user.pk,
+                "username": user.username,
+                "email": user.email,
+            },
+        )
+    else:
+        logger.info(
+            "Anonymous user accessed checkout success page",
+            extra={"event": "checkout_success_page_view_anonymous"},
+        )
+
     return render(request, "billing/success.html")
