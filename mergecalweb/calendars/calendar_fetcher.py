@@ -1,5 +1,4 @@
 # calendar_fetcher.py
-
 import logging
 import time
 from datetime import timedelta
@@ -8,6 +7,8 @@ import requests
 from django.core.cache import cache
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
+
+from mergecalweb.core.logging_events import LogEvent
 
 logger = logging.getLogger(__name__)
 
@@ -43,13 +44,22 @@ class CalendarFetcher:
 
         if cached_data is not None:
             logger.debug(
-                "Calendar fetch: Cache HIT - url=%s, size=%d bytes",
-                url,
-                len(cached_data),
+                "Calendar fetch cache hit",
+                extra={
+                    "event": LogEvent.CALENDAR_FETCH_CACHE_HIT,
+                    "url": url[:200],
+                    "size_bytes": len(cached_data),
+                },
             )
             return cached_data
 
-        logger.info("Calendar fetch: Cache MISS - fetching from remote url=%s", url)
+        logger.debug(
+            "Calendar fetch cache miss, fetching from remote",
+            extra={
+                "event": LogEvent.CALENDAR_FETCH_CACHE_MISS,
+                "url": url[:200],
+            },
+        )
         start_time = time.time()
 
         headers = {
@@ -65,29 +75,39 @@ class CalendarFetcher:
             calendar_data = response.text
 
             fetch_duration = time.time() - start_time
-            logger.info(
-                "Calendar fetch: SUCCESS - url=%s, status=%d, size=%d bytes, duration=%.2fs",  # noqa: E501
-                url,
-                response.status_code,
-                len(calendar_data),
-                fetch_duration,
+            logger.debug(
+                "Calendar fetched successfully from remote source",
+                extra={
+                    "event": LogEvent.CALENDAR_FETCH_SUCCESS,
+                    "url": url[:200],
+                    "status_code": response.status_code,
+                    "size_bytes": len(calendar_data),
+                    "duration_seconds": round(fetch_duration, 2),
+                },
             )
 
             # Cache the raw calendar data
             cache.set(cache_key, calendar_data, CACHE_TIMEOUT.total_seconds())
             logger.debug(
-                "Calendar data cached: cache_key=%s, ttl=%ds",
-                cache_key,
-                CACHE_TIMEOUT.total_seconds(),
+                "Calendar data cached",
+                extra={
+                    "event": LogEvent.CALENDAR_FETCH_CACHED,
+                    "cache_key": cache_key[:200],
+                    "ttl_seconds": CACHE_TIMEOUT.total_seconds(),
+                    "size_bytes": len(calendar_data),
+                },
             )
             return calendar_data  # noqa: TRY300
 
         except Exception as e:
             fetch_duration = time.time() - start_time
             logger.exception(
-                "Calendar fetch: FAILED - url=%s, error_type=%s, duration=%.2fs",
-                url,
-                type(e).__name__,
-                fetch_duration,
+                "Calendar fetch failed from remote source",
+                extra={
+                    "event": LogEvent.CALENDAR_FETCH_FAILED,
+                    "url": url[:200],
+                    "error_type": type(e).__name__,
+                    "duration_seconds": round(fetch_duration, 2),
+                },
             )
             raise

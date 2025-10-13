@@ -10,6 +10,7 @@ from django.views.generic import RedirectView
 from django.views.generic import UpdateView
 
 from mergecalweb.billing.tasks import update_stripe_subscription
+from mergecalweb.core.logging_events import LogEvent
 from mergecalweb.users.models import User
 
 logger = logging.getLogger(__name__)
@@ -21,18 +22,31 @@ class UserDetailView(LoginRequiredMixin, DetailView):
     slug_url_kwarg = "username"
 
     def get(self, request, *args, **kwargs):
+        profile_username = kwargs.get("username")
+        viewer = request.user
+
         logger.debug(
-            "User profile: View accessed - username=%s, viewer=%s",
-            kwargs.get("username"),
-            request.user.username,
+            "User accessing profile page",
+            extra={
+                "event": LogEvent.USER_PROFILE_VIEW,
+                "profile_username": profile_username,
+                "viewer_id": viewer.pk,
+                "viewer_username": viewer.username,
+                "is_own_profile": profile_username == viewer.username,
+            },
         )
 
         response = super().get(request, *args, **kwargs)
 
         logger.info(
-            "User profile: Triggering subscription sync - user=%s, tier=%s",
-            self.object.username,
-            self.object.subscription_tier,
+            "Triggering subscription sync for profile user",
+            extra={
+                "event": LogEvent.USER_PROFILE_SUBSCRIPTION_SYNC,
+                "user_id": self.object.pk,
+                "username": self.object.username,
+                "email": self.object.email,
+                "current_tier": self.object.subscription_tier,
+            },
         )
         update_stripe_subscription(self.object.id)
 
@@ -56,10 +70,20 @@ class UserUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
         return self.request.user
 
     def form_valid(self, form):
+        user = self.request.user
+        old_name = user.name
+        new_name = form.cleaned_data.get("name")
+
         logger.info(
-            "User profile: Updated - user=%s, name=%s",
-            self.request.user.username,
-            form.cleaned_data.get("name"),
+            "User updated profile information",
+            extra={
+                "event": LogEvent.USER_PROFILE_UPDATED,
+                "user_id": user.pk,
+                "username": user.username,
+                "email": user.email,
+                "old_name": old_name,
+                "new_name": new_name,
+            },
         )
         return super().form_valid(form)
 

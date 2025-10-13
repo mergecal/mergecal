@@ -28,6 +28,7 @@ from mergecalweb.calendars.forms import SourceForm
 from mergecalweb.calendars.models import Calendar
 from mergecalweb.calendars.models import Source
 from mergecalweb.calendars.services.calendar_merger_service import CalendarMergerService
+from mergecalweb.core.logging_events import LogEvent
 from mergecalweb.core.utils import get_site_url
 
 logger = logging.getLogger(__name__)
@@ -88,10 +89,19 @@ class CalendarCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         messages.success(self.request, "Calendar created successfully.")
+        user = self.request.user
+        calendar = form.instance
         logger.info(
-            "User %s created a new calendar %s",
-            self.request.user,
-            form.instance,
+            "User created new calendar",
+            extra={
+                "event": LogEvent.CALENDAR_CREATED,
+                "user_id": user.pk,
+                "username": user.username,
+                "email": user.email,
+                "calendar_uuid": calendar.uuid,
+                "calendar_name": calendar.name,
+                "user_tier": user.subscription_tier,
+            },
         )
         return super().form_valid(form)
 
@@ -121,10 +131,19 @@ class CalendarUpdateView(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         messages.success(self.request, "Calendar updated successfully.")
+        user = self.request.user
+        calendar = form.instance
         logger.info(
-            "User %s updated the calendar %s",
-            self.request.user,
-            form.instance,
+            "User updated calendar",
+            extra={
+                "event": LogEvent.CALENDAR_UPDATED,
+                "user_id": user.pk,
+                "username": user.username,
+                "email": user.email,
+                "calendar_uuid": calendar.uuid,
+                "calendar_name": calendar.name,
+                "user_tier": user.subscription_tier,
+            },
         )
         return super().form_valid(form)
 
@@ -140,10 +159,19 @@ class CalendarDeleteView(LoginRequiredMixin, DeleteView):
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, "Calendar deleted successfully.")
+        user = self.request.user
+        calendar = self.get_object()
         logger.info(
-            "User %s deleted the calendar %s",
-            self.request.user,
-            self.get_object(),
+            "User deleted calendar",
+            extra={
+                "event": LogEvent.CALENDAR_DELETED,
+                "user_id": user.pk,
+                "username": user.username,
+                "email": user.email,
+                "calendar_uuid": calendar.uuid,
+                "calendar_name": calendar.name,
+                "user_tier": user.subscription_tier,
+            },
         )
         return super().delete(request, *args, **kwargs)
 
@@ -164,11 +192,21 @@ class SourceAddView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         form.instance.calendar.uuid = self.kwargs["uuid"]
         messages.success(self.request, "Source added successfully.")
+        user = self.request.user
+        source = form.instance
         logger.info(
-            "User %s added a new source %s to calendar %s",
-            self.request.user,
-            form.instance,
-            self.calendar,
+            "User added source to calendar",
+            extra={
+                "event": LogEvent.SOURCE_ADDED,
+                "user_id": user.pk,
+                "username": user.username,
+                "email": user.email,
+                "calendar_uuid": self.calendar.uuid,
+                "calendar_name": self.calendar.name,
+                "source_name": source.name,
+                "source_url": source.url,
+                "user_tier": user.subscription_tier,
+            },
         )
         return super().form_valid(form)
 
@@ -214,10 +252,22 @@ class SourceEditView(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         form.instance.calendar = self.object.calendar
         messages.success(self.request, "Source updated successfully.")
+        user = self.request.user
+        source = form.instance
         logger.info(
-            "User %s updated the source %s",
-            self.request.user,
-            form.instance,
+            "User updated source",
+            extra={
+                "event": LogEvent.SOURCE_UPDATED,
+                "user_id": user.pk,
+                "username": user.username,
+                "email": user.email,
+                "calendar_uuid": source.calendar.uuid,
+                "calendar_name": source.calendar.name,
+                "source_id": source.pk,
+                "source_name": source.name,
+                "source_url": source.url,
+                "user_tier": user.subscription_tier,
+            },
         )
         return super().form_valid(form)
 
@@ -233,11 +283,22 @@ class SourceEditView(LoginRequiredMixin, UpdateView):
 def source_delete(request, pk):
     source = get_object_or_404(Source, pk=pk, calendar__owner=request.user)
     uuid = source.calendar.uuid
+    user = request.user
+
     logger.info(
-        "User %s deleted source %s from calendar %s",
-        request.user.username,
-        source.name,
-        source.calendar.name,
+        "User deleted source from calendar",
+        extra={
+            "event": LogEvent.SOURCE_DELETED,
+            "user_id": user.pk,
+            "username": user.username,
+            "email": user.email,
+            "calendar_uuid": source.calendar.uuid,
+            "calendar_name": source.calendar.name,
+            "source_id": source.pk,
+            "source_name": source.name,
+            "source_url": source.url,
+            "user_tier": user.subscription_tier,
+        },
     )
     source.delete()
     messages.success(request, "Source deleted successfully.")
@@ -262,36 +323,40 @@ class CalendarFileView(View):
             uuid=uuid,
         )
 
-        logger.info(
-            "Calendar access: Request - uuid=%s, calendar=%s, owner=%s, method=%s, "
-            "user_agent=%s, ip=%s, referer=%s",
-            uuid,
-            calendar.name,
-            calendar.owner.username,
-            request.method,
-            user_agent[:100],  # Truncate user agent
-            ip_address,
-            referer[:100],  # Truncate referer
-        )
-
         # Capture the embed URL if provided
         embed_url = request.GET.get("embed_url")
-        if embed_url:
-            logger.info(
-                "Calendar access: Embedded view - uuid=%s, calendar=%s, embed_url=%s",
-                uuid,
-                calendar.name,
-                embed_url[:200],  # Truncate embed URL
-            )
+
+        logger.info(
+            "Calendar file access request",
+            extra={
+                "event": LogEvent.CALENDAR_FILE_ACCESS,
+                "calendar_uuid": uuid,
+                "calendar_name": calendar.name,
+                "owner_id": calendar.owner.pk,
+                "owner_username": calendar.owner.username,
+                "owner_tier": calendar.owner.subscription_tier,
+                "request_method": request.method,
+                "user_agent": user_agent[:100],
+                "ip_address": ip_address,
+                "referer": referer[:100],
+                "embed_url": embed_url[:200] if embed_url else None,
+                "is_embedded": bool(embed_url),
+            },
+        )
 
         merger = CalendarMergerService(calendar)
         calendar_str = merger.merge()
 
         if not calendar_str:
             logger.error(
-                "Calendar access: Merge failed - uuid=%s, calendar=%s",
-                uuid,
-                calendar.name,
+                "Calendar merge failed during file access",
+                extra={
+                    "event": LogEvent.CALENDAR_FILE_MERGE_FAILED,
+                    "calendar_uuid": uuid,
+                    "calendar_name": calendar.name,
+                    "owner_id": calendar.owner.pk,
+                    "owner_username": calendar.owner.username,
+                },
             )
             return HttpResponse(
                 "Failed to generate calendar data",
@@ -306,13 +371,18 @@ class CalendarFileView(View):
 
         request_duration = time.time() - start_time
         logger.info(
-            "Calendar access: SUCCESS - uuid=%s, calendar=%s, size=%d bytes, "
-            "duration=%.2fs, is_free_tier=%s",
-            uuid,
-            calendar.name,
-            len(calendar_str),
-            request_duration,
-            calendar.owner.is_free_tier,
+            "Calendar file served successfully",
+            extra={
+                "event": LogEvent.CALENDAR_FILE_SUCCESS,
+                "calendar_uuid": uuid,
+                "calendar_name": calendar.name,
+                "owner_id": calendar.owner.pk,
+                "owner_username": calendar.owner.username,
+                "owner_tier": calendar.owner.subscription_tier,
+                "file_size_bytes": len(calendar_str),
+                "duration_seconds": round(request_duration, 2),
+                "is_free_tier": calendar.owner.is_free_tier,
+            },
         )
 
         return response
@@ -320,12 +390,31 @@ class CalendarFileView(View):
 
 def calendar_view(request: HttpRequest, uuid: str) -> HttpResponse:
     calendar = get_object_or_404(Calendar, uuid=uuid)
-    username = request.user.username if request.user.is_authenticated else "Anonymous"
-    logger.info(
-        "User %s is viewing the calendar view page for uuid: %s",
-        username,
-        calendar.uuid,
-    )
+    user = request.user
+
+    if user.is_authenticated:
+        logger.info(
+            "User viewing calendar web page",
+            extra={
+                "event": LogEvent.CALENDAR_WEB_VIEW,
+                "user_id": user.pk,
+                "username": user.username,
+                "email": user.email,
+                "calendar_uuid": calendar.uuid,
+                "calendar_name": calendar.name,
+                "is_owner": calendar.owner == user,
+            },
+        )
+    else:
+        logger.info(
+            "Anonymous user viewing calendar web page",
+            extra={
+                "event": "calendar_web_view_anonymous",
+                "calendar_uuid": calendar.uuid,
+                "calendar_name": calendar.name,
+            },
+        )
+
     return render(
         request,
         "calendars/calendar_view.html",
@@ -337,12 +426,20 @@ def calendar_view(request: HttpRequest, uuid: str) -> HttpResponse:
 def calendar_iframe(request: HttpRequest, uuid: str) -> HttpResponse:
     calendar = get_object_or_404(Calendar, uuid=uuid)
     referer = request.headers.get("referer")
+
     logger.info(
-        "Iframe request for calendar %s: uuid %s, referer: %s",
-        calendar.name,
-        calendar.uuid,
-        referer or "Unknown",
+        "Calendar iframe embedded on external site",
+        extra={
+            "event": LogEvent.CALENDAR_IFRAME_VIEW,
+            "calendar_uuid": calendar.uuid,
+            "calendar_name": calendar.name,
+            "owner_id": calendar.owner.pk,
+            "owner_username": calendar.owner.username,
+            "referer": referer[:200] if referer else None,
+            "has_referer": bool(referer),
+        },
     )
+
     return render(
         request,
         "calendars/calendar_iframe.html",
@@ -355,9 +452,17 @@ def url_validator(request: HttpRequest) -> HttpResponse:
     """
     URL validator view for superusers to validate calendar source URLs.
     """
+    user = request.user
     logger.info(
-        "User %s accessed the URL validator",
-        request.user,
+        "Staff member accessed URL validator tool",
+        extra={
+            "event": LogEvent.URL_VALIDATOR_ACCESS,
+            "user_id": user.pk,
+            "username": user.username,
+            "email": user.email,
+            "is_staff": user.is_staff,
+            "is_superuser": user.is_superuser,
+        },
     )
 
     context = {

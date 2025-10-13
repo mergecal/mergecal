@@ -13,6 +13,7 @@ from mergecalweb.calendars.calendar_fetcher import CalendarFetcher
 from mergecalweb.calendars.exceptions import CalendarValidationError
 from mergecalweb.calendars.exceptions import CustomizationWithoutCalendarError
 from mergecalweb.calendars.models import Source
+from mergecalweb.core.logging_events import LogEvent
 
 from .source_data import SourceData
 
@@ -32,9 +33,14 @@ class SourceProcessor:
     def fetch_and_validate(self) -> None:
         """Fetch and validate remote calendar."""
         logger.debug(
-            "Source fetch: Starting - source=%s, url=%s",
-            self.source.name,
-            self.source.url,
+            "Starting source fetch and validation",
+            extra={
+                "event": LogEvent.SOURCE_FETCH_START,
+                "source_id": self.source.pk,
+                "source_name": self.source.name,
+                "source_url": self.source.url[:200],
+                "calendar_uuid": self.source.calendar.uuid,
+            },
         )
 
         try:
@@ -47,38 +53,63 @@ class SourceProcessor:
             try:
                 self.source_data.ical = x_wr_timezone.to_standard(ical)
                 logger.debug(
-                    "Source fetch: Timezone standardization successful - source=%s",
-                    self.source.name,
+                    "Source timezone standardization successful",
+                    extra={
+                        "event": LogEvent.SOURCE_TIMEZONE_STANDARDIZED,
+                        "source_id": self.source.pk,
+                        "source_name": self.source.name,
+                    },
                 )
             except (AttributeError, ZoneInfoNotFoundError) as e:
                 # skip do to bug in x_wr_timezone
                 # https://github.com/niccokunzmann/x-wr-timezone/issues/25
                 logger.warning(
-                    "Source fetch: Timezone standardization skipped - source=%s, error=%s",  # noqa: E501
-                    self.source.name,
-                    str(e),
+                    "Source timezone standardization skipped due to error",
+                    extra={
+                        "event": LogEvent.SOURCE_TIMEZONE_SKIP,
+                        "source_id": self.source.pk,
+                        "source_name": self.source.name,
+                        "error": str(e),
+                    },
                 )
                 self.source_data.ical = ical
 
-            logger.info(
-                "Source fetch: SUCCESS - source=%s, url=%s",
-                self.source.name,
-                self.source.url,
+            logger.debug(
+                "Source fetched and validated successfully",
+                extra={
+                    "event": LogEvent.SOURCE_FETCH_SUCCESS,
+                    "source_id": self.source.pk,
+                    "source_name": self.source.name,
+                    "source_url": self.source.url[:200],
+                    "calendar_uuid": self.source.calendar.uuid,
+                },
             )
 
         except (RequestException, HTTPError) as e:
             self.source_data.error = str(e)
             logger.exception(
-                "Source fetch: FAILED (network error) - source=%s, url=%s",
-                self.source.name,
-                self.source.url,
+                "Source fetch failed due to network error",
+                extra={
+                    "event": LogEvent.SOURCE_FETCH_NETWORK_ERROR,
+                    "source_id": self.source.pk,
+                    "source_name": self.source.name,
+                    "source_url": self.source.url[:200],
+                    "calendar_uuid": self.source.calendar.uuid,
+                    "error_type": type(e).__name__,
+                },
             )
         except CalendarValidationError as e:
             self.source_data.error = str(e)
             logger.exception(
-                "Source fetch: FAILED (validation error) - source=%s, url=%s",
-                self.source.name,
-                self.source.url,
+                "Source fetch failed due to validation error",
+                extra={
+                    "event": LogEvent.SOURCE_FETCH_VALIDATION_ERROR,
+                    "source_id": self.source.pk,
+                    "source_name": self.source.name,
+                    "source_url": self.source.url[:200],
+                    "calendar_uuid": self.source.calendar.uuid,
+                    "error_message": str(e),
+                },
             )
 
     def _validate_calendar_components(self, calendar_data: str) -> ICalendar:
@@ -105,18 +136,26 @@ class SourceProcessor:
         owner_can_customize: bool = self.source.calendar.owner.can_customize_sources
 
         logger.debug(
-            "Source customization: Starting - source=%s, can_customize=%s, "
-            "has_prefix=%s, has_keywords=%s",
-            self.source.name,
-            owner_can_customize,
-            bool(self.source.custom_prefix),
-            bool(self.source.exclude_keywords),
+            "Starting source customization",
+            extra={
+                "event": LogEvent.SOURCE_CUSTOMIZATION_START,
+                "source_id": self.source.pk,
+                "source_name": self.source.name,
+                "can_customize": owner_can_customize,
+                "has_custom_prefix": bool(self.source.custom_prefix),
+                "has_exclude_keywords": bool(self.source.exclude_keywords),
+            },
         )
 
         if not owner_can_customize:
             logger.debug(
-                "Source customization: Skipped (no permissions) - source=%s",
-                self.source.name,
+                "Source customization skipped, user lacks permission",
+                extra={
+                    "event": LogEvent.SOURCE_CUSTOMIZATION_SKIPPED,
+                    "source_id": self.source.pk,
+                    "source_name": self.source.name,
+                    "owner_tier": self.source.calendar.owner.subscription_tier,
+                },
             )
             return
 
@@ -150,12 +189,16 @@ class SourceProcessor:
                 self._add_branding(event)
                 events_customized += 1
 
-        logger.info(
-            "Source customization: Complete - source=%s, events_removed=%d, "
-            "events_customized=%d",
-            self.source.name,
-            events_removed,
-            events_customized,
+        logger.debug(
+            "Source customization completed",
+            extra={
+                "event": LogEvent.SOURCE_CUSTOMIZATION_COMPLETE,
+                "source_id": self.source.pk,
+                "source_name": self.source.name,
+                "calendar_uuid": self.source.calendar.uuid,
+                "events_removed": events_removed,
+                "events_customized": events_customized,
+            },
         )
 
     def _add_branding(self, event: Event) -> None:

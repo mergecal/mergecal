@@ -287,20 +287,17 @@ LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
     "formatters": {
-        "rich": {
-            # Rich handles timestamp, level, and location - just give it the message
-            "format": "%(message)s",
-        },
         "json": {
             "()": "pythonjsonlogger.jsonlogger.JsonFormatter",
             "format": "%(asctime)s %(name)s %(levelname)s %(funcName)s %(lineno)d %(message)s",
+            "json_ensure_ascii": False,
         },
     },
     "handlers": {
         "console": {
             "level": "DEBUG",
             "class": "rich.logging.RichHandler",
-            "formatter": "rich",
+            "formatter": "json",
             "rich_tracebacks": True,
             "tracebacks_show_locals": True,
             "markup": True,
