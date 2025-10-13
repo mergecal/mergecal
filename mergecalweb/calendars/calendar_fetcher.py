@@ -1,6 +1,7 @@
 # calendar_fetcher.py
 
 import logging
+import time
 from datetime import timedelta
 
 import requests
@@ -37,16 +38,13 @@ class CalendarFetcher:
             Tuple[str, None]: A tuple containing the calendar data as a string and None.
                               If an error occurs, returns (None, error_message).
         """
-        import time
-
         cache_key = f"calendar_data_{url}"
         cached_data = cache.get(cache_key)
 
         if cached_data is not None:
-            logger.info(
-                "Calendar fetch: Cache HIT - url=%s, cache_key=%s, size=%d bytes",
+            logger.debug(
+                "Calendar fetch: Cache HIT - url=%s, size=%d bytes",
                 url,
-                cache_key,
                 len(cached_data),
             )
             return cached_data
@@ -82,6 +80,7 @@ class CalendarFetcher:
                 cache_key,
                 CACHE_TIMEOUT.total_seconds(),
             )
+            return calendar_data  # noqa: TRY300
 
         except Exception as e:
             fetch_duration = time.time() - start_time
@@ -92,5 +91,3 @@ class CalendarFetcher:
                 fetch_duration,
             )
             raise
-        else:
-            return calendar_data

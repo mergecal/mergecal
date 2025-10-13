@@ -1,4 +1,5 @@
 import logging
+import time
 
 from celery import shared_task
 from celery.utils.log import get_task_logger
@@ -11,11 +12,11 @@ from mergecalweb.calendars.utils import combine_calendar
 task_logger = get_task_logger(__name__)
 logger = logging.getLogger(__name__)
 
-calendars = Calendar.objects.all()
-
 
 @celery_app.task()
 def combine_all_calendar_task():
+    # Fetch calendars at task execution time, not module load time
+    calendars = Calendar.objects.all()
     total_calendars = calendars.count()
     task_logger.info(
         "Celery task: Starting bulk calendar combine - total_calendars=%d",
@@ -36,8 +37,6 @@ def combine_all_calendar_task():
 
 @shared_task
 def combine_calendar_task(cal_id):
-    import time
-
     start_time = time.time()
     task_logger.info(
         "Celery task: Starting calendar combine - calendar_id=%s",

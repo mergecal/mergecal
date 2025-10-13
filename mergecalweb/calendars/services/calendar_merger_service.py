@@ -1,4 +1,5 @@
 import logging
+import time
 from datetime import timedelta
 from typing import Final
 
@@ -28,8 +29,6 @@ class CalendarMergerService:
 
     def merge(self) -> str:
         """Merge all calendar sources into a single iCal string"""
-        import time
-
         start_time = time.time()
         logger.info(
             "Calendar merge: Starting - calendar=%s, uuid=%s, owner=%s, tier=%s",

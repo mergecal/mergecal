@@ -1,4 +1,5 @@
 import logging
+import time
 
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
@@ -232,6 +233,12 @@ class SourceEditView(LoginRequiredMixin, UpdateView):
 def source_delete(request, pk):
     source = get_object_or_404(Source, pk=pk, calendar__owner=request.user)
     uuid = source.calendar.uuid
+    logger.info(
+        "User %s deleted source %s from calendar %s",
+        request.user.username,
+        source.name,
+        source.calendar.name,
+    )
     source.delete()
     messages.success(request, "Source deleted successfully.")
     return redirect("calendars:calendar_update", uuid=uuid)
@@ -245,8 +252,6 @@ class CalendarFileView(View):
         return self.process_calendar_request(request, uuid)
 
     def process_calendar_request(self, request, uuid):
-        import time
-
         start_time = time.time()
         user_agent = request.headers.get("user-agent", "Unknown")
         ip_address = request.META.get("REMOTE_ADDR", "Unknown")
@@ -315,9 +320,10 @@ class CalendarFileView(View):
 
 def calendar_view(request: HttpRequest, uuid: str) -> HttpResponse:
     calendar = get_object_or_404(Calendar, uuid=uuid)
+    username = request.user.username if request.user.is_authenticated else "Anonymous"
     logger.info(
         "User %s is viewing the calendar view page for uuid: %s",
-        request.user,
+        username,
         calendar.uuid,
     )
     return render(
