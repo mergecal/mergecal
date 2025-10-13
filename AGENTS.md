@@ -1,0 +1,22 @@
+# Agent Handbook
+- MergeCal merges iCal feeds; Django 4+, Postgres, Redis, Celery.
+- Core app `mergecalweb/calendars/`: `models.py` enforces tier limits; `services/` orchestrate merging.
+- Calendars dedupe events by UID; cache duration varies per subscription tier.
+- `calendar_merger_service.py` merges sources; `source_processor.py` validates feeds; `calendar_fetcher.py` pulls remote ICS.
+- Meetup URLs handled in `meetup.py`; recursive MergeCal feeds are supported with existence checks.
+- `mergecalweb/users/` defines PERSONAL/BUSINESS/SUPPORTER tiers controlling calendar counts and feature access.
+- Branding opt-out and custom update cadence live behind Business/Supporter tiers.
+- Billing app integrates Stripe via dj-stripe; blog/core provide marketing content and shared utilities.
+- Settings live in `config/settings/`; Celery setup in `config/celery_app.py`; URLs in `config/urls.py`.
+- Install deps: `pip install -r requirements/local.txt`.
+- Prep DB: `python manage.py migrate`; create admin via `python manage.py createsuperuser` when needed.
+- Run dev server: `python manage.py runserver`.
+- Celery worker: `celery -A config.celery_app worker -l info`.
+- Optional beat: `celery -A config.celery_app beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler`.
+- Full tests: `pytest` (auto uses `config.settings.test`, reuses DB); reuse DB flag optional.
+- Scoped tests: `pytest mergecalweb/calendars/tests/`; single test `pytest path/to/test_file.py::TestCase::test_name`.
+- Coverage: `pytest --cov=mergecalweb`.
+- Lint: `ruff check .`; auto-fix `ruff check --fix`; format via `ruff format .`.
+- Templates: `djlint --reformat mergecalweb/templates/` then `djlint`.
+- Typing: `mypy --config-file pyproject.toml`; favor explicit annotations and `from __future__ import annotations`.
+- Style: 4-space Python, 2-space templates, double quotes, avoid bare excepts; no Cursor/Copilot rule files.
