@@ -391,7 +391,8 @@ def handle_payment_method_attached(
 
     with sentry_sdk.configure_scope() as scope:
         scope.set_tag("payment_method", "attached")
-        scope.set_user({"id": user.pk, "email": user.email})
+        if user:
+            scope.set_user({"id": user.pk, "email": user.email})
         sentry_sdk.capture_message(
             "Payment method attached",
             level="info",
