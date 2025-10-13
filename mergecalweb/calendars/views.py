@@ -1,4 +1,5 @@
 import logging
+import time
 
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
@@ -232,6 +233,12 @@ class SourceEditView(LoginRequiredMixin, UpdateView):
 def source_delete(request, pk):
     source = get_object_or_404(Source, pk=pk, calendar__owner=request.user)
     uuid = source.calendar.uuid
+    logger.info(
+        "User %s deleted source %s from calendar %s",
+        request.user.username,
+        source.name,
+        source.calendar.name,
+    )
     source.delete()
     messages.success(request, "Source deleted successfully.")
     return redirect("calendars:calendar_update", uuid=uuid)
@@ -245,25 +252,47 @@ class CalendarFileView(View):
         return self.process_calendar_request(request, uuid)
 
     def process_calendar_request(self, request, uuid):
+        start_time = time.time()
+        user_agent = request.headers.get("user-agent", "Unknown")
+        ip_address = request.META.get("REMOTE_ADDR", "Unknown")
+        referer = request.headers.get("referer", "Unknown")
+
         calendar = get_object_or_404(
             Calendar.objects.select_related("owner"),
             uuid=uuid,
+        )
+
+        logger.info(
+            "Calendar access: Request - uuid=%s, calendar=%s, owner=%s, method=%s, "
+            "user_agent=%s, ip=%s, referer=%s",
+            uuid,
+            calendar.name,
+            calendar.owner.username,
+            request.method,
+            user_agent[:100],  # Truncate user agent
+            ip_address,
+            referer[:100],  # Truncate referer
         )
 
         # Capture the embed URL if provided
         embed_url = request.GET.get("embed_url")
         if embed_url:
             logger.info(
-                "Calendar %s (uuid: %s) accessed from embed URL: %s",
-                calendar.name,
+                "Calendar access: Embedded view - uuid=%s, calendar=%s, embed_url=%s",
                 uuid,
-                embed_url,
+                calendar.name,
+                embed_url[:200],  # Truncate embed URL
             )
 
         merger = CalendarMergerService(calendar)
         calendar_str = merger.merge()
 
         if not calendar_str:
+            logger.error(
+                "Calendar access: Merge failed - uuid=%s, calendar=%s",
+                uuid,
+                calendar.name,
+            )
             return HttpResponse(
                 "Failed to generate calendar data",
                 status=500,
@@ -274,14 +303,27 @@ class CalendarFileView(View):
         response["Content-Disposition"] = f'attachment; filename="{uuid}.ics"'
         if getattr(calendar.owner, "is_free_tier", False):
             response["Cache-Control"] = "public, max-age=43200"  # 12 hours in seconds
+
+        request_duration = time.time() - start_time
+        logger.info(
+            "Calendar access: SUCCESS - uuid=%s, calendar=%s, size=%d bytes, "
+            "duration=%.2fs, is_free_tier=%s",
+            uuid,
+            calendar.name,
+            len(calendar_str),
+            request_duration,
+            calendar.owner.is_free_tier,
+        )
+
         return response
 
 
 def calendar_view(request: HttpRequest, uuid: str) -> HttpResponse:
     calendar = get_object_or_404(Calendar, uuid=uuid)
+    username = request.user.username if request.user.is_authenticated else "Anonymous"
     logger.info(
         "User %s is viewing the calendar view page for uuid: %s",
-        request.user,
+        username,
         calendar.uuid,
     )
     return render(

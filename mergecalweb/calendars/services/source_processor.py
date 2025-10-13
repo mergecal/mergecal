@@ -31,22 +31,55 @@ class SourceProcessor:
 
     def fetch_and_validate(self) -> None:
         """Fetch and validate remote calendar."""
+        logger.debug(
+            "Source fetch: Starting - source=%s, url=%s",
+            self.source.name,
+            self.source.url,
+        )
+
         try:
             calendar_data = self.fetcher.fetch_calendar(self.source.url)
             ical = self._validate_calendar_components(calendar_data)
+
             with contextlib.suppress(KeyError):
                 ical.add_missing_timezones()
+
             try:
                 self.source_data.ical = x_wr_timezone.to_standard(ical)
-            except (AttributeError, ZoneInfoNotFoundError):
+                logger.debug(
+                    "Source fetch: Timezone standardization successful - source=%s",
+                    self.source.name,
+                )
+            except (AttributeError, ZoneInfoNotFoundError) as e:
                 # skip do to bug in x_wr_timezone
                 # https://github.com/niccokunzmann/x-wr-timezone/issues/25
+                logger.warning(
+                    "Source fetch: Timezone standardization skipped - source=%s, error=%s",  # noqa: E501
+                    self.source.name,
+                    str(e),
+                )
                 self.source_data.ical = ical
+
+            logger.info(
+                "Source fetch: SUCCESS - source=%s, url=%s",
+                self.source.name,
+                self.source.url,
+            )
 
         except (RequestException, HTTPError) as e:
             self.source_data.error = str(e)
+            logger.exception(
+                "Source fetch: FAILED (network error) - source=%s, url=%s",
+                self.source.name,
+                self.source.url,
+            )
         except CalendarValidationError as e:
             self.source_data.error = str(e)
+            logger.exception(
+                "Source fetch: FAILED (validation error) - source=%s, url=%s",
+                self.source.name,
+                self.source.url,
+            )
 
     def _validate_calendar_components(self, calendar_data: str) -> ICalendar:
         """Validate calendar components."""
@@ -70,27 +103,60 @@ class SourceProcessor:
 
         ical = self.source_data.ical
         owner_can_customize: bool = self.source.calendar.owner.can_customize_sources
+
+        logger.debug(
+            "Source customization: Starting - source=%s, can_customize=%s, "
+            "has_prefix=%s, has_keywords=%s",
+            self.source.name,
+            owner_can_customize,
+            bool(self.source.custom_prefix),
+            bool(self.source.exclude_keywords),
+        )
+
         if not owner_can_customize:
+            logger.debug(
+                "Source customization: Skipped (no permissions) - source=%s",
+                self.source.name,
+            )
             return
+
+        events_removed = 0
+        events_customized = 0
 
         for event in ical.walk("VEVENT"):
             if not self._should_include_event(event):
                 ical.subcomponents.remove(event)
+                events_removed += 1
                 continue
+
             if not self.source.include_title:
                 event["summary"] = self.source.custom_prefix or self.source.name
+                events_customized += 1
             elif self.source.custom_prefix:
                 event["summary"] = (
                     f"{self.source.custom_prefix}: {event.get('summary')}"
                 )
+                events_customized += 1
 
             if not self.source.include_description:
                 event.pop("description", None)
+                events_customized += 1
 
             if not self.source.include_location:
                 event.pop("location", None)
+                events_customized += 1
+
             if self.source.calendar.show_branding:
                 self._add_branding(event)
+                events_customized += 1
+
+        logger.info(
+            "Source customization: Complete - source=%s, events_removed=%d, "
+            "events_customized=%d",
+            self.source.name,
+            events_removed,
+            events_customized,
+        )
 
     def _add_branding(self, event: Event) -> None:
         """Add branding to event description and summary."""

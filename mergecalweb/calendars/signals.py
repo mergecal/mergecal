@@ -16,9 +16,29 @@ logger = logging.getLogger(__name__)
 def clear_calendar_cache_on_source(sender, instance, **kwargs):
     # Construct the cache key similar to how you set it
     cache_key = f"calendar_str_{instance.calendar.uuid}"
+
+    if kwargs.get("created") is not None:
+        action = "created" if kwargs.get("created") else "updated"
+    else:
+        action = "deleted"
+
+    logger.info(
+        "Signal: Source %s - source=%s, url=%s, calendar=%s, owner=%s",
+        action,
+        instance.name,
+        instance.url,
+        instance.calendar.name,
+        instance.calendar.owner.username,
+    )
+
     # Check if the cache exists and delete it
     cache.delete(cache_key)
-    logger.info("Cache cleared for key: %s", cache_key)
+    logger.info(
+        "Cache invalidation: Source change - cache_key=%s, source=%s, action=%s",
+        cache_key,
+        instance.name,
+        action,
+    )
 
 
 @receiver(post_save, sender=Calendar)
@@ -26,5 +46,25 @@ def clear_calendar_cache_on_source(sender, instance, **kwargs):
 def clear_calendar_cache_on_calendar(sender, instance, **kwargs):
     # Construct the cache key similar to how you set it
     cache_key = f"calendar_str_{instance.uuid}"
+
+    if kwargs.get("created") is not None:
+        action = "created" if kwargs.get("created") else "updated"
+    else:
+        action = "deleted"
+
+    logger.info(
+        "Signal: Calendar %s - calendar=%s, uuid=%s, owner=%s",
+        action,
+        instance.name,
+        instance.uuid,
+        instance.owner.username,
+    )
+
     # Check if the cache exists and delete it
     cache.delete(cache_key)
+    logger.info(
+        "Cache invalidation: Calendar change - cache_key=%s, calendar=%s, action=%s",
+        cache_key,
+        instance.name,
+        action,
+    )
