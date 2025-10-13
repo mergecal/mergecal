@@ -290,12 +290,18 @@ LOGGING = {
         "verbose": {
             "format": "%(levelname)s %(asctime)s %(name)s.%(funcName)s:%(lineno)d %(message)s",
         },
+        "json": {
+            "()": "pythonjsonlogger.jsonlogger.JsonFormatter",
+            "format": "%(asctime)s %(name)s %(levelname)s %(message)s",
+        },
     },
     "handlers": {
         "console": {
             "level": "DEBUG",
-            "class": "logging.StreamHandler",
+            "class": "rich.logging.RichHandler",
             "formatter": "verbose",
+            "rich_tracebacks": True,
+            "tracebacks_show_locals": True,
         },
     },
     "root": {"level": "INFO", "handlers": ["console"]},
