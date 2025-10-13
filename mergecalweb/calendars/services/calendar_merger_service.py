@@ -28,7 +28,24 @@ class CalendarMergerService:
 
     def merge(self) -> str:
         """Merge all calendar sources into a single iCal string"""
+        import time
+
+        start_time = time.time()
+        logger.info(
+            "Calendar merge: Starting - calendar=%s, uuid=%s, owner=%s, tier=%s",
+            self.calendar.name,
+            self.calendar.uuid,
+            self.calendar.owner.username,
+            self.calendar.owner.subscription_tier,
+        )
+
         if self.calendar.owner.is_free_tier:
+            logger.warning(
+                "Calendar merge: Free tier user - returning warning calendar - "
+                "calendar=%s, owner=%s",
+                self.calendar.name,
+                self.calendar.owner.username,
+            )
             ical = self._add_tier_warnings()
             return ical.to_ical().decode("utf-8")
 
@@ -36,18 +53,52 @@ class CalendarMergerService:
         cached_calendar = cache.get(cache_key)
 
         if cached_calendar is not None:
+            logger.info(
+                "Calendar merge: Cache HIT - calendar=%s, uuid=%s, size=%d bytes",
+                self.calendar.name,
+                self.calendar.uuid,
+                len(cached_calendar),
+            )
             return cached_calendar
+
+        logger.info(
+            "Calendar merge: Cache MISS - generating calendar - calendar=%s, uuid=%s",
+            self.calendar.name,
+            self.calendar.uuid,
+        )
 
         processed_sources: list[SourceData] = self._process_sources()
         valid_calendars: list[ICalendar] = [
             s.ical for s in processed_sources if s.ical is not None
         ]
 
+        successful_count = len(valid_calendars)
+        failed_count = len([s for s in processed_sources if s.error is not None])
+        logger.info(
+            "Calendar merge: Sources processed - calendar=%s, total=%d, "
+            "successful=%d, failed=%d",
+            self.calendar.name,
+            len(processed_sources),
+            successful_count,
+            failed_count,
+        )
+
         merged_calendar: ICalendar = self._merge_calendars(valid_calendars)
         self._add_error_events(merged_calendar, processed_sources)
 
         calendar_str = merged_calendar.to_ical().decode("utf-8")
         cache.set(cache_key, calendar_str, self.calendar.effective_update_frequency)
+
+        merge_duration = time.time() - start_time
+        logger.info(
+            "Calendar merge: SUCCESS - calendar=%s, uuid=%s, size=%d bytes, "
+            "duration=%.2fs, cache_ttl=%ds",
+            self.calendar.name,
+            self.calendar.uuid,
+            len(calendar_str),
+            merge_duration,
+            self.calendar.effective_update_frequency,
+        )
 
         return calendar_str
 

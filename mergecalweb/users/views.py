@@ -1,3 +1,5 @@
+import logging
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import QuerySet
@@ -10,6 +12,8 @@ from django.views.generic import UpdateView
 from mergecalweb.billing.tasks import update_stripe_subscription
 from mergecalweb.users.models import User
 
+logger = logging.getLogger(__name__)
+
 
 class UserDetailView(LoginRequiredMixin, DetailView):
     model = User
@@ -17,8 +21,19 @@ class UserDetailView(LoginRequiredMixin, DetailView):
     slug_url_kwarg = "username"
 
     def get(self, request, *args, **kwargs):
+        logger.debug(
+            "User profile: View accessed - username=%s, viewer=%s",
+            kwargs.get("username"),
+            request.user.username,
+        )
+
         response = super().get(request, *args, **kwargs)
 
+        logger.info(
+            "User profile: Triggering subscription sync - user=%s, tier=%s",
+            self.object.username,
+            self.object.subscription_tier,
+        )
         update_stripe_subscription(self.object.id)
 
         return response
@@ -39,6 +54,14 @@ class UserUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     def get_object(self, queryset: QuerySet | None = None) -> User:
         assert self.request.user.is_authenticated  # type guard
         return self.request.user
+
+    def form_valid(self, form):
+        logger.info(
+            "User profile: Updated - user=%s, name=%s",
+            self.request.user.username,
+            form.cleaned_data.get("name"),
+        )
+        return super().form_valid(form)
 
 
 user_update_view = UserUpdateView.as_view()

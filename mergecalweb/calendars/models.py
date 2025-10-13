@@ -1,4 +1,5 @@
 # ruff: noqa: E501 ERA001
+import logging
 import typing
 import uuid
 import zoneinfo
@@ -21,30 +22,54 @@ from mergecalweb.core.utils import parse_calendar_uuid
 if typing.TYPE_CHECKING:
     from mergecalweb.users.models import User
 
+logger = logging.getLogger(__name__)
+
 TWELVE_HOURS_IN_SECONDS = 43200
 
 
 def validate_ical_url(url):
+    logger.debug("Validating iCal URL: %s", url)
+
     if is_local_url(url):
         calendar_uuid = parse_calendar_uuid(url)
         if calendar_uuid:
             if not Calendar.objects.filter(uuid=calendar_uuid).exists():
                 msg = "The specified MergeCal calendar does not exist."
+                logger.warning(
+                    "Validation failed: Local calendar not found - uuid=%s, url=%s",
+                    calendar_uuid,
+                    url,
+                )
                 raise ValidationError(msg)
+            logger.debug(
+                "Local calendar URL validated successfully: uuid=%s",
+                calendar_uuid,
+            )
             return  # URL is valid, exit the function
 
     # if url is meetup.com, skip validation
     if "meetup.com" in url:
+        logger.debug("Skipping validation for Meetup URL: %s", url)
         return
+
     try:
         fetcher = CalendarFetcher()
         response = fetcher.fetch_calendar(url)
         cal = Ical.from_ical(response)  # noqa: F841
+        logger.info("iCal URL validation successful: %s", url)
     except RequestException as err:
         msg = f"Enter a valid URL. Details: {err}"
+        logger.exception(
+            "iCal URL validation failed (network error): url=%s",
+            url,
+        )
         raise ValidationError(msg) from err
     except ValueError as err:
         msg = f"Enter a valid iCalendar feed. Details: {err}"
+        logger.exception(
+            "iCal URL validation failed (invalid format): url=%s",
+            url,
+        )
         raise ValidationError(msg) from err
 
 
@@ -100,10 +125,23 @@ class Calendar(TimeStampedModel):
         return reverse("calendars:calendar_update", kwargs={"uuid": self.uuid})
 
     def clean(self):
+        logger.debug(
+            "Validating calendar: name=%s, owner=%s, tier=%s, is_new=%s",
+            self.name,
+            self.owner.username,
+            self.owner.subscription_tier,
+            not self.pk,
+        )
+
         if (
             not self.owner.can_set_update_frequency
             and self.update_frequency_seconds != TWELVE_HOURS_IN_SECONDS
         ):
+            logger.warning(
+                "Calendar validation failed: User %s (tier=%s) attempted to set custom update frequency",
+                self.owner.username,
+                self.owner.subscription_tier,
+            )
             raise ValidationError(
                 {
                     "update_frequency_seconds": _(
@@ -111,15 +149,30 @@ class Calendar(TimeStampedModel):
                     ),
                 },
             )
+
         if not self.owner.can_remove_branding and self.remove_branding:
+            logger.warning(
+                "Calendar validation failed: User %s (tier=%s) attempted to remove branding",
+                self.owner.username,
+                self.owner.subscription_tier,
+            )
             raise ValidationError(
                 {"remove_branding": _("You don't have permission to remove branding.")},
             )
 
         if not self.pk:  # Only check on creation, not update
             if not self.owner.can_add_calendar:
+                current_count = self.owner.calendar_set.count()
+                logger.warning(
+                    "Calendar creation denied: User %s (tier=%s) at limit - current=%d",
+                    self.owner.username,
+                    self.owner.subscription_tier,
+                    current_count,
+                )
                 msg = "Upgrade to create more calendars."
                 raise ValidationError(msg)
+
+        logger.debug("Calendar validation successful: name=%s", self.name)
 
     @property
     def update_frequency_hours(self):
@@ -237,8 +290,26 @@ class Source(TimeStampedModel):
         return reverse("calendars:source_edit", kwargs={"pk": self.pk})
 
     def clean(self):
+        logger.debug(
+            "Validating source: name=%s, url=%s, calendar=%s, owner=%s, tier=%s, is_new=%s",
+            self.name,
+            self.url,
+            self.calendar.name,
+            self.calendar.owner.username,
+            self.calendar.owner.subscription_tier,
+            not self.pk,
+        )
+
         if not self.pk:  # Only check on creation, not update
             if not self.calendar.can_add_source:
+                current_count = self.calendar.calendarOf.count()
+                logger.warning(
+                    "Source creation denied: Calendar '%s' (owner=%s, tier=%s) at limit - current=%d",
+                    self.calendar.name,
+                    self.calendar.owner.username,
+                    self.calendar.owner.subscription_tier,
+                    current_count,
+                )
                 msg = "upgrade to add more sources"
                 raise ValidationError(msg)
 
@@ -250,5 +321,16 @@ class Source(TimeStampedModel):
                 or self.custom_prefix
                 or self.exclude_keywords
             ):
+                logger.warning(
+                    "Source customization denied: User %s (tier=%s) attempted to use premium features",
+                    self.calendar.owner.username,
+                    self.calendar.owner.subscription_tier,
+                )
                 msg = "Customization features are only available for Business and Supporter plans"
                 raise ValidationError(msg)
+
+        logger.debug(
+            "Source validation successful: name=%s, url=%s",
+            self.name,
+            self.url,
+        )
