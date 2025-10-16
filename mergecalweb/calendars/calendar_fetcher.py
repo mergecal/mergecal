@@ -78,27 +78,5 @@ class CalendarFetcher:
                 },
             )
             return calendar_data  # noqa: TRY300
-        except (requests.Timeout, requests.ConnectionError) as e:
-            fetch_duration = time.time() - start_time
-            logger.warning(
-                "Calendar fetch failed due to network timeout or connection error",
-                extra={
-                    "event": LogEvent.CALENDAR_FETCH_FAILED,
-                    "url": url[:200],
-                    "error_type": type(e).__name__,
-                    "duration_seconds": round(fetch_duration, 2),
-                },
-            )
-            raise
         except requests.RequestException as e:
-            fetch_duration = time.time() - start_time
-            logger.exception(
-                "Calendar fetch failed from remote source",
-                extra={
-                    "event": LogEvent.CALENDAR_FETCH_FAILED,
-                    "url": url[:200],
-                    "error_type": type(e).__name__,
-                    "duration_seconds": round(fetch_duration, 2),
-                },
-            )
-            raise
+            raise e from None

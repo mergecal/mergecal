@@ -109,6 +109,7 @@ class LogEvent:
     # Source Processing
     SOURCE_FETCH_START = "source-fetch-start"
     SOURCE_FETCH_SUCCESS = "source-fetch-success"
+    SOURCE_FETCH_TIMEOUT = "source-fetch-timeout"
     SOURCE_FETCH_NETWORK_ERROR = "source-fetch-network-error"
     SOURCE_FETCH_VALIDATION_ERROR = "source-fetch-validation-error"
     SOURCE_TIMEZONE_STANDARDIZED = "source-timezone-standardized"
