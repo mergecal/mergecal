@@ -8,10 +8,8 @@ from django.db.models import Count
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
-from djstripe.models import Customer  # noqa: TC002
-from djstripe.models import Subscription  # noqa: TC002
 
-from mergecalweb.billing.signals import update_user_subscription_tier
+from mergecalweb.billing.utils import sync_user_tier_with_stripe
 from mergecalweb.core.constants import MailjetTemplates
 
 from .forms import UserAdminChangeForm
@@ -79,7 +77,7 @@ class UserAdmin(auth_admin.UserAdmin):
     actions = [
         "send_feedback_email",
         "send_shorterm_rental_feedback_email",
-        "sync_user_tier_with_stripe",
+        "sync_user_tier_with_stripe_action",
     ]
 
     @admin.action(description="Send feedback email")
@@ -123,34 +121,20 @@ class UserAdmin(auth_admin.UserAdmin):
         )
 
     @admin.action(description="Sync user tier with Stripe subscription")
-    def sync_user_tier_with_stripe(self, request, queryset):
+    def sync_user_tier_with_stripe_action(self, request, queryset):
         synced_count = 0
         no_customer_count = 0
         no_subscription_count = 0
 
         for user in queryset:
-            customer: Customer | None = user.djstripe_customers.first()
-            if not customer:
+            result = sync_user_tier_with_stripe(user)
+
+            if result["status"] == "no_customer":
                 no_customer_count += 1
-                continue
-
-            subscription: Subscription | None = customer.subscriptions.filter(
-                status__in=["active", "trialing", "past_due"],
-            ).first()
-
-            if not subscription:
-                # No active subscription, set to free tier
-                if user.subscription_tier != User.SubscriptionTier.FREE:
-                    user.subscription_tier = User.SubscriptionTier.FREE
-                    user.save()
-                    synced_count += 1
-                else:
-                    no_subscription_count += 1
-                continue
-
-            # Sync tier with subscription
-            update_user_subscription_tier(user, subscription)
-            synced_count += 1
+            elif result["status"] == "no_subscription":
+                no_subscription_count += 1
+            else:  # synced
+                synced_count += 1
 
         # Build success message
         message_parts = []
