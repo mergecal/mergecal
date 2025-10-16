@@ -25,8 +25,9 @@ class SourceProcessor:
     BRANDING_TEXT: Final[str] = "This event is powered by MergeCal"
     BRANDING_SUFFIX: Final[str] = "(via MergeCal.org)"
 
-    def __init__(self, source: Source) -> None:
+    def __init__(self, source: Source, timeout: int | None = None) -> None:
         self.source: Final[Source] = source
+        self.timeout: Final[int | None] = timeout
         self.fetcher: Final[CalendarFetcher] = CalendarFetcher()
         self.source_data: Final[SourceData] = SourceData(source=self.source)
 
@@ -44,7 +45,10 @@ class SourceProcessor:
         )
 
         try:
-            calendar_data = self.fetcher.fetch_calendar(self.source.url)
+            calendar_data = self.fetcher.fetch_calendar(
+                self.source.url,
+                timeout=self.timeout,
+            )
             ical = self._validate_calendar_components(calendar_data)
 
             with contextlib.suppress(KeyError):

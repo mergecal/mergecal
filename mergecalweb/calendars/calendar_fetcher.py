@@ -31,9 +31,13 @@ class CalendarFetcher:
         session.mount("https://", HTTPAdapter(max_retries=retries))
         return session
 
-    def fetch_calendar(self, url: str) -> str:
+    def fetch_calendar(self, url: str, timeout: int | None = None) -> str:
         """
         Fetches calendar data from the given URL.
+
+        Args:
+            url: The URL to fetch calendar data from.
+            timeout: Optional timeout in seconds. If not provided, uses DEFAULT_TIMEOUT.
 
         Returns:
             Tuple[str, None]: A tuple containing the calendar data as a string and None.
@@ -68,8 +72,10 @@ class CalendarFetcher:
             "Accept-Language": "en-US,en;q=0.9",
         }
 
+        effective_timeout = timeout if timeout is not None else DEFAULT_TIMEOUT
+
         try:
-            response = self.session.get(url, headers=headers, timeout=DEFAULT_TIMEOUT)
+            response = self.session.get(url, headers=headers, timeout=effective_timeout)
             response.encoding = "utf-8"
             response.raise_for_status()
             calendar_data = response.text
