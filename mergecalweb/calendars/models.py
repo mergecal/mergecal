@@ -54,7 +54,9 @@ def validate_ical_url(url):
 
     try:
         fetcher = CalendarFetcher()
-        response = fetcher.fetch_calendar(url)
+        # Use shorter timeout for validation to prevent long form submission delays
+        # 10 seconds should be enough to validate most calendar feeds
+        response = fetcher.fetch_calendar(url, timeout=10)
         cal = Ical.from_ical(response)  # noqa: F841
         logger.info("iCal URL validation successful: %s", url)
     except RequestException as err:
