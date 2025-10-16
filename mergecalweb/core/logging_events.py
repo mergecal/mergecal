@@ -113,6 +113,7 @@ class LogEvent:
     SOURCE_FETCH_VALIDATION_ERROR = "source-fetch-validation-error"
     SOURCE_TIMEZONE_STANDARDIZED = "source-timezone-standardized"
     SOURCE_TIMEZONE_SKIP = "source-timezone-skip"
+    SOURCE_TIMEOUT_CALCULATED = "source-timeout-calculated"
 
     # Source Customization (business tier features)
     SOURCE_CUSTOMIZATION_START = "source-customization-start"

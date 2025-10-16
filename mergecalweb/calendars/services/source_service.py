@@ -10,6 +10,7 @@ from mergecalweb.calendars.meetup import fetch_and_create_meetup_calendar
 from mergecalweb.calendars.meetup import is_meetup_url
 from mergecalweb.calendars.models import Calendar
 from mergecalweb.calendars.models import Source
+from mergecalweb.core.logging_events import LogEvent
 from mergecalweb.core.utils import is_local_url
 from mergecalweb.core.utils import parse_calendar_uuid
 
@@ -17,6 +18,11 @@ from .source_data import SourceData
 from .source_processor import SourceProcessor
 
 logger = logging.getLogger(__name__)
+
+# Timeout constants
+MAX_REQUEST_TIMEOUT = 60  # 1 minute max for the entire request
+MIN_PER_SOURCE_TIMEOUT = 5  # Minimum timeout per source in seconds
+SAFETY_BUFFER = 5  # Safety buffer in seconds to complete before gunicorn timeout
 
 
 class SourceService:
@@ -26,19 +32,87 @@ class SourceService:
         else:
             self.processed_uuids = existing_uuids
 
+    def _calculate_per_source_timeout(self, source_count: int) -> int:
+        """
+        Calculate timeout per source based on total source count.
+
+        With a 60-second Gunicorn timeout, we need to ensure all sources
+        can be fetched within that time. We distribute the available time
+        across all sources, with a minimum timeout per source.
+
+        Note: If there are many sources (>11), each source will get the
+        minimum timeout (5s), which may cause the total time to exceed
+        the Gunicorn timeout. In this case, some sources may fail due to
+        the overall request timeout, and the request should be moved to
+        a background task.
+
+        Args:
+            source_count: Total number of sources to fetch
+
+        Returns:
+            Timeout in seconds per source
+        """
+        if source_count <= 0:
+            return MIN_PER_SOURCE_TIMEOUT
+
+        # Calculate available time after safety buffer
+        available_time = MAX_REQUEST_TIMEOUT - SAFETY_BUFFER
+
+        # Distribute time across all sources
+        per_source_timeout = available_time // source_count
+
+        # Ensure we don't go below minimum timeout
+        effective_timeout = max(per_source_timeout, MIN_PER_SOURCE_TIMEOUT)
+
+        # Warn if total estimated time exceeds max timeout
+        estimated_total_time = effective_timeout * source_count
+        if estimated_total_time > MAX_REQUEST_TIMEOUT:
+            logger.warning(
+                "Estimated fetch time exceeds Gunicorn timeout limit",
+                extra={
+                    "event": LogEvent.SOURCE_TIMEOUT_CALCULATED,
+                    "source_count": source_count,
+                    "per_source_timeout_seconds": effective_timeout,
+                    "estimated_total_seconds": estimated_total_time,
+                    "max_request_timeout_seconds": MAX_REQUEST_TIMEOUT,
+                    "warning": "Consider using background task for this calendar",
+                },
+            )
+        else:
+            logger.debug(
+                "Calculated per-source timeout",
+                extra={
+                    "event": LogEvent.SOURCE_TIMEOUT_CALCULATED,
+                    "source_count": source_count,
+                    "available_time_seconds": available_time,
+                    "per_source_timeout_seconds": effective_timeout,
+                    "estimated_total_seconds": estimated_total_time,
+                    "max_request_timeout_seconds": MAX_REQUEST_TIMEOUT,
+                },
+            )
+
+        return effective_timeout
+
     def process_sources(self, sources: list[Source]) -> list[SourceData]:
         """Process multiple sources, handling special source types"""
         processed_sources = []
 
+        # Calculate timeout based on source count
+        source_count = len(sources)
+        per_source_timeout = self._calculate_per_source_timeout(source_count)
+
         for source in sources:
-            processor = SourceProcessor(source)
+            processor = SourceProcessor(source, timeout=per_source_timeout)
 
             if is_local_url(source.url):
                 self._process_local_source(processor.source_data)
             elif is_meetup_url(source.url):
                 try:
                     logger.debug("Processing Meetup source: %s", source.url)
-                    calendar_data = processor.fetcher.fetch_calendar(source.url)
+                    calendar_data = processor.fetcher.fetch_calendar(
+                        source.url,
+                        timeout=per_source_timeout,
+                    )
                     ical = processor._validate_calendar_components(calendar_data)
                     processor.source_data.ical = ical
                 except (RequestException, HTTPError, CalendarValidationError) as e:
