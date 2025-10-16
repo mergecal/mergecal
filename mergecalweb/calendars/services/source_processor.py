@@ -3,6 +3,7 @@ import logging
 from typing import Final
 from zoneinfo import ZoneInfoNotFoundError
 
+import requests
 import x_wr_timezone
 from icalendar import Calendar as ICalendar
 from icalendar import Event
@@ -89,9 +90,22 @@ class SourceProcessor:
                 },
             )
 
+        except requests.Timeout as e:
+            self.source_data.error = str(e)
+            logger.info(
+                "Source fetch timed out",
+                extra={
+                    "event": LogEvent.SOURCE_FETCH_TIMEOUT,
+                    "source_id": self.source.pk,
+                    "source_name": self.source.name,
+                    "source_url": self.source.url[:200],
+                    "calendar_uuid": self.source.calendar.uuid,
+                    "timeout_seconds": self.timeout,
+                },
+            )
         except (RequestException, HTTPError) as e:
             self.source_data.error = str(e)
-            logger.exception(
+            logger.warning(
                 "Source fetch failed due to network error",
                 extra={
                     "event": LogEvent.SOURCE_FETCH_NETWORK_ERROR,
