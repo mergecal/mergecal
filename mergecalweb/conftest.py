@@ -47,7 +47,7 @@ def mock_calendar_request() -> Iterator[None]:
         )
         return MockResponse(calendar_path.read_text(encoding="utf-8"))
 
-    with patch("requests.Session.get", side_effect=mock_get) as _:
+    with patch("requests.get", side_effect=mock_get) as _:
         yield
 
 
