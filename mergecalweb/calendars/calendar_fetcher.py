@@ -1,4 +1,3 @@
-import hashlib
 import logging
 import time
 from datetime import timedelta
@@ -13,22 +12,10 @@ logger = logging.getLogger(__name__)
 CACHE_TIMEOUT = timedelta(minutes=2)
 DEFAULT_TIMEOUT = 30
 
-_shared_session = None
-
-
-def get_session() -> requests.Session:
-    global _shared_session  # noqa: PLW0603
-    if _shared_session is None:
-        _shared_session = requests.Session()
-    return _shared_session
-
 
 class CalendarFetcher:
-    def __init__(self):
-        self.session = get_session()
-
     def fetch_calendar(self, url: str, timeout: int | None = None) -> str:
-        cache_key = f"cal_{hashlib.sha256(url.encode()).hexdigest()[:16]}"
+        cache_key = f"calendar_data_{url}"
         cached_data = cache.get(cache_key)
 
         if cached_data is not None:
@@ -60,7 +47,7 @@ class CalendarFetcher:
         effective_timeout = timeout if timeout is not None else DEFAULT_TIMEOUT
 
         try:
-            response = self.session.get(
+            response = requests.get(
                 url,
                 headers=headers,
                 timeout=effective_timeout,
