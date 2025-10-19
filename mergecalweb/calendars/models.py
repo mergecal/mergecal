@@ -199,8 +199,8 @@ class Calendar(TimeStampedModel):
 
     def is_in_cache_bypass_period(self):
         """
-        Check if calendar is in the 3-hour cache bypass period.
-        After saving/modifying a calendar, cache is disabled for 3 hours
+        Check if calendar is in the cache bypass period defined by CACHE_BYPASS_HOURS.
+        After saving/modifying a calendar, cache is disabled for CACHE_BYPASS_HOURS hours
         so users can see their changes immediately (like Cloudflare dev mode).
         """
         bypass_threshold = timezone.now() - timedelta(hours=CACHE_BYPASS_HOURS)
@@ -208,7 +208,8 @@ class Calendar(TimeStampedModel):
 
     def get_cache_bypass_end_time(self):
         """
-        Get the datetime when cache bypass period ends.
+        Get the datetime when the cache bypass period ends.
+        The duration of the bypass period is determined by the CACHE_BYPASS_HOURS constant.
         Returns None if not in bypass period.
         """
         if not self.is_in_cache_bypass_period():

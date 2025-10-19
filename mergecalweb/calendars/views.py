@@ -25,6 +25,7 @@ from django.views.generic import UpdateView
 
 from mergecalweb.calendars.forms import CalendarForm
 from mergecalweb.calendars.forms import SourceForm
+from mergecalweb.calendars.models import CACHE_BYPASS_HOURS
 from mergecalweb.calendars.models import Calendar
 from mergecalweb.calendars.models import Source
 from mergecalweb.calendars.services.calendar_merger_service import CalendarMergerService
@@ -117,8 +118,6 @@ class CalendarUpdateView(LoginRequiredMixin, UpdateView):
     slug_url_kwarg = "uuid"
 
     def get_context_data(self, **kwargs):
-        from mergecalweb.calendars.models import CACHE_BYPASS_HOURS
-
         context = super().get_context_data(**kwargs)
         context["domain_name"] = get_site_url()
         context["CACHE_BYPASS_HOURS"] = CACHE_BYPASS_HOURS
