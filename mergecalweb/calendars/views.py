@@ -366,8 +366,11 @@ class CalendarFileView(View):
 
         response = HttpResponse(calendar_str, content_type="text/calendar")
         response["Content-Disposition"] = f'attachment; filename="{uuid}.ics"'
-        if getattr(calendar.owner, "is_free_tier", False):
-            response["Cache-Control"] = "public, max-age=43200"  # 12 hours in seconds
+
+        # Set cache headers based on user's update frequency preference
+        # Optimized for Cloudflare CDN
+        cache_ttl = calendar.effective_update_frequency
+        response["Cache-Control"] = f"public, max-age={cache_ttl}"
 
         request_duration = time.time() - start_time
         logger.info(
