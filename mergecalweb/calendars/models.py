@@ -27,7 +27,8 @@ if typing.TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 TWELVE_HOURS_IN_SECONDS = 43200
-CACHE_BYPASS_HOURS = 3  # Hours to disable cache after calendar modification
+CACHE_BYPASS_HOURS = 3  # Hours to disable CDN cache after calendar modification
+MIN_BYPASS_CACHE_TTL_SECONDS = 30  # Server cache TTL during bypass (30 sec)
 
 
 def validate_ical_url(url):
@@ -196,12 +197,13 @@ class Calendar(TimeStampedModel):
     @property
     def effective_cache_ttl(self):
         """
-        Get the effective cache TTL in seconds.
-        During cache bypass period, returns 30 seconds for quick updates.
+        Get the effective server-side cache TTL in seconds.
+        During cache bypass period, returns 30 seconds for quick server-side updates.
+        This is separate from CDN caching which is disabled (max-age=0) during bypass.
         Otherwise returns the user's configured update frequency.
         """
         if self.is_in_cache_bypass_period():
-            return 30  # 30 seconds minimum cache during bypass period
+            return MIN_BYPASS_CACHE_TTL_SECONDS
         return self.effective_update_frequency
 
     @property
@@ -211,8 +213,9 @@ class Calendar(TimeStampedModel):
     def is_in_cache_bypass_period(self):
         """
         Check if calendar is in the cache bypass period defined by CACHE_BYPASS_HOURS.
-        After saving/modifying a calendar, cache is disabled for CACHE_BYPASS_HOURS hours
-        so users can see their changes immediately (like Cloudflare dev mode).
+        After saving/modifying a calendar, CDN cache is disabled and server cache
+        is reduced to 30 seconds for CACHE_BYPASS_HOURS hours so users can see
+        their changes quickly (like Cloudflare dev mode).
         """
         bypass_threshold = timezone.now() - timedelta(hours=CACHE_BYPASS_HOURS)
         return self.modified > bypass_threshold

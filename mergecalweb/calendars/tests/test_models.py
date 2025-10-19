@@ -9,6 +9,7 @@ from django.core.exceptions import ValidationError
 from django.utils import timezone
 
 from mergecalweb.calendars.models import CACHE_BYPASS_HOURS
+from mergecalweb.calendars.models import MIN_BYPASS_CACHE_TTL_SECONDS
 from mergecalweb.calendars.models import Calendar
 from mergecalweb.calendars.models import Source
 from mergecalweb.users.models import User
@@ -192,9 +193,8 @@ class TestCalendarModel:
             update_frequency_seconds=7200,  # 2 hours
         )
         # Calendar just created, should be in bypass period
-        min_cache_ttl = 30
         assert calendar.is_in_cache_bypass_period() is True
-        assert calendar.effective_cache_ttl == min_cache_ttl
+        assert calendar.effective_cache_ttl == MIN_BYPASS_CACHE_TTL_SECONDS
 
     def test_effective_cache_ttl_after_bypass(self, business_user: User) -> None:
         """Test effective_cache_ttl returns normal frequency after bypass."""
