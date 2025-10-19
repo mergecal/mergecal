@@ -29,6 +29,7 @@ logger = logging.getLogger(__name__)
 TWELVE_HOURS_IN_SECONDS = 43200
 CACHE_BYPASS_HOURS = 3  # Hours to disable CDN cache after calendar modification
 MIN_BYPASS_CACHE_TTL_SECONDS = 30  # Server cache TTL during bypass (30 sec)
+MAX_ERROR_MESSAGE_LENGTH = 200  # Maximum length for error messages shown to users
 
 
 def validate_ical_url(url):
@@ -61,6 +62,19 @@ def validate_ical_url(url):
         # Use shorter timeout for validation to prevent long form submission delays
         # 10 seconds should be enough to validate most calendar feeds
         response = fetcher.fetch_calendar(url, timeout=10)
+
+        # Check if response looks like HTML instead of iCalendar
+        if response.lstrip().startswith("<!DOCTYPE") or response.lstrip().startswith(
+            "<html",
+        ):
+            msg = "The URL returned an HTML page instead of an iCalendar feed. Please check the URL and ensure it points to a calendar feed, not a web page."
+            logger.warning(
+                "iCal URL validation failed (HTML detected): url=%s, response_preview=%s",
+                url,
+                response[:MAX_ERROR_MESSAGE_LENGTH],
+            )
+            raise ValidationError(msg)
+
         cal = Ical.from_ical(response)  # noqa: F841
         logger.info("iCal URL validation successful: %s", url)
     except RequestException as err:
@@ -71,11 +85,25 @@ def validate_ical_url(url):
         )
         raise ValidationError(msg) from err
     except ValueError as err:
-        msg = f"Enter a valid iCalendar feed. Details: {err}"
-        logger.exception(
-            "iCal URL validation failed (invalid format): url=%s",
-            url,
-        )
+        # Check if the error is about HTML content
+        err_str = str(err)
+        if "<!DOCTYPE" in err_str or "<html" in err_str:
+            msg = "The URL returned an HTML page instead of an iCalendar feed. Please check the URL and ensure it points to a calendar feed, not a web page."
+            logger.warning(
+                "iCal URL validation failed (HTML in error): url=%s, error_preview=%s",
+                url,
+                err_str[:MAX_ERROR_MESSAGE_LENGTH],
+            )
+        else:
+            # Truncate error message if too long
+            if len(err_str) > MAX_ERROR_MESSAGE_LENGTH:
+                msg = f"Enter a valid iCalendar feed. Details: {err_str[:MAX_ERROR_MESSAGE_LENGTH]}..."
+            else:
+                msg = f"Enter a valid iCalendar feed. Details: {err}"
+            logger.exception(
+                "iCal URL validation failed (invalid format): url=%s",
+                url,
+            )
         raise ValidationError(msg) from err
 
 
