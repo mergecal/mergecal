@@ -42,6 +42,12 @@
             <form method="post" id="calendar-form">
               {% csrf_token %}
               {% crispy form %}
+              {% if calendar.pk %}
+                <div class="alert alert-info" role="alert">
+                  <i class="bi bi-info-circle me-2"></i>
+                  <strong>Note:</strong> Saving this calendar will disable caching for {{ CACHE_BYPASS_HOURS|default:"3" }} hours so you can see your changes immediately.
+                </div>
+              {% endif %}
               <button type="submit" class="btn btn-primary">Save Calendar</button>
               <a href="{% url 'calendars:calendar_list' %}" class="btn btn-secondary">Cancel</a>
             </form>
@@ -52,6 +58,19 @@
                 <span>UUID: {{ calendar.uuid }}</span>
                 <span>Last modified: {{ calendar.modified|date:"M d, Y H:i" }}</span>
               </small>
+              {% if calendar.is_in_cache_bypass_period %}
+                <div class="alert alert-info mt-2 mb-0 py-2" role="alert">
+                  <div class="d-flex align-items-center">
+                    <i class="bi bi-lightning-charge-fill me-2"></i>
+                    <div class="flex-grow-1">
+                      <strong>Cache Bypass Active</strong>
+                      <div class="small">
+                        Your calendar changes will appear immediately. Cache will be re-enabled at {{ calendar.get_cache_bypass_end_time|date:"g:i A" }} ({{ calendar.get_cache_bypass_end_time|timeuntil }} from now).
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              {% endif %}
             </div>
           {% endif %}
         </div>

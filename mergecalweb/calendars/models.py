@@ -3,11 +3,13 @@ import logging
 import typing
 import uuid
 import zoneinfo
+from datetime import timedelta
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from icalendar import Calendar as Ical
 from requests.exceptions import RequestException
@@ -25,6 +27,8 @@ if typing.TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 TWELVE_HOURS_IN_SECONDS = 43200
+CACHE_BYPASS_HOURS = 3  # Hours to disable CDN cache after calendar modification
+MIN_BYPASS_CACHE_TTL_SECONDS = 30  # Server cache TTL during bypass (30 sec)
 
 
 def validate_ical_url(url):
@@ -191,8 +195,41 @@ class Calendar(TimeStampedModel):
         return TWELVE_HOURS_IN_SECONDS
 
     @property
+    def effective_cache_ttl(self):
+        """
+        Get the effective server-side cache TTL in seconds.
+        During cache bypass period, returns 30 seconds for quick server-side updates.
+        This is separate from CDN caching which is disabled (max-age=0) during bypass.
+        Otherwise returns the user's configured update frequency.
+        """
+        if self.is_in_cache_bypass_period():
+            return MIN_BYPASS_CACHE_TTL_SECONDS
+        return self.effective_update_frequency
+
+    @property
     def show_branding(self):
         return not (self.remove_branding and self.owner.can_remove_branding)
+
+    def is_in_cache_bypass_period(self):
+        """
+        Check if calendar is in the cache bypass period defined by CACHE_BYPASS_HOURS.
+        After saving/modifying a calendar, CDN cache is disabled and server cache
+        is reduced to 30 seconds for CACHE_BYPASS_HOURS hours so users can see
+        their changes quickly (like Cloudflare dev mode).
+        """
+        bypass_threshold = timezone.now() - timedelta(hours=CACHE_BYPASS_HOURS)
+        return self.modified > bypass_threshold
+
+    def get_cache_bypass_end_time(self):
+        """
+        Get the datetime when the cache bypass period ends.
+        The duration of the bypass period is determined by the CACHE_BYPASS_HOURS constant.
+        Returns None if not in bypass period.
+        """
+        if not self.is_in_cache_bypass_period():
+            return None
+
+        return self.modified + timedelta(hours=CACHE_BYPASS_HOURS)
 
     def get_calendar_file_url(self):
         return reverse("calendars:calendar_file", kwargs={"uuid": self.uuid})

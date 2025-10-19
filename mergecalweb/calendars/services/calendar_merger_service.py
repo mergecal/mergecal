@@ -104,7 +104,8 @@ class CalendarMergerService:
         self._add_error_events(merged_calendar, processed_sources)
 
         calendar_str = merged_calendar.to_ical().decode("utf-8")
-        cache.set(cache_key, calendar_str, self.calendar.effective_update_frequency)
+        cache_ttl = self.calendar.effective_cache_ttl
+        cache.set(cache_key, calendar_str, cache_ttl)
 
         merge_duration = time.time() - start_time
         logger.info(
@@ -117,7 +118,8 @@ class CalendarMergerService:
                 "owner_username": self.calendar.owner.username,
                 "size_bytes": len(calendar_str),
                 "duration_seconds": round(merge_duration, 2),
-                "cache_ttl_seconds": self.calendar.effective_update_frequency,
+                "cache_ttl_seconds": cache_ttl,
+                "is_in_bypass_period": self.calendar.is_in_cache_bypass_period(),
             },
         )
 
