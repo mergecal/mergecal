@@ -371,8 +371,8 @@ def handle_payment_method_attached(
         )
         return
 
-    card_brand = payment_method.card.brand if payment_method.card else None
-    card_last4 = payment_method.card.last4 if payment_method.card else None
+    card_brand = payment_method.card.get("brand") if payment_method.card else None
+    card_last4 = payment_method.card.get("last4") if payment_method.card else None
 
     logger.info(
         "Payment method attached to customer",
