@@ -1,11 +1,14 @@
 # ruff: noqa: FBT001
 import uuid
+from datetime import timedelta
 from unittest.mock import patch
 
 import pytest
 from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
+from django.utils import timezone
 
+from mergecalweb.calendars.models import CACHE_BYPASS_HOURS
 from mergecalweb.calendars.models import Calendar
 from mergecalweb.calendars.models import Source
 from mergecalweb.users.models import User
@@ -142,6 +145,73 @@ class TestCalendarModel:
         cal_business.full_clean()
         cal_business.save()
         assert cal_business.effective_update_frequency == new_value
+
+    def test_cache_bypass_period_active(self, business_user: User) -> None:
+        """Test that calendar is in bypass period after modification."""
+        calendar = Calendar.objects.create(
+            name="Test Calendar",
+            owner=business_user,
+        )
+        # Calendar was just created, should be in bypass period
+        assert calendar.is_in_cache_bypass_period() is True
+        assert calendar.get_cache_bypass_end_time() is not None
+
+    def test_cache_bypass_period_expired(self, business_user: User) -> None:
+        """Test calendar not in bypass period after CACHE_BYPASS_HOURS."""
+        calendar = Calendar.objects.create(
+            name="Test Calendar",
+            owner=business_user,
+        )
+        # Manually set modified time to be older than bypass period using update()
+        # to avoid triggering auto_now which would reset modified to now()
+        old_time = timezone.now() - timedelta(hours=CACHE_BYPASS_HOURS + 1)
+        Calendar.objects.filter(pk=calendar.pk).update(modified=old_time)
+        calendar.refresh_from_db()
+
+        assert calendar.is_in_cache_bypass_period() is False
+        assert calendar.get_cache_bypass_end_time() is None
+
+    def test_cache_bypass_end_time_calculation(self, business_user: User) -> None:
+        """Test that cache bypass end time is calculated correctly."""
+        calendar = Calendar.objects.create(
+            name="Test Calendar",
+            owner=business_user,
+        )
+        end_time = calendar.get_cache_bypass_end_time()
+        expected_end = calendar.modified + timedelta(hours=CACHE_BYPASS_HOURS)
+
+        assert end_time is not None
+        # Allow 1 second tolerance for test execution time
+        assert abs((end_time - expected_end).total_seconds()) < 1
+
+    def test_effective_cache_ttl_during_bypass(self, business_user: User) -> None:
+        """Test that effective_cache_ttl returns 30 seconds during bypass."""
+        calendar = Calendar.objects.create(
+            name="Test Calendar",
+            owner=business_user,
+            update_frequency_seconds=7200,  # 2 hours
+        )
+        # Calendar just created, should be in bypass period
+        min_cache_ttl = 30
+        assert calendar.is_in_cache_bypass_period() is True
+        assert calendar.effective_cache_ttl == min_cache_ttl
+
+    def test_effective_cache_ttl_after_bypass(self, business_user: User) -> None:
+        """Test effective_cache_ttl returns normal frequency after bypass."""
+        expected_ttl = 7200  # 2 hours
+        calendar = Calendar.objects.create(
+            name="Test Calendar",
+            owner=business_user,
+            update_frequency_seconds=expected_ttl,
+        )
+        # Set modified time to be older than bypass period using update()
+        # to avoid triggering auto_now which would reset modified to now()
+        old_time = timezone.now() - timedelta(hours=CACHE_BYPASS_HOURS + 1)
+        Calendar.objects.filter(pk=calendar.pk).update(modified=old_time)
+        calendar.refresh_from_db()
+
+        assert calendar.is_in_cache_bypass_period() is False
+        assert calendar.effective_cache_ttl == expected_ttl
 
 
 @pytest.mark.django_db

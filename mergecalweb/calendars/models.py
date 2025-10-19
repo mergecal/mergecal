@@ -194,6 +194,17 @@ class Calendar(TimeStampedModel):
         return TWELVE_HOURS_IN_SECONDS
 
     @property
+    def effective_cache_ttl(self):
+        """
+        Get the effective cache TTL in seconds.
+        During cache bypass period, returns 30 seconds for quick updates.
+        Otherwise returns the user's configured update frequency.
+        """
+        if self.is_in_cache_bypass_period():
+            return 30  # 30 seconds minimum cache during bypass period
+        return self.effective_update_frequency
+
+    @property
     def show_branding(self):
         return not (self.remove_branding and self.owner.can_remove_branding)
 
