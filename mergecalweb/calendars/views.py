@@ -117,8 +117,11 @@ class CalendarUpdateView(LoginRequiredMixin, UpdateView):
     slug_url_kwarg = "uuid"
 
     def get_context_data(self, **kwargs):
+        from mergecalweb.calendars.models import CACHE_BYPASS_HOURS
+
         context = super().get_context_data(**kwargs)
         context["domain_name"] = get_site_url()
+        context["CACHE_BYPASS_HOURS"] = CACHE_BYPASS_HOURS
         return context
 
     def get_queryset(self):
@@ -369,8 +372,15 @@ class CalendarFileView(View):
 
         # Set cache headers based on user's update frequency preference
         # Optimized for Cloudflare CDN
-        cache_ttl = calendar.effective_update_frequency
-        response["Cache-Control"] = f"public, max-age={cache_ttl}"
+        # If calendar was modified in the last 3 hours, disable caching
+        # so users can see their changes immediately (like Cloudflare dev mode)
+        if calendar.is_in_cache_bypass_period():
+            # Disable cache for recently modified calendars
+            response["Cache-Control"] = "public, max-age=0, must-revalidate"
+        else:
+            # Use user's preferred cache TTL
+            cache_ttl = calendar.effective_update_frequency
+            response["Cache-Control"] = f"public, max-age={cache_ttl}"
 
         request_duration = time.time() - start_time
         logger.info(

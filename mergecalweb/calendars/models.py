@@ -3,11 +3,13 @@ import logging
 import typing
 import uuid
 import zoneinfo
+from datetime import timedelta
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from icalendar import Calendar as Ical
 from requests.exceptions import RequestException
@@ -25,6 +27,7 @@ if typing.TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 TWELVE_HOURS_IN_SECONDS = 43200
+CACHE_BYPASS_HOURS = 3  # Hours to disable cache after calendar modification
 
 
 def validate_ical_url(url):
@@ -193,6 +196,25 @@ class Calendar(TimeStampedModel):
     @property
     def show_branding(self):
         return not (self.remove_branding and self.owner.can_remove_branding)
+
+    def is_in_cache_bypass_period(self):
+        """
+        Check if calendar is in the 3-hour cache bypass period.
+        After saving/modifying a calendar, cache is disabled for 3 hours
+        so users can see their changes immediately (like Cloudflare dev mode).
+        """
+        bypass_threshold = timezone.now() - timedelta(hours=CACHE_BYPASS_HOURS)
+        return self.modified > bypass_threshold
+
+    def get_cache_bypass_end_time(self):
+        """
+        Get the datetime when cache bypass period ends.
+        Returns None if not in bypass period.
+        """
+        if not self.is_in_cache_bypass_period():
+            return None
+
+        return self.modified + timedelta(hours=CACHE_BYPASS_HOURS)
 
     def get_calendar_file_url(self):
         return reverse("calendars:calendar_file", kwargs={"uuid": self.uuid})
