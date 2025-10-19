@@ -53,6 +53,7 @@ class CalendarFetcher:
                 timeout=effective_timeout,
             )
             response.raise_for_status()
+            response.encoding = "utf-8"
             calendar_data = response.text
 
             fetch_duration = time.time() - start_time
