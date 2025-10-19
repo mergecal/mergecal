@@ -9,6 +9,7 @@ from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
+from mergecalweb.billing.utils import sync_user_tier_with_stripe
 from mergecalweb.core.constants import MailjetTemplates
 
 from .forms import UserAdminChangeForm
@@ -73,7 +74,11 @@ class UserAdmin(auth_admin.UserAdmin):
         )
         return format_html('<a href="{}">{} Calendars</a>', url, count)
 
-    actions = ["send_feedback_email", "send_shorterm_rental_feedback_email"]
+    actions = [
+        "send_feedback_email",
+        "send_shorterm_rental_feedback_email",
+        "sync_user_tier_with_stripe_action",
+    ]
 
     @admin.action(description="Send feedback email")
     def send_feedback_email(self, request, queryset):
@@ -113,4 +118,35 @@ class UserAdmin(auth_admin.UserAdmin):
             request,
             f"Feedback email sent to {queryset.count()} users",
             messages.SUCCESS,
+        )
+
+    @admin.action(description="Sync user tier with Stripe subscription")
+    def sync_user_tier_with_stripe_action(self, request, queryset):
+        synced_count = 0
+        no_customer_count = 0
+        no_subscription_count = 0
+
+        for user in queryset:
+            result = sync_user_tier_with_stripe(user)
+
+            if result["status"] == "no_customer":
+                no_customer_count += 1
+            elif result["status"] == "no_subscription":
+                no_subscription_count += 1
+            else:  # synced
+                synced_count += 1
+
+        # Build success message
+        message_parts = []
+        if synced_count > 0:
+            message_parts.append(f"Synced {synced_count} user(s)")
+        if no_customer_count > 0:
+            message_parts.append(f"{no_customer_count} without Stripe customer")
+        if no_subscription_count > 0:
+            message_parts.append(f"{no_subscription_count} without subscription")
+
+        self.message_user(
+            request,
+            ", ".join(message_parts) if message_parts else "No users to sync",
+            messages.SUCCESS if synced_count > 0 else messages.WARNING,
         )
