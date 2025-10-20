@@ -62,3 +62,7 @@ def test_calendar_merger_with_test_files(
     assert "BEGIN:VCALENDAR" in content
     assert "END:VCALENDAR" in content
     assert f"X-WR-CALNAME:{calendar.name}" in content
+
+    # Verify refresh interval properties are present
+    assert "X-PUBLISHED-TTL:" in content
+    assert "REFRESH-INTERVAL:" in content

@@ -8,6 +8,7 @@ from django.utils import timezone
 from icalendar import Alarm
 from icalendar import Calendar as ICalendar
 from icalendar import Event
+from icalendar import vDuration
 from mergecal import CalendarMerger
 
 from mergecalweb.calendars.models import Calendar
@@ -102,6 +103,7 @@ class CalendarMergerService:
 
         merged_calendar: ICalendar = self._merge_calendars(valid_calendars)
         self._add_error_events(merged_calendar, processed_sources)
+        self._add_refresh_interval(merged_calendar)
 
         calendar_str = merged_calendar.to_ical().decode("utf-8")
         cache_ttl = self.calendar.effective_cache_ttl
@@ -186,6 +188,23 @@ class CalendarMergerService:
         error_event.add("dtstart", timezone.now())
         error_event.add("dtend", timezone.now() + timedelta(hours=1))
         merged_calendar.add_component(error_event)
+
+    def _add_refresh_interval(self, merged_calendar: ICalendar) -> None:
+        """Add refresh interval properties to the calendar"""
+        # Use user's configured frequency with a minimum of 30 minutes
+        min_refresh_interval_seconds = 1800  # 30 minutes
+        refresh_interval_seconds = max(
+            self.calendar.effective_update_frequency,
+            min_refresh_interval_seconds,
+        )
+
+        # Convert seconds to timedelta and then to ISO 8601 duration format
+        refresh_interval = timedelta(seconds=refresh_interval_seconds)
+        refresh_interval_iso = vDuration(refresh_interval).to_ical().decode("utf-8")
+
+        # Add both X-PUBLISHED-TTL and REFRESH-INTERVAL for broader client support
+        merged_calendar.add("X-PUBLISHED-TTL", refresh_interval_iso)
+        merged_calendar.add("REFRESH-INTERVAL", refresh_interval_iso)
 
     def _add_tier_warnings(self) -> ICalendar:
         """Add warning events for free tier users"""

@@ -2,6 +2,8 @@ BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//Test Calendar//mergecal.org//
 X-WR-CALNAME:Test Calendar
+REFRESH-INTERVAL:PT12H
+X-PUBLISHED-TTL:PT12H
 BEGIN:VEVENT
 SUMMARY:Event: Balanced logistical capability (via MergeCal.org)
 DTSTART;VALUE=DATE:20250414
