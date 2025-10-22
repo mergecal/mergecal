@@ -87,6 +87,11 @@ def create_stripe_customer(
             )
             customer.subscriber = user
             customer.save()
+            # Update Stripe customer metadata to include the user ID
+            stripe.Customer.modify(
+                customer.id,
+                metadata={"djstripe_subscriber": str(user.pk)},
+            )
     if not customers:
         customer, created = Customer.get_or_create(subscriber=user)
         if created:
