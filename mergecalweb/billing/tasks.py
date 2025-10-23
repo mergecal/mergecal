@@ -19,7 +19,7 @@ def update_stripe_subscription(self, user_id: int) -> None:
     user: User = User.objects.get(id=user_id)
     customer: Customer = user.djstripe_customers.first()
     if not customer:
-        logger.warning(
+        logger.info(
             "User missing Stripe customer during subscription update",
             extra={
                 "event": LogEvent.SUBSCRIPTION_UPDATE_NO_CUSTOMER,
@@ -34,7 +34,7 @@ def update_stripe_subscription(self, user_id: int) -> None:
         status__in=["active", "trialing"],
     ).first()
     if not subscription:
-        logger.warning(
+        logger.info(
             "User missing active Stripe subscription during update",
             extra={
                 "event": LogEvent.SUBSCRIPTION_UPDATE_NO_SUBSCRIPTION,
