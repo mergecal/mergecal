@@ -1,14 +1,14 @@
+import logging
+
 from celery import shared_task
-from celery.utils.log import get_task_logger
-from django.contrib.auth import get_user_model
 from djstripe.models import Customer
 
 from config import celery_app
 from mergecalweb.billing.signals import update_user_subscription_tier
 from mergecalweb.core.logging_events import LogEvent
+from mergecalweb.users.models import User
 
-logger = get_task_logger(__name__)
-User = get_user_model()
+logger = logging.getLogger(__name__)
 
 
 @celery_app.task(bind=True)
@@ -19,7 +19,7 @@ def update_stripe_subscription(self, user_id: int) -> None:
     user: User = User.objects.get(id=user_id)
     customer: Customer = user.djstripe_customers.first()
     if not customer:
-        logger.info(
+        logger.warning(
             "User missing Stripe customer during subscription update",
             extra={
                 "event": LogEvent.SUBSCRIPTION_UPDATE_NO_CUSTOMER,
@@ -34,7 +34,7 @@ def update_stripe_subscription(self, user_id: int) -> None:
         status__in=["active", "trialing"],
     ).first()
     if not subscription:
-        logger.info(
+        logger.warning(
             "User missing active Stripe subscription during update",
             extra={
                 "event": LogEvent.SUBSCRIPTION_UPDATE_NO_SUBSCRIPTION,
