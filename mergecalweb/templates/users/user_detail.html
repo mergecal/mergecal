@@ -43,6 +43,19 @@
                 <!-- End Manage Billing Form -->
               </div>
               <!-- End Action buttons -->
+              <!-- Danger Zone -->
+              <div class="mt-5 pt-4 border-top border-danger">
+                <h5 class="text-danger mb-3">
+                  <i class="bi bi-exclamation-triangle-fill me-2"></i>Danger Zone
+                </h5>
+                <p class="text-body-secondary">Once you delete your account, there is no going back. Please be certain.</p>
+                <a class="btn btn-outline-danger"
+                   href="{% url 'users:delete' %}"
+                   role="button">
+                  <i class="bi bi-trash me-1"></i>Delete Account
+                </a>
+              </div>
+              <!-- End Danger Zone -->
             {% endif %}
           </div>
         </div>
