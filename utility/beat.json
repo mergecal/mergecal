@@ -4,7 +4,7 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "REMAP_SIGTERM=SIGQUIT celery -A config.celery_app worker --loglevel=info --concurrency 2",
+    "startCommand": "celery -A config.celery_app beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler",
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10
   }
