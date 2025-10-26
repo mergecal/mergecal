@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+{% block title %}
+  {% trans "Delete Account" %}
+{% endblock title %}
+{% block content %}
+  <div class="container mt-5">
+    <div class="row justify-content-center">
+      <div class="col-md-10">
+        <div class="card shadow-sm border-danger">
+          <div class="card-header bg-danger text-white">
+            <h2 class="mb-0">
+              <i class="bi bi-exclamation-triangle-fill me-2"></i>
+              {% trans "Delete Your Account" %}
+            </h2>
+          </div>
+          <div class="card-body">
+            <!-- Warning Banner -->
+            <div class="alert alert-danger" role="alert">
+              <h4 class="alert-heading">
+                <i class="bi bi-exclamation-octagon me-2"></i>
+                {% trans "Warning: This action is permanent and cannot be undone!" %}
+              </h4>
+              <p class="mb-0">
+                {% trans "Once you delete your account, there is no going back. All your data will be permanently removed from our servers." %}
+              </p>
+            </div>
+            <!-- Deletion Preview -->
+            <div class="mt-4 mb-4">
+              <h4 class="mb-3">{% trans "The following will be permanently deleted:" %}</h4>
+              <div class="card bg-body-secondary">
+                <div class="card-body">
+                  <ul class="list-unstyled mb-2">
+                    <li class="mb-2">
+                      <i class="bi bi-person-fill text-danger me-2"></i>
+                      <strong>{% trans "Your user account:" %}</strong> {{ request.user.email }}
+                    </li>
+                    {% if total_calendars > 0 %}
+                      <li class="mb-2">
+                        <i class="bi bi-calendar-fill text-danger me-2"></i>
+                        <strong>{{ total_calendars }}
+                          {% if total_calendars == 1 %}
+                            {% trans "Calendar" %}
+                          {% else %}
+                            {% trans "Calendars" %}
+                          {% endif %}
+                        :</strong>
+                        <ul class="mt-2 mb-2">
+                          {% for calendar in calendars %}
+                            <li>
+                              <strong>"{{ calendar.name }}"</strong>
+                              ({{ calendar.calendarOf.count }}
+                              {% if calendar.calendarOf.count == 1 %}
+                                {% trans "source" %}
+                              {% else %}
+                                {% trans "sources" %}
+                              {% endif %}
+                              )
+                            </li>
+                          {% endfor %}
+                        </ul>
+                      </li>
+                      <li class="mb-2">
+                        <i class="bi bi-link-45deg text-danger me-2"></i>
+                        <strong>{{ total_sources }}
+                          {% if total_sources == 1 %}
+                            {% trans "Source" %}
+                          {% else %}
+                            {% trans "Sources" %}
+                          {% endif %}
+                        </strong> {% trans "(total)" %}
+                      </li>
+                    {% else %}
+                      <li class="mb-2">
+                        <i class="bi bi-calendar text-body-secondary me-2"></i>
+                        <em>{% trans "No calendars to delete" %}</em>
+                      </li>
+                    {% endif %}
+                  </ul>
+                  <hr />
+                  <p class="text-body-secondary mb-0">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <small>{% trans "Your payment history and invoices will be retained for legal compliance." %}</small>
+                  </p>
+                </div>
+              </div>
+            </div>
+            <!-- Deletion Form -->
+            <div class="mt-4">
+              <h4 class="mb-3">{% trans "Confirm Account Deletion" %}</h4>
+              <form method="post" action="{% url 'users:delete' %}">
+                {% csrf_token %}
+                <!-- Password Field -->
+                <div class="mb-3">
+                  {{ form.password.label_tag }}
+                  {{ form.password }}
+                  {% if form.password.help_text %}<small class="form-text text-muted">{{ form.password.help_text }}</small>{% endif %}
+                  {% if form.password.errors %}<div class="invalid-feedback d-block">{{ form.password.errors }}</div>{% endif %}
+                </div>
+                <!-- Confirmation Checkbox -->
+                <div class="mb-4 form-check">
+                  {{ form.confirm_deletion }}
+                  {{ form.confirm_deletion.label_tag }}
+                  {% if form.confirm_deletion.errors %}
+                    <div class="invalid-feedback d-block">{{ form.confirm_deletion.errors }}</div>
+                  {% endif %}
+                </div>
+                <!-- Action Buttons -->
+                <div class="d-flex gap-2">
+                  <a href="{% url 'users:detail' request.user.username %}"
+                     class="btn btn-secondary">
+                    <i class="bi bi-x-circle me-1"></i>
+                    {% trans "Cancel" %}
+                  </a>
+                  <button type="submit" class="btn btn-danger">
+                    <i class="bi bi-trash-fill me-1"></i>
+                    {% trans "Delete My Account" %}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        <!-- Additional Help -->
+        <div class="mt-3 text-center text-body-secondary">
+          <small>
+            {% trans "Need help? Contact us at" %} <a href="mailto:support@mergecal.com">support@mergecal.com</a>
+          </small>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock content %}

@@ -69,6 +69,19 @@ class LogEvent:
     USER_PROFILE_UPDATED = "user-profile-updated"
     USER_PROFILE_SUBSCRIPTION_SYNC = "user-profile-subscription-sync"
 
+    # Account Deletion
+    ACCOUNT_DELETION_STARTED = "account-deletion-started"
+    ACCOUNT_DELETION_STATS = "account-deletion-stats"
+    ACCOUNT_DELETION_STRIPE_CUSTOMER = "account-deletion-stripe-customer"
+    ACCOUNT_DELETION_SUBSCRIPTION_CANCEL = "account-deletion-subscription-cancel"
+    ACCOUNT_DELETION_STRIPE_UPDATED = "account-deletion-stripe-updated"
+    ACCOUNT_DELETION_NO_STRIPE = "account-deletion-no-stripe"
+    ACCOUNT_DELETED = "account-deleted"
+    ACCOUNT_DELETION_PREVIEW = "account-deletion-preview"
+    ACCOUNT_DELETION_FORM_SUBMITTED = "account-deletion-form-submitted"
+    ACCOUNT_DELETION_LOGOUT = "account-deletion-logout"
+    ACCOUNT_DELETION_EMAIL_SENT = "account-deletion-email-sent"
+
     # Calendar CRUD Operations
     CALENDAR_CREATED = "calendar-created"
     CALENDAR_UPDATED = "calendar-updated"

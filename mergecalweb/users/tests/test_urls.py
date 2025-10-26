@@ -20,3 +20,8 @@ def test_update():
 def test_redirect():
     assert reverse("users:redirect") == "/users/~redirect/"
     assert resolve("/users/~redirect/").view_name == "users:redirect"
+
+
+def test_delete():
+    assert reverse("users:delete") == "/users/~delete/"
+    assert resolve("/users/~delete/").view_name == "users:delete"
