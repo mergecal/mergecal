@@ -1,10 +1,12 @@
 import logging
 import time
 from datetime import timedelta
+from urllib.parse import urlparse
 
 import requests
 from django.core.cache import cache
 
+from mergecalweb.calendars.fetching.domain_configs import get_domain_config
 from mergecalweb.core.logging_events import LogEvent
 
 logger = logging.getLogger(__name__)
@@ -38,11 +40,36 @@ class CalendarFetcher:
         )
         start_time = time.time()
 
+        # Get domain-specific configuration if available
+        parsed_url = urlparse(url)
+        domain = parsed_url.netloc
+        domain_config = get_domain_config(domain)
+
+        # Build headers with domain-specific overrides
         headers = {
             "User-Agent": "MergeCal/1.0 (https://mergecal.org)",
             "Accept": "text/calendar, application/calendar+xml, application/calendar+json",  # noqa: E501
             "Accept-Language": "en-US,en;q=0.9",
         }
+
+        # Apply domain-specific overrides
+        if domain_config:
+            if "user_agent" in domain_config:
+                headers["User-Agent"] = domain_config["user_agent"]
+            if "accept" in domain_config:
+                headers["Accept"] = domain_config["accept"]
+            if "additional_headers" in domain_config:
+                headers.update(domain_config["additional_headers"])
+
+            logger.debug(
+                "Applied domain-specific calendar fetch configuration",
+                extra={
+                    "event": LogEvent.CALENDAR_FETCH_DOMAIN_CONFIG,
+                    "domain": domain,
+                    "has_custom_ua": "user_agent" in domain_config,
+                    "has_custom_accept": "accept" in domain_config,
+                },
+            )
 
         effective_timeout = timeout if timeout is not None else DEFAULT_TIMEOUT
 

@@ -97,6 +97,7 @@ class LogEvent:
     CALENDAR_FETCH_SUCCESS = "calendar-fetch-success"
     CALENDAR_FETCH_CACHED = "calendar-fetch-cached"
     CALENDAR_FETCH_FAILED = "calendar-fetch-failed"
+    CALENDAR_FETCH_DOMAIN_CONFIG = "calendar-fetch-domain-config"
 
     # Calendar Merging
     CALENDAR_MERGE_START = "calendar-merge-start"
