@@ -4,7 +4,7 @@ from celery import shared_task
 from djstripe.models import Customer
 
 from config import celery_app
-from mergecalweb.billing.signals import update_user_subscription_tier
+from mergecalweb.billing.utils import sync_user_tier_with_stripe
 from mergecalweb.core.logging_events import LogEvent
 from mergecalweb.users.models import User
 
@@ -17,8 +17,9 @@ def update_stripe_subscription(self, user_id: int) -> None:
     Update user's stripe subscription based on subscription_tier.
     """
     user: User = User.objects.get(id=user_id)
-    customer: Customer = user.djstripe_customers.first()
-    if not customer:
+    result = sync_user_tier_with_stripe(user)
+
+    if result["status"] == "no_customer":
         logger.warning(
             "User missing Stripe customer during subscription update",
             extra={
@@ -30,10 +31,7 @@ def update_stripe_subscription(self, user_id: int) -> None:
         )
         return
 
-    subscription = customer.subscriptions.filter(
-        status__in=["active", "trialing"],
-    ).first()
-    if not subscription:
+    if result["status"] == "no_subscription":
         logger.warning(
             "User missing active Stripe subscription during update",
             extra={
@@ -41,25 +39,23 @@ def update_stripe_subscription(self, user_id: int) -> None:
                 "user_id": user_id,
                 "username": user.username,
                 "email": user.email,
-                "customer_id": customer.id,
+                "customer_id": result["customer_id"],
             },
         )
         return
 
     logger.info(
-        "Updating user subscription tier from Stripe data",
+        "Updated user subscription tier from Stripe data",
         extra={
             "event": LogEvent.SUBSCRIPTION_UPDATE_TASK,
             "user_id": user_id,
             "username": user.username,
             "email": user.email,
-            "customer_id": customer.id,
-            "subscription_id": subscription.id,
-            "subscription_status": subscription.status,
+            "customer_id": result["customer_id"],
+            "subscription_id": result["subscription_id"],
+            "sync_message": result["message"],
         },
     )
-
-    update_user_subscription_tier(user, subscription)
 
 
 @shared_task
