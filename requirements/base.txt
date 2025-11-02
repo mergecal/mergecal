@@ -34,6 +34,7 @@ django-taggit==6.0.0  # https://github.com/jazzband/django-taggit
 django-social-share==2.3.0  # https://github.com/fcurella/django-social-share
 django-htmx-modal-forms==0.3.1  # https://github.com/abe-101/django-htmx-modal-forms
 django-htmx-messages==0.1.1  # https://github.com/abe-101/django-htmx-messages
+django-health-check==3.20.0  # https://github.com/revsys/django-health-check
 
 # Django REST Framework
 djangorestframework==3.15.2  # https://github.com/encode/django-rest-framework
