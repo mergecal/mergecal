@@ -1,5 +1,11 @@
 /* These styles are generated from project.scss. */
 
+/* Sentry Feedback Widget - Position on Left Side */
+#sentry-feedback {
+  --inset: auto auto 0 0; /* top right bottom left - positions bottom-left */
+  --page-margin: 16px;
+}
+
 .alert-debug {
   color: black;
   background-color: white;

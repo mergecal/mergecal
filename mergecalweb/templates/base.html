@@ -59,6 +59,34 @@
     {# Placed at the top of the document so pages load faster with defer #}
     {% block javascript %}
       <!-- Your stuff: Third-party javascript libraries go here -->
+      <script>
+        window.sentryOnLoad = function() {
+          Sentry.init({
+            sendDefaultPii: true
+            // You can add other config here if needed
+          });
+
+          Sentry.lazyLoadIntegration("feedbackIntegration")
+            .then((feedbackIntegration) => {
+              Sentry.addIntegration(feedbackIntegration({}));
+            });
+
+          // Set user context using Django template variables
+          {
+            %
+            if request.user.is_authenticated %
+          }
+          Sentry.setUser({
+            id: "{{ request.user.id }}",
+            name: "{{ request.user.name }}",
+            email: "{{ request.user.email }}",
+          });
+          {
+            %
+            endif %
+          }
+        };
+      </script>
       <script src="https://js.sentry-cdn.com/73181d49df806b4ac195eecc4661c263.min.js"
               crossorigin="anonymous"></script>
       <!-- Google tag (gtag.js) -->
