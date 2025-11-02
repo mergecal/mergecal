@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MergeCal</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        margin: 0;
+        padding: 0;
+        background-color: #f5f5f5;
+      }
+
+      .email-container {
+        max-width: 600px;
+        margin: 20px auto;
+        background-color: #ffffff;
+        border-radius: 4px;
+      }
+
+      .header {
+        background-color: #008080;
+        padding: 30px 20px;
+        text-align: center;
+        border-radius: 4px 4px 0 0;
+      }
+
+      .logo-img {
+        max-width: 120px;
+        height: auto;
+      }
+
+      .logo {
+        color: #ffffff;
+        font-size: 24px;
+        font-weight: 600;
+        text-decoration: none;
+      }
+
+      .content {
+        padding: 30px;
+      }
+
+      .greeting {
+        margin-bottom: 20px;
+      }
+
+      .body-text {
+        margin-bottom: 15px;
+      }
+
+      .body-text a {
+        color: #008080;
+        text-decoration: none;
+        font-weight: 500;
+      }
+
+      .body-text a:hover {
+        text-decoration: underline;
+      }
+
+      .ps {
+        margin-top: 25px;
+        padding-top: 15px;
+        border-top: 1px solid #e0e0e0;
+        font-style: italic;
+        color: #666;
+      }
+
+      .signature {
+        margin-top: 30px;
+        color: #666;
+      }
+
+      .signature a {
+        color: #008080;
+        text-decoration: none;
+      }
+
+      .footer {
+        background-color: #f9f9f9;
+        padding: 20px;
+        text-align: center;
+        font-size: 12px;
+        color: #999;
+        border-radius: 0 0 4px 4px;
+        border-top: 1px solid #e0e0e0;
+      }
+
+      .footer a {
+        color: #008080;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="email-container">
+      <div class="header">
+        <a href="https://mergecal.org">
+          <img src="https://mergecal.org/static/images/favicon-no-boarder.png"
+               alt="MergeCal"
+               class="logo-img" />
+        </a>
+      </div>
+      <div class="content">
+        <div class="greeting">Hello {{ name }},</div>
+        {% for body in bodies %}<p class="body-text">{{ body|safe }}</p>{% endfor %}
+        {% if ps %}<div class="ps">P.S. {{ ps|safe }}</div>{% endif %}
+        <div class="signature">
+          Best regards,
+          <br />
+          Abe Hanoka
+          <br />
+          Creator of <a href="https://mergecal.org">MergeCal.org</a>
+          <br />
+          <a href="mailto:abe@mergecal.org">abe@mergecal.org</a>
+          <br />
+          Connect with me: <a href="https://linkedin.com/in/abe101">linkedin.com/in/abe101</a>
+        </div>
+      </div>
+      <div class="footer">
+        <p>
+          <a href="https://mergecal.org">Visit Website</a> |
+          <a href="mailto:abe@mergecal.org">Contact Support</a>
+        </p>
+        <p>© 2025 MergeCal. All rights reserved.</p>
+      </div>
+    </div>
+  </body>
+</html>

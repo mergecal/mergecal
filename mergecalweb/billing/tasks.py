@@ -123,3 +123,68 @@ def update_all_users_from_stripe_customers() -> None:
             "errors": errors,
         },
     )
+
+
+@shared_task
+def schedule_follow_up_email(user_id: int) -> None:
+    """
+    Schedule follow-up email to be sent 3 days after user signup.
+    Uses Celery countdown to delay execution.
+    """
+    send_follow_up_email_delayed.apply_async(
+        (user_id,),
+        countdown=3 * 24 * 60 * 60,  # 3 days in seconds
+    )
+    logger.info(
+        "Scheduled follow-up email for 3 days from now",
+        extra={
+            "event": "follow_up_email_scheduled",
+            "user_id": user_id,
+        },
+    )
+
+
+@shared_task
+def send_follow_up_email_delayed(user_id: int) -> None:
+    """
+    Send follow-up email 3 days after signup.
+    Only sends if user is still on a paid tier (hasn't canceled).
+    """
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        logger.warning(
+            "User not found for follow-up email",
+            extra={
+                "event": "follow_up_email_user_not_found",
+                "user_id": user_id,
+            },
+        )
+        return
+
+    # Check if user is still on a paid tier
+    if user.subscription_tier == User.SubscriptionTier.FREE:
+        logger.info(
+            "Skipping follow-up email - user is on free tier",
+            extra={
+                "event": "follow_up_email_skipped_free_tier",
+                "user_id": user_id,
+                "username": user.username,
+            },
+        )
+        return
+
+    # Send the follow-up email
+    # send_follow_up_email(user) # noqa: ERA001
+
+    logger.info(
+        "Sent follow-up email to user",
+        extra={
+            "event": "follow_up_email_sent",
+            "user_id": user_id,
+            "username": user.username,
+            "email": user.email,
+            "subscription_tier": user.subscription_tier,
+            "active": False,
+        },
+    )

@@ -3,13 +3,10 @@ from django.conf import settings
 from django.contrib import admin
 from django.contrib import messages
 from django.contrib.auth import admin as auth_admin
-from django.core.mail import EmailMessage
 from django.db.models import Count
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
-
-from mergecalweb.core.constants import MailjetTemplates
 
 from .forms import UserAdminChangeForm
 from .forms import UserAdminCreationForm
@@ -77,17 +74,25 @@ class UserAdmin(auth_admin.UserAdmin):
 
     @admin.action(description="Send feedback email")
     def send_feedback_email(self, request, queryset):
-        message = EmailMessage(
-            to=[user.email for user in queryset],
-        )
-        message.template_id = MailjetTemplates.FEEDBACK
-        message.from_email = None
+        from mergecalweb.core.emails import send_email
 
-        # Prepare merge data for all recipients
-        message.merge_data = {user.email: {"name": user.name} for user in queryset}
-
-        # Send the message
-        message.send()
+        for user in queryset:
+            send_email(
+                to_users=[user],
+                subject="We'd love your feedback",
+                bodies=[
+                    (
+                        "I hope you're enjoying MergeCal. I'd really "
+                        "appreciate your feedback on the service."
+                    ),
+                    (
+                        "Whether it's a feature suggestion, bug report, or "
+                        "just your thoughts - I'd love to hear from you."
+                    ),
+                    "Just reply to this email and let me know what you think.",
+                ],
+                from_email="Abe <abe@mergecal.org>",
+            )
 
         self.message_user(
             request,
@@ -97,20 +102,33 @@ class UserAdmin(auth_admin.UserAdmin):
 
     @admin.action(description="Send shorterm rental feedback email")
     def send_shorterm_rental_feedback_email(self, request, queryset):
-        message = EmailMessage(
-            to=[user.email for user in queryset],
-        )
-        message.template_id = MailjetTemplates.SHORTERM_RENTAL_FEEDBACK
-        message.from_email = None
+        from mergecalweb.core.emails import send_email
 
-        # Prepare merge data for all recipients
-        message.merge_data = {user.email: {"name": user.name} for user in queryset}
-
-        # Send the message
-        message.send()
+        for user in queryset:
+            send_email(
+                to_users=[user],
+                subject="Feedback on short-term rental calendars",
+                bodies=[
+                    (
+                        "I noticed you're using MergeCal for managing "
+                        "short-term rental calendars."
+                    ),
+                    (
+                        "I'm interested in how MergeCal is working for your "
+                        "rental business. Are there specific features that "
+                        "would make managing multiple rental calendars easier?"
+                    ),
+                    (
+                        "Your feedback would be valuable in making MergeCal "
+                        "better for property managers. Feel free to reply "
+                        "with any thoughts or suggestions."
+                    ),
+                ],
+                from_email="Abe <abe@mergecal.org>",
+            )
 
         self.message_user(
             request,
-            f"Feedback email sent to {queryset.count()} users",
+            f"Short-term rental feedback email sent to {queryset.count()} users",
             messages.SUCCESS,
         )
