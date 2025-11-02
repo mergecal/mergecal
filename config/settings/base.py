@@ -99,6 +99,17 @@ THIRD_PARTY_APPS = [
     "django_social_share",
     "django_htmx_modal_forms",
     "django_htmx_messages",
+    # Health Check
+    "health_check",
+    "health_check.db",
+    "health_check.cache",
+    "health_check.storage",
+    "health_check.contrib.migrations",
+    "health_check.contrib.celery",
+    "health_check.contrib.celery_ping",
+    "health_check.contrib.s3boto3_storage",
+    "health_check.contrib.redis",
+    "health_check.contrib.mail",
 ]
 
 LOCAL_APPS = [
@@ -402,3 +413,7 @@ STRIPE_PRICE_TABLE_ID = env("STRIPE_PRICE_TABLE_ID", default="")
 # https://django-dynamic-breadcrumbs.readthedocs.io/en/latest/ref/settings.html#dynamic-breadcrumbs-path-max-depth
 DYNAMIC_BREADCRUMBS_PATH_MAX_DEPTH = 8
 FORMS_URLFIELD_ASSUME_HTTPS = True
+
+# django-health-check
+# ------------------------------------------------------------------------------
+# https://github.com/revsys/django-health-check
