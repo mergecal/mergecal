@@ -4,7 +4,7 @@
 
 gunicorn==23.0.0  # https://github.com/benoitc/gunicorn
 psycopg[binary]==3.2.10  # https://github.com/psycopg/psycopg
-sentry-sdk==2.20.0  # https://github.com/getsentry/sentry-python
+sentry-sdk[django]==2.43.0  # https://github.com/getsentry/sentry-python
 
 # Django
 # ------------------------------------------------------------------------------
