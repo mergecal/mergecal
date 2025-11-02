@@ -143,18 +143,29 @@ class SourceService:
         if not uuid:
             source_data.error = "Invalid local URL format"
             logger.error(
-                "Local source: Invalid URL format - source=%s, url=%s",
-                source.name,
-                source.url,
+                "Local source: Invalid URL format",
+                extra={
+                    "event": LogEvent.SOURCE_LOCAL_INVALID_FORMAT,
+                    "source_id": source.pk,
+                    "source_url": source.url,
+                    "source_name": source.name,
+                    "calendar_uuid": source.calendar.uuid,
+                },
             )
             return
 
         if uuid in self.processed_uuids:
             source_data.error = "Circular calendar reference detected"
             logger.error(
-                "Local source: Circular reference detected - source=%s, uuid=%s",
-                source.name,
-                uuid,
+                "Local source: Circular reference detected",
+                extra={
+                    "event": LogEvent.SOURCE_LOCAL_CIRCULAR_REF,
+                    "source_id": source.pk,
+                    "source_url": source.url,
+                    "source_name": source.name,
+                    "calendar_uuid": source.calendar.uuid,
+                    "nested_uuid": uuid,
+                },
             )
             return
 
@@ -162,9 +173,15 @@ class SourceService:
         if not sub_calendar:
             source_data.error = "Referenced calendar does not exist"
             logger.error(
-                "Local source: Calendar not found - source=%s, uuid=%s",
-                source.name,
-                uuid,
+                "Local source: Calendar not found",
+                extra={
+                    "event": LogEvent.SOURCE_LOCAL_NOT_FOUND,
+                    "source_id": source.pk,
+                    "source_url": source.url,
+                    "source_name": source.name,
+                    "calendar_uuid": source.calendar.uuid,
+                    "nested_uuid": uuid,
+                },
             )
             return
 
@@ -174,9 +191,15 @@ class SourceService:
         from .calendar_merger_service import CalendarMergerService
 
         logger.info(
-            "Local source: Merging nested calendar - source=%s, nested_calendar=%s",
-            source.name,
-            sub_calendar.name,
+            "Local source: Merging nested calendar",
+            extra={
+                "event": LogEvent.SOURCE_LOCAL_MERGE_START,
+                "source_id": source.pk,
+                "source_name": source.name,
+                "calendar_uuid": source.calendar.uuid,
+                "nested_calendar_uuid": sub_calendar.uuid,
+                "nested_calendar_name": sub_calendar.name,
+            },
         )
 
         merger = CalendarMergerService(sub_calendar, self.processed_uuids)
@@ -184,9 +207,15 @@ class SourceService:
         source_data.ical = ICalendar.from_ical(calendar_str)
 
         logger.info(
-            "Local source: SUCCESS - source=%s, nested_calendar=%s",
-            source.name,
-            sub_calendar.name,
+            "Local source: Nested calendar merged successfully",
+            extra={
+                "event": LogEvent.SOURCE_LOCAL_MERGE_SUCCESS,
+                "source_id": source.pk,
+                "source_name": source.name,
+                "calendar_uuid": source.calendar.uuid,
+                "nested_calendar_uuid": sub_calendar.uuid,
+                "nested_calendar_name": sub_calendar.name,
+            },
         )
 
     def _process_meetup_source(self, source_data: SourceData) -> None:
@@ -194,7 +223,16 @@ class SourceService:
         source = source_data.source
         ical = fetch_and_create_meetup_calendar(source.url)
         if not ical:
-            logger.error("Failed to fetch Meetup calendar: %s", source.url)
+            logger.error(
+                "Failed to fetch Meetup calendar",
+                extra={
+                    "event": LogEvent.SOURCE_MEETUP_FETCH_ERROR,
+                    "source_id": source.pk,
+                    "source_url": source.url,
+                    "source_name": source.name,
+                    "calendar_uuid": source.calendar.uuid,
+                },
+            )
             source_data.error = "Failed to fetch Meetup calendar"
             return
 

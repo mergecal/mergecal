@@ -3,6 +3,8 @@ import logging
 from django.views.generic import DetailView
 from django.views.generic import ListView
 
+from mergecalweb.core.logging_events import LogEvent
+
 from .models import BlogPost
 
 # Get an instance of a logger
@@ -17,7 +19,11 @@ class BlogPostListView(ListView):
     paginate_by = 15  # that is all it takes to add pagination in a Class-Based View
 
     def get(self, request, *args, **kwargs):
-        logger.info("BlogPostListView visited by user: %s", request.user)
+        extra = {"event": LogEvent.BLOG_POST_LIST_VIEW}
+        if request.user.is_authenticated:
+            extra["user_id"] = request.user.pk
+            extra["email"] = request.user.email
+        logger.info("Blog post list viewed", extra=extra)
         return super().get(request, *args, **kwargs)
 
 
@@ -30,11 +36,15 @@ class BlogPostDetailView(DetailView):
     def get(self, request, *args, **kwargs):
         response = super().get(request, *args, **kwargs)
         blog_post = self.get_object()
-        logger.info(
-            "BlogPostDetailView visited by user: %s, blog post: %s",
-            request.user,
-            blog_post.title,
-        )
+        extra = {
+            "event": LogEvent.BLOG_POST_DETAIL_VIEW,
+            "blog_post_slug": blog_post.slug,
+            "blog_post_title": blog_post.title,
+        }
+        if request.user.is_authenticated:
+            extra["user_id"] = request.user.pk
+            extra["email"] = request.user.email
+        logger.info("Blog post viewed", extra=extra)
         return response
 
 
