@@ -1,0 +1,38 @@
+rules:
+  - id: logging-missing-extra-event
+    patterns:
+      - pattern-either:
+          - pattern: logger.info($MSG, ...)
+          - pattern: logger.warning($MSG, ...)
+          - pattern: logger.error($MSG, ...)
+          - pattern: logger.exception($MSG, ...)
+      - pattern-not-inside: |
+          logger.$METHOD(..., extra={..., "event": $EVENT, ...}, ...)
+      - pattern-not-inside: |
+          logger.$METHOD(..., extra=$DICT, ...)
+    paths:
+      include:
+        - "*.py"
+      exclude:
+        - "**/tests/**"
+        - "**/migrations/**"
+    message: |
+      Logging statement missing structured logging with 'event' parameter.
+
+      All logs must include: extra={"event": LogEvent.CONSTANT, ...}
+
+      Example:
+        logger.info(
+            "User created calendar",
+            extra={
+                "event": LogEvent.CALENDAR_ACTION,
+                "action": "created",
+                "user_id": user.pk,
+                "email": user.email,
+            }
+        )
+
+      See AGENTS.md for full logging conventions.
+    languages:
+      - python
+    severity: ERROR
