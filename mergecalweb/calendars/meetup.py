@@ -11,6 +11,8 @@ from bs4 import BeautifulSoup
 from icalendar import Calendar as Ical
 from icalendar import Event
 
+from mergecalweb.core.logging_events import LogEvent
+
 logger = logging.getLogger(__name__)
 
 
@@ -146,12 +148,22 @@ def fetch_and_create_meetup_calendar(meetup_url: str) -> Ical | None:
         return create_calendar_from_meetup_api_response(
             meetup_events,
         )
-    except requests.exceptions.HTTPError as e:
+    except requests.exceptions.HTTPError:
         logger.warning(
-            "Meetup: Unable to fetch calendar from URL %s. HTTP error: %s",
-            meetup_url,
-            e,
+            "Meetup: HTTP error fetching calendar",
+            extra={
+                "event": LogEvent.SOURCE_FETCH,
+                "status": "meetup-error",
+                "source_url": meetup_url,
+            },
         )
         return None
     except Exception:
-        logger.exception("Meetup: Unexpected error with URL %s", meetup_url)
+        logger.exception(
+            "Meetup: Unexpected error",
+            extra={
+                "event": LogEvent.SOURCE_FETCH,
+                "status": "meetup-error",
+                "source_url": meetup_url,
+            },
+        )

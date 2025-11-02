@@ -1,4 +1,3 @@
-# ruff: noqa: FBT001, FBT002
 from crispy_forms.bootstrap import Div
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import HTML

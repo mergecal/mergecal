@@ -1,4 +1,4 @@
-# ruff: noqa: E501, ERA001
+# ruff: noqa: ERA001
 from .base import *  # noqa: F403
 from .base import INSTALLED_APPS
 from .base import MIDDLEWARE

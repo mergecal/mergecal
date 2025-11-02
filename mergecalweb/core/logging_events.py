@@ -107,3 +107,6 @@ class LogEvent:
     # Cache Operations (use with "cache_reason" parameter)
     # Use with "cache_reason": "source-change"/"calendar-change"
     CACHE_INVALIDATED = "cache-invalidated"
+
+    # Deprecated - Old calendar utils (to be removed)
+    DEPRECATED_CALENDAR_OPERATION = "deprecated-calendar-operation"

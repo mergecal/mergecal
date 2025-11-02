@@ -1,9 +1,10 @@
-# ruff: noqa: E501 ERA001
+# ruff: noqa: E501
 import logging
 import typing
 import uuid
 import zoneinfo
 from datetime import timedelta
+from urllib.parse import urlencode
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -93,8 +94,14 @@ def validate_ical_url(url):
     except RequestException as err:
         msg = f"Enter a valid URL. Details: {err}"
         logger.exception(
-            "iCal URL validation failed (network error): url=%s",
-            url,
+            "iCal URL validation failed (network error)",
+            extra={
+                "event": LogEvent.VALIDATION,
+                "validation_type": "ical-url",
+                "status": "failed",
+                "error_type": "network",
+                "url": url,
+            },
         )
         raise ValidationError(msg) from err
     except ValueError as err:
@@ -117,8 +124,14 @@ def validate_ical_url(url):
             else:
                 msg = f"Enter a valid iCalendar feed. Details: {err}"
             logger.exception(
-                "iCal URL validation failed (invalid format): url=%s",
-                url,
+                "iCal URL validation failed (invalid format)",
+                extra={
+                    "event": LogEvent.VALIDATION,
+                    "validation_type": "ical-url",
+                    "status": "failed",
+                    "error_type": "parse",
+                    "url": url,
+                },
             )
         raise ValidationError(msg) from err
 
@@ -302,8 +315,6 @@ class Calendar(TimeStampedModel):
         Generate URL for the validator page with this calendar and all its sources.
         MergeCal URL is added first, followed by all source URLs.
         """
-        from urllib.parse import urlencode
-
         domain_name = get_site_url()
         # Start with the merged calendar URL
         urls = [f"{domain_name}{self.get_calendar_file_url()}"]
