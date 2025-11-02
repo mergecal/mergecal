@@ -13,6 +13,10 @@ from mergecalweb.calendars.views import url_validator
 from mergecalweb.core.sitemaps import StaticViewSitemap
 
 
+def trigger_error(request):
+    division_by_zero = 1 / 0
+
+
 sitemaps = {
     "static": StaticViewSitemap,
     "blog": BlogSitemap,
@@ -92,6 +96,7 @@ urlpatterns = [
         {"sitemaps": sitemaps},
         name="django.contrib.sitemaps.views.sitemap",
     ),
+    path("sentry-debug/", trigger_error, name="sentry-debug"),
     # Health Check
     path("ht/", include("health_check.urls")),
     # Media files
