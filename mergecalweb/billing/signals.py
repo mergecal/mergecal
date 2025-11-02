@@ -57,12 +57,10 @@ def update_user_subscription_tier(user: User, subscription: Subscription) -> Non
             },
         )
         if new_tier != User.SubscriptionTier.FREE:
-            email = upgrade_subscription_email(user, new_tier)
-            email.send()
+            upgrade_subscription_email(user, new_tier)
             # elif old_tier != User.SubscriptionTier.FREE:
             #     # Optionally send a downgrade email
-            #     email = downgrade_subscription_email(user)
-            #     email.send()
+            #     downgrade_subscription_email(user)
 
 
 @receiver(signal=user_logged_in)
@@ -142,9 +140,7 @@ def handle_trial_will_end(sender: Any, event: Event, **kwargs: dict[str, Any]) -
         },
     )
 
-    email = send_trial_ending_email(user)
-    email.send()
-    # Send email to customer
+    send_trial_ending_email(user)
 
 
 @djstripe_receiver("checkout.session.completed")

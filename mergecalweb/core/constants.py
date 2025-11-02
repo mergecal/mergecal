@@ -1,15 +1,6 @@
 # mergecalweb/core/constants.py
 
 
-# Mailjet template ids
-class MailjetTemplates:
-    FEEDBACK = "6172264"
-    BASE = "6190328"
-    FOUR_PARAGRAPHS = "6193713"
-    THREE_PARAGRAPHS = "6199227"
-    SHORTERM_RENTAL_FEEDBACK = "6638508"
-
-
 class CalendarLimits:
     FREE = 0
     PERSONAL = 2
