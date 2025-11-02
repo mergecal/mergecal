@@ -10,9 +10,9 @@ from icalendar import Event
 from requests.exceptions import RequestException
 from urllib3.exceptions import HTTPError
 
-from mergecalweb.calendars.calendar_fetcher import CalendarFetcher
 from mergecalweb.calendars.exceptions import CalendarValidationError
 from mergecalweb.calendars.exceptions import CustomizationWithoutCalendarError
+from mergecalweb.calendars.fetching import CalendarFetcher
 from mergecalweb.calendars.models import Source
 from mergecalweb.core.logging_events import LogEvent
 

@@ -14,7 +14,7 @@ from django.utils.translation import gettext_lazy as _
 from icalendar import Calendar as Ical
 from requests.exceptions import RequestException
 
-from mergecalweb.calendars.calendar_fetcher import CalendarFetcher
+from mergecalweb.calendars.fetching import CalendarFetcher
 from mergecalweb.core.constants import SourceLimits
 from mergecalweb.core.models import TimeStampedModel
 from mergecalweb.core.utils import get_site_url
