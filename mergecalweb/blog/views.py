@@ -37,7 +37,8 @@ class BlogPostDetailView(DetailView):
         response = super().get(request, *args, **kwargs)
         blog_post = self.get_object()
         extra = {
-            "event": LogEvent.BLOG_POST_DETAIL_VIEW,
+            "event": LogEvent.PAGE_VIEW,
+            "view_type": "blog_post_detail",
             "blog_post_slug": blog_post.slug,
             "blog_post_title": blog_post.title,
         }
