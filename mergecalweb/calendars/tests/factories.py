@@ -1,4 +1,3 @@
-# ruff: noqa: FBT001
 from uuid import uuid4
 
 import factory

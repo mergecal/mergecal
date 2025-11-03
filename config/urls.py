@@ -1,12 +1,13 @@
-# ruff: noqa
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import include, path
+from django.contrib.sitemaps.views import sitemap
+from django.urls import include
+from django.urls import path
 from django.views import defaults as default_views
 from django.views.generic import TemplateView
-from django.contrib.sitemaps.views import sitemap
 from django.views.generic.base import RedirectView
+
 from mergecalweb.billing.views import PricingTableView
 from mergecalweb.blog.sitemaps import BlogSitemap
 from mergecalweb.calendars.views import url_validator
@@ -14,7 +15,7 @@ from mergecalweb.core.sitemaps import StaticViewSitemap
 
 
 def trigger_error(request):
-    division_by_zero = 1 / 0
+    division_by_zero = 1 / 0  # noqa: F841
 
 
 sitemaps = {
@@ -129,4 +130,7 @@ if settings.DEBUG:
     if "debug_toolbar" in settings.INSTALLED_APPS:
         import debug_toolbar
 
-        urlpatterns = [path("__debug__/", include(debug_toolbar.urls))] + urlpatterns
+        urlpatterns = [
+            path("__debug__/", include(debug_toolbar.urls)),
+            *urlpatterns,
+        ]

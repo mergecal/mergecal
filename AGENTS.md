@@ -20,3 +20,12 @@
 - Templates: `djlint --reformat mergecalweb/templates/` then `djlint`.
 - Typing: `mypy --config-file pyproject.toml`; favor explicit annotations and `from __future__ import annotations`.
 - Style: 4-space Python, 2-space templates, double quotes, avoid bare excepts; no Cursor/Copilot rule files.
+- Logging: Structured logging for filtering user journeys, billing flows, calendar operations:
+  - ALWAYS: `extra={"event": LogEvent.CONSTANT, ...}` (import from `mergecalweb.core.logging_events`)
+  - User context: `"user_id": user.pk, "email": user.email` - filter all actions by user
+  - Calendar: `"calendar_uuid": calendar.uuid, "calendar_name": calendar.name`
+  - Source: `"source_id": source.pk, "source_url": source.url`
+  - Many events use params for specificity: `"action": "created"`, `"status": "success"`, `"error_type": "timeout"`
+  - Levels: `logger.info` (normal ops), `logger.warning` (expected failures), `logger.exception` (Sentry alerts)
+  - Debug logs may skip event constant if internal/verbose
+  - Pre-commit hook (semgrep) enforces logging conventions automatically

@@ -8,6 +8,8 @@ from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
+from mergecalweb.core.emails import send_email
+
 from .forms import UserAdminChangeForm
 from .forms import UserAdminCreationForm
 from .models import User
@@ -74,8 +76,6 @@ class UserAdmin(auth_admin.UserAdmin):
 
     @admin.action(description="Send feedback email")
     def send_feedback_email(self, request, queryset):
-        from mergecalweb.core.emails import send_email
-
         for user in queryset:
             send_email(
                 to_users=[user],
@@ -102,8 +102,6 @@ class UserAdmin(auth_admin.UserAdmin):
 
     @admin.action(description="Send shorterm rental feedback email")
     def send_shorterm_rental_feedback_email(self, request, queryset):
-        from mergecalweb.core.emails import send_email
-
         for user in queryset:
             send_email(
                 to_users=[user],

@@ -7,7 +7,7 @@ watchfiles==1.0.4  # https://github.com/samuelcolvin/watchfiles
 
 # Logging
 # ------------------------------------------------------------------------------
-rich==13.9.4  # https://github.com/Textualize/rich
+rich==13.5.2  # https://github.com/Textualize/rich
 
 # Testing
 # ------------------------------------------------------------------------------
@@ -29,6 +29,7 @@ ruff==0.9.3  # https://github.com/astral-sh/ruff
 coverage==7.10.7  # https://github.com/nedbat/coveragepy
 djlint==1.36.4  # https://github.com/Riverside-Healthcare/djLint
 pre-commit==4.1.0  # https://github.com/pre-commit/pre-commit
+semgrep==1.142.0  # https://github.com/semgrep/semgrep
 
 # Django
 # ------------------------------------------------------------------------------

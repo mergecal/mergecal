@@ -35,7 +35,8 @@ class CalendarMergerService:
         logger.debug(
             "Starting calendar merge",
             extra={
-                "event": LogEvent.CALENDAR_MERGE_START,
+                "event": LogEvent.CALENDAR_MERGE,
+                "status": "start",
                 "calendar_uuid": self.calendar.uuid,
                 "calendar_name": self.calendar.name,
                 "owner_id": self.calendar.owner.pk,
@@ -48,7 +49,8 @@ class CalendarMergerService:
             logger.warning(
                 "Free tier user accessing calendar, returning warning",
                 extra={
-                    "event": LogEvent.CALENDAR_MERGE_FREE_TIER_WARNING,
+                    "event": LogEvent.CALENDAR_MERGE,
+                    "status": "free-tier-warning",
                     "calendar_uuid": self.calendar.uuid,
                     "calendar_name": self.calendar.name,
                     "owner_id": self.calendar.owner.pk,
@@ -65,7 +67,8 @@ class CalendarMergerService:
             logger.debug(
                 "Calendar merge cache hit",
                 extra={
-                    "event": LogEvent.CALENDAR_MERGE_CACHE_HIT,
+                    "event": LogEvent.CALENDAR_MERGE,
+                    "status": "cache-hit",
                     "calendar_uuid": self.calendar.uuid,
                     "calendar_name": self.calendar.name,
                     "size_bytes": len(cached_calendar),
@@ -76,7 +79,8 @@ class CalendarMergerService:
         logger.debug(
             "Calendar merge cache miss, generating",
             extra={
-                "event": LogEvent.CALENDAR_MERGE_CACHE_MISS,
+                "event": LogEvent.CALENDAR_MERGE,
+                "status": "cache-miss",
                 "calendar_uuid": self.calendar.uuid,
                 "calendar_name": self.calendar.name,
             },
@@ -92,7 +96,8 @@ class CalendarMergerService:
         logger.debug(
             "Calendar sources processed",
             extra={
-                "event": LogEvent.CALENDAR_SOURCES_PROCESSED,
+                "event": LogEvent.CALENDAR_MERGE,
+                "status": "sources-processed",
                 "calendar_uuid": self.calendar.uuid,
                 "calendar_name": self.calendar.name,
                 "total_sources": len(processed_sources),
@@ -113,7 +118,8 @@ class CalendarMergerService:
         logger.info(
             "Calendar merge completed successfully",
             extra={
-                "event": LogEvent.CALENDAR_MERGE_SUCCESS,
+                "event": LogEvent.CALENDAR_MERGE,
+                "status": "success",
                 "calendar_uuid": self.calendar.uuid,
                 "calendar_name": self.calendar.name,
                 "owner_id": self.calendar.owner.pk,

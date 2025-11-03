@@ -1,9 +1,10 @@
-# ruff: noqa: E501 ERA001
+# ruff: noqa: E501
 import logging
 import typing
 import uuid
 import zoneinfo
 from datetime import timedelta
+from urllib.parse import urlencode
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -16,6 +17,7 @@ from requests.exceptions import RequestException
 
 from mergecalweb.calendars.fetching import CalendarFetcher
 from mergecalweb.core.constants import SourceLimits
+from mergecalweb.core.logging_events import LogEvent
 from mergecalweb.core.models import TimeStampedModel
 from mergecalweb.core.utils import get_site_url
 from mergecalweb.core.utils import is_local_url
@@ -41,9 +43,15 @@ def validate_ical_url(url):
             if not Calendar.objects.filter(uuid=calendar_uuid).exists():
                 msg = "The specified MergeCal calendar does not exist."
                 logger.warning(
-                    "Validation failed: Local calendar not found - uuid=%s, url=%s",
-                    calendar_uuid,
-                    url,
+                    "Validation failed: Local calendar not found",
+                    extra={
+                        "event": LogEvent.VALIDATION,
+                        "validation_type": "ical-url",
+                        "status": "failed",
+                        "error_type": "local-not-found",
+                        "calendar_uuid": calendar_uuid,
+                        "url": url,
+                    },
                 )
                 raise ValidationError(msg)
             logger.debug(
@@ -69,19 +77,39 @@ def validate_ical_url(url):
         ):
             msg = "The URL returned an HTML page instead of an iCalendar feed. Please check the URL and ensure it points to a calendar feed, not a web page."
             logger.warning(
-                "iCal URL validation failed (HTML detected): url=%s, response_preview=%s",
-                url,
-                response[:MAX_ERROR_MESSAGE_LENGTH],
+                "iCal URL validation failed (HTML detected)",
+                extra={
+                    "event": LogEvent.VALIDATION,
+                    "validation_type": "ical-url",
+                    "status": "failed",
+                    "error_type": "html-detected",
+                    "url": url,
+                    "response_preview": response[:MAX_ERROR_MESSAGE_LENGTH],
+                },
             )
             raise ValidationError(msg)
 
         cal = Ical.from_ical(response)  # noqa: F841
-        logger.info("iCal URL validation successful: %s", url)
+        logger.info(
+            "iCal URL validation successful",
+            extra={
+                "event": LogEvent.VALIDATION,
+                "validation_type": "ical-url",
+                "status": "success",
+                "url": url,
+            },
+        )
     except RequestException as err:
         msg = f"Enter a valid URL. Details: {err}"
         logger.exception(
-            "iCal URL validation failed (network error): url=%s",
-            url,
+            "iCal URL validation failed (network error)",
+            extra={
+                "event": LogEvent.VALIDATION,
+                "validation_type": "ical-url",
+                "status": "failed",
+                "error_type": "network",
+                "url": url,
+            },
         )
         raise ValidationError(msg) from err
     except ValueError as err:
@@ -90,9 +118,15 @@ def validate_ical_url(url):
         if "<!DOCTYPE" in err_str or "<html" in err_str:
             msg = "The URL returned an HTML page instead of an iCalendar feed. Please check the URL and ensure it points to a calendar feed, not a web page."
             logger.warning(
-                "iCal URL validation failed (HTML in error): url=%s, error_preview=%s",
-                url,
-                err_str[:MAX_ERROR_MESSAGE_LENGTH],
+                "iCal URL validation failed (HTML in error)",
+                extra={
+                    "event": LogEvent.VALIDATION,
+                    "validation_type": "ical-url",
+                    "status": "failed",
+                    "error_type": "html-detected",
+                    "url": url,
+                    "error_preview": err_str[:MAX_ERROR_MESSAGE_LENGTH],
+                },
             )
         else:
             # Truncate error message if too long
@@ -101,8 +135,14 @@ def validate_ical_url(url):
             else:
                 msg = f"Enter a valid iCalendar feed. Details: {err}"
             logger.exception(
-                "iCal URL validation failed (invalid format): url=%s",
-                url,
+                "iCal URL validation failed (invalid format)",
+                extra={
+                    "event": LogEvent.VALIDATION,
+                    "validation_type": "ical-url",
+                    "status": "failed",
+                    "error_type": "parse",
+                    "url": url,
+                },
             )
         raise ValidationError(msg) from err
 
@@ -172,9 +212,18 @@ class Calendar(TimeStampedModel):
             and self.update_frequency_seconds != TWELVE_HOURS_IN_SECONDS
         ):
             logger.warning(
-                "Calendar validation failed: User %s (tier=%s) attempted to set custom update frequency",
-                self.owner.username,
-                self.owner.subscription_tier,
+                "Calendar validation failed: User attempted to set custom update frequency",
+                extra={
+                    "event": LogEvent.VALIDATION,
+                    "validation_type": "tier-feature",
+                    "status": "denied",
+                    "feature": "custom-frequency",
+                    "user_id": self.owner.pk,
+                    "email": self.owner.email,
+                    "user_tier": self.owner.subscription_tier,
+                    "calendar_uuid": self.uuid if self.pk else None,
+                    "calendar_name": self.name,
+                },
             )
             raise ValidationError(
                 {
@@ -186,9 +235,18 @@ class Calendar(TimeStampedModel):
 
         if not self.owner.can_remove_branding and self.remove_branding:
             logger.warning(
-                "Calendar validation failed: User %s (tier=%s) attempted to remove branding",
-                self.owner.username,
-                self.owner.subscription_tier,
+                "Calendar validation failed: User attempted to remove branding",
+                extra={
+                    "event": LogEvent.VALIDATION,
+                    "validation_type": "tier-feature",
+                    "status": "denied",
+                    "feature": "remove-branding",
+                    "user_id": self.owner.pk,
+                    "email": self.owner.email,
+                    "user_tier": self.owner.subscription_tier,
+                    "calendar_uuid": self.uuid if self.pk else None,
+                    "calendar_name": self.name,
+                },
             )
             raise ValidationError(
                 {"remove_branding": _("You don't have permission to remove branding.")},
@@ -198,10 +256,16 @@ class Calendar(TimeStampedModel):
             if not self.owner.can_add_calendar:
                 current_count = self.owner.calendar_set.count()
                 logger.warning(
-                    "Calendar creation denied: User %s (tier=%s) at limit - current=%d",
-                    self.owner.username,
-                    self.owner.subscription_tier,
-                    current_count,
+                    "Calendar creation denied: User at limit",
+                    extra={
+                        "event": LogEvent.VALIDATION,
+                        "validation_type": "calendar-limit",
+                        "status": "denied",
+                        "user_id": self.owner.pk,
+                        "email": self.owner.email,
+                        "user_tier": self.owner.subscription_tier,
+                        "current_count": current_count,
+                    },
                 )
                 msg = "Upgrade to create more calendars."
                 raise ValidationError(msg)
@@ -270,8 +334,6 @@ class Calendar(TimeStampedModel):
         Generate URL for the validator page with this calendar and all its sources.
         MergeCal URL is added first, followed by all source URLs.
         """
-        from urllib.parse import urlencode
-
         domain_name = get_site_url()
         # Start with the merged calendar URL
         urls = [f"{domain_name}{self.get_calendar_file_url()}"]
@@ -371,11 +433,18 @@ class Source(TimeStampedModel):
             if not self.calendar.can_add_source:
                 current_count = self.calendar.calendarOf.count()
                 logger.warning(
-                    "Source creation denied: Calendar '%s' (owner=%s, tier=%s) at limit - current=%d",
-                    self.calendar.name,
-                    self.calendar.owner.username,
-                    self.calendar.owner.subscription_tier,
-                    current_count,
+                    "Source creation denied: Calendar at limit",
+                    extra={
+                        "event": LogEvent.VALIDATION,
+                        "validation_type": "source-limit",
+                        "status": "denied",
+                        "calendar_uuid": self.calendar.uuid,
+                        "calendar_name": self.calendar.name,
+                        "user_id": self.calendar.owner.pk,
+                        "email": self.calendar.owner.email,
+                        "user_tier": self.calendar.owner.subscription_tier,
+                        "current_count": current_count,
+                    },
                 )
                 msg = "upgrade to add more sources"
                 raise ValidationError(msg)
@@ -389,9 +458,19 @@ class Source(TimeStampedModel):
                 or self.exclude_keywords
             ):
                 logger.warning(
-                    "Source customization denied: User %s (tier=%s) attempted to use premium features",
-                    self.calendar.owner.username,
-                    self.calendar.owner.subscription_tier,
+                    "Source customization denied: User attempted to use premium features",
+                    extra={
+                        "event": LogEvent.VALIDATION,
+                        "validation_type": "tier-feature",
+                        "status": "denied",
+                        "feature": "source-customization",
+                        "user_id": self.calendar.owner.pk,
+                        "email": self.calendar.owner.email,
+                        "user_tier": self.calendar.owner.subscription_tier,
+                        "calendar_uuid": self.calendar.uuid,
+                        "source_id": self.pk if self.pk else None,
+                        "source_name": self.name,
+                    },
                 )
                 msg = "Customization features are only available for Business and Supporter plans"
                 raise ValidationError(msg)

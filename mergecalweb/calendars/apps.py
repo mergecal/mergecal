@@ -6,4 +6,4 @@ class CalendarsConfig(AppConfig):
     name = "mergecalweb.calendars"
 
     def ready(self):
-        from mergecalweb.calendars import signals  # noqa: F401
+        from mergecalweb.calendars import signals  # noqa: F401, PLC0415

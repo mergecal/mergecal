@@ -37,7 +37,8 @@ class SourceProcessor:
         logger.debug(
             "Starting source fetch and validation",
             extra={
-                "event": LogEvent.SOURCE_FETCH_START,
+                "event": LogEvent.SOURCE_FETCH,
+                "status": "start",
                 "source_id": self.source.pk,
                 "source_name": self.source.name,
                 "source_url": self.source.url[:200],
@@ -60,7 +61,8 @@ class SourceProcessor:
                 logger.debug(
                     "Source timezone standardization successful",
                     extra={
-                        "event": LogEvent.SOURCE_TIMEZONE_STANDARDIZED,
+                        "event": LogEvent.SOURCE_TIMEZONE,
+                        "action": "standardized",
                         "source_id": self.source.pk,
                         "source_name": self.source.name,
                     },
@@ -71,7 +73,8 @@ class SourceProcessor:
                 logger.warning(
                     "Source timezone standardization skipped due to error",
                     extra={
-                        "event": LogEvent.SOURCE_TIMEZONE_SKIP,
+                        "event": LogEvent.SOURCE_TIMEZONE,
+                        "action": "skipped",
                         "source_id": self.source.pk,
                         "source_name": self.source.name,
                         "error": str(e),
@@ -82,7 +85,8 @@ class SourceProcessor:
             logger.debug(
                 "Source fetched and validated successfully",
                 extra={
-                    "event": LogEvent.SOURCE_FETCH_SUCCESS,
+                    "event": LogEvent.SOURCE_FETCH,
+                    "status": "success",
                     "source_id": self.source.pk,
                     "source_name": self.source.name,
                     "source_url": self.source.url[:200],
@@ -95,7 +99,8 @@ class SourceProcessor:
             logger.info(
                 "Source fetch timed out",
                 extra={
-                    "event": LogEvent.SOURCE_FETCH_TIMEOUT,
+                    "event": LogEvent.SOURCE_FETCH,
+                    "status": "timeout",
                     "source_id": self.source.pk,
                     "source_name": self.source.name,
                     "source_url": self.source.url[:200],
@@ -108,7 +113,8 @@ class SourceProcessor:
             logger.warning(
                 "Source fetch failed due to network error",
                 extra={
-                    "event": LogEvent.SOURCE_FETCH_NETWORK_ERROR,
+                    "event": LogEvent.SOURCE_FETCH,
+                    "status": "network-error",
                     "source_id": self.source.pk,
                     "source_name": self.source.name,
                     "source_url": self.source.url[:200],
@@ -121,7 +127,8 @@ class SourceProcessor:
             logger.exception(
                 "Source fetch failed due to validation error",
                 extra={
-                    "event": LogEvent.SOURCE_FETCH_VALIDATION_ERROR,
+                    "event": LogEvent.SOURCE_FETCH,
+                    "status": "validation-error",
                     "source_id": self.source.pk,
                     "source_name": self.source.name,
                     "source_url": self.source.url[:200],
@@ -156,7 +163,8 @@ class SourceProcessor:
         logger.debug(
             "Starting source customization",
             extra={
-                "event": LogEvent.SOURCE_CUSTOMIZATION_START,
+                "event": LogEvent.SOURCE_CUSTOMIZATION,
+                "status": "start",
                 "source_id": self.source.pk,
                 "source_name": self.source.name,
                 "can_customize": owner_can_customize,
@@ -169,7 +177,8 @@ class SourceProcessor:
             logger.debug(
                 "Source customization skipped, user lacks permission",
                 extra={
-                    "event": LogEvent.SOURCE_CUSTOMIZATION_SKIPPED,
+                    "event": LogEvent.SOURCE_CUSTOMIZATION,
+                    "status": "skipped",
                     "source_id": self.source.pk,
                     "source_name": self.source.name,
                     "owner_tier": self.source.calendar.owner.subscription_tier,
@@ -210,7 +219,8 @@ class SourceProcessor:
         logger.debug(
             "Source customization completed",
             extra={
-                "event": LogEvent.SOURCE_CUSTOMIZATION_COMPLETE,
+                "event": LogEvent.SOURCE_CUSTOMIZATION,
+                "status": "complete",
                 "source_id": self.source.pk,
                 "source_name": self.source.name,
                 "calendar_uuid": self.source.calendar.uuid,

@@ -1,4 +1,4 @@
-# ruff: noqa: PLR0912, ERA001, PLR0915
+# ruff: noqa: ERA001
 
 import logging
 from datetime import timedelta
@@ -13,6 +13,7 @@ from icalendar import TimezoneStandard
 
 from mergecalweb.calendars.meetup import fetch_and_create_meetup_calendar
 from mergecalweb.calendars.meetup import is_meetup_url
+from mergecalweb.core.logging_events import LogEvent
 
 logger = logging.getLogger(__name__)
 
@@ -23,14 +24,19 @@ def combine_calendar(calendar_instance, origin_domain):
     if not user.is_free_tier or not cal_bye_str:
         if not user.is_free_tier:
             logger.info(
-                "User %s is not on free tier. Generating new for UUID: %s",
-                user.username,
-                calendar_instance.uuid,
+                "Deprecated: User not on free tier, generating calendar",
+                extra={
+                    "event": LogEvent.DEPRECATED_CALENDAR_OPERATION,
+                    "calendar_uuid": calendar_instance.uuid,
+                },
             )
         else:
             logger.info(
-                "Calendar data not found in cache, generating new for UUID: %s",
-                calendar_instance.uuid,
+                "Deprecated: Calendar data not found in cache",
+                extra={
+                    "event": LogEvent.DEPRECATED_CALENDAR_OPERATION,
+                    "calendar_uuid": calendar_instance.uuid,
+                },
             )
         newcal = Calendar()
         newcal.add("prodid", "-//" + calendar_instance.name + "//mergecal.org//")
@@ -66,15 +72,24 @@ def combine_calendar(calendar_instance, origin_domain):
         for source in calendar_instance.calendarOf.all():
             cal_data = None
             if is_meetup_url(source.url):
-                logger.info("Meetup URL detected: %s", source.url)
+                logger.info(
+                    "Deprecated: Meetup URL detected",
+                    extra={
+                        "event": LogEvent.DEPRECATED_CALENDAR_OPERATION,
+                        "source_url": source.url,
+                    },
+                )
                 cal_data = fetch_and_create_meetup_calendar(source.url)
             else:
                 try:
                     cal_data = fetch_calendar_data(source.url)
                 except Exception:
                     logger.exception(
-                        "Fetching Cal: Unexpected error with URL %s",
-                        source.url,
+                        "Deprecated: Error fetching calendar",
+                        extra={
+                            "event": LogEvent.DEPRECATED_CALENDAR_OPERATION,
+                            "source_url": source.url,
+                        },
                     )
             if cal_data:
                 process_calendar_data(
@@ -91,12 +106,20 @@ def combine_calendar(calendar_instance, origin_domain):
         calendar_instance.save()
         cache.set(f"calendar_str_{calendar_instance.uuid}", cal_bye_str, 60 * 60 * 24)
         logger.info(
-            "Calendar for instance %s (%s) combined and saved.",
-            calendar_instance.name,
-            calendar_instance.uuid,
+            "Deprecated: Calendar combined and saved",
+            extra={
+                "event": LogEvent.DEPRECATED_CALENDAR_OPERATION,
+                "calendar_uuid": calendar_instance.uuid,
+            },
         )
     else:
-        logger.info("Calendar data found in cache for UUID: %s", calendar_instance.uuid)
+        logger.info(
+            "Deprecated: Calendar data found in cache",
+            extra={
+                "event": LogEvent.DEPRECATED_CALENDAR_OPERATION,
+                "calendar_uuid": calendar_instance.uuid,
+            },
+        )
 
     return cal_bye_str
 
@@ -118,11 +141,20 @@ def fetch_calendar_data(url):
         response.raise_for_status()
         return Calendar.from_ical(response.text)
     except requests.exceptions.HTTPError:
-        logger.exception("HTTP error fetching URL %s", url)
+        logger.exception(
+            "Deprecated: HTTP error fetching URL",
+            extra={"event": LogEvent.DEPRECATED_CALENDAR_OPERATION, "url": url},
+        )
     except ValueError:
-        logger.exception("Value error parsing URL %s", url)
+        logger.exception(
+            "Deprecated: Value error parsing URL",
+            extra={"event": LogEvent.DEPRECATED_CALENDAR_OPERATION, "url": url},
+        )
     except Exception:
-        logger.exception("Unexpected error fetching URL %s", url)
+        logger.exception(
+            "Deprecated: Unexpected error fetching URL",
+            extra={"event": LogEvent.DEPRECATED_CALENDAR_OPERATION, "url": url},
+        )
     return None
 
 

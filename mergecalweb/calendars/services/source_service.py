@@ -70,7 +70,8 @@ class SourceService:
             logger.warning(
                 "Estimated fetch time exceeds Gunicorn timeout limit",
                 extra={
-                    "event": LogEvent.SOURCE_TIMEOUT_CALCULATED,
+                    "event": LogEvent.SOURCE_FETCH,
+                    "status": "timeout-calculated",
                     "source_count": source_count,
                     "per_source_timeout_seconds": effective_timeout,
                     "estimated_total_seconds": estimated_total_time,
@@ -82,7 +83,8 @@ class SourceService:
             logger.debug(
                 "Calculated per-source timeout",
                 extra={
-                    "event": LogEvent.SOURCE_TIMEOUT_CALCULATED,
+                    "event": LogEvent.SOURCE_FETCH,
+                    "status": "timeout-calculated",
                     "source_count": source_count,
                     "available_time_seconds": available_time,
                     "per_source_timeout_seconds": effective_timeout,
@@ -143,18 +145,31 @@ class SourceService:
         if not uuid:
             source_data.error = "Invalid local URL format"
             logger.error(
-                "Local source: Invalid URL format - source=%s, url=%s",
-                source.name,
-                source.url,
+                "Local source: Invalid URL format",
+                extra={
+                    "event": LogEvent.SOURCE_ERROR,
+                    "error_type": "invalid-format",
+                    "source_id": source.pk,
+                    "source_url": source.url,
+                    "source_name": source.name,
+                    "calendar_uuid": source.calendar.uuid,
+                },
             )
             return
 
         if uuid in self.processed_uuids:
             source_data.error = "Circular calendar reference detected"
             logger.error(
-                "Local source: Circular reference detected - source=%s, uuid=%s",
-                source.name,
-                uuid,
+                "Local source: Circular reference detected",
+                extra={
+                    "event": LogEvent.SOURCE_ERROR,
+                    "error_type": "circular-ref",
+                    "source_id": source.pk,
+                    "source_url": source.url,
+                    "source_name": source.name,
+                    "calendar_uuid": source.calendar.uuid,
+                    "nested_uuid": uuid,
+                },
             )
             return
 
@@ -162,21 +177,36 @@ class SourceService:
         if not sub_calendar:
             source_data.error = "Referenced calendar does not exist"
             logger.error(
-                "Local source: Calendar not found - source=%s, uuid=%s",
-                source.name,
-                uuid,
+                "Local source: Calendar not found",
+                extra={
+                    "event": LogEvent.SOURCE_ERROR,
+                    "error_type": "not-found",
+                    "source_id": source.pk,
+                    "source_url": source.url,
+                    "source_name": source.name,
+                    "calendar_uuid": source.calendar.uuid,
+                    "nested_uuid": uuid,
+                },
             )
             return
 
         self.processed_uuids.add(uuid)
 
         # Import here to avoid circular imports
-        from .calendar_merger_service import CalendarMergerService
+        from .calendar_merger_service import CalendarMergerService  # noqa: PLC0415
 
         logger.info(
-            "Local source: Merging nested calendar - source=%s, nested_calendar=%s",
-            source.name,
-            sub_calendar.name,
+            "Local source: Merging nested calendar",
+            extra={
+                "event": LogEvent.SOURCE_FETCH,
+                "status": "start",
+                "source_type": "local",
+                "source_id": source.pk,
+                "source_name": source.name,
+                "calendar_uuid": source.calendar.uuid,
+                "nested_calendar_uuid": sub_calendar.uuid,
+                "nested_calendar_name": sub_calendar.name,
+            },
         )
 
         merger = CalendarMergerService(sub_calendar, self.processed_uuids)
@@ -184,9 +214,17 @@ class SourceService:
         source_data.ical = ICalendar.from_ical(calendar_str)
 
         logger.info(
-            "Local source: SUCCESS - source=%s, nested_calendar=%s",
-            source.name,
-            sub_calendar.name,
+            "Local source: Nested calendar merged successfully",
+            extra={
+                "event": LogEvent.SOURCE_FETCH,
+                "status": "success",
+                "source_type": "local",
+                "source_id": source.pk,
+                "source_name": source.name,
+                "calendar_uuid": source.calendar.uuid,
+                "nested_calendar_uuid": sub_calendar.uuid,
+                "nested_calendar_name": sub_calendar.name,
+            },
         )
 
     def _process_meetup_source(self, source_data: SourceData) -> None:
@@ -194,7 +232,18 @@ class SourceService:
         source = source_data.source
         ical = fetch_and_create_meetup_calendar(source.url)
         if not ical:
-            logger.error("Failed to fetch Meetup calendar: %s", source.url)
+            logger.error(
+                "Failed to fetch Meetup calendar",
+                extra={
+                    "event": LogEvent.SOURCE_FETCH,
+                    "status": "failed",
+                    "source_type": "meetup",
+                    "source_id": source.pk,
+                    "source_url": source.url,
+                    "source_name": source.name,
+                    "calendar_uuid": source.calendar.uuid,
+                },
+            )
             source_data.error = "Failed to fetch Meetup calendar"
             return
 
