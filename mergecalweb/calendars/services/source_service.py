@@ -147,7 +147,8 @@ class SourceService:
             logger.error(
                 "Local source: Invalid URL format",
                 extra={
-                    "event": LogEvent.SOURCE_LOCAL_INVALID_FORMAT,
+                    "event": LogEvent.SOURCE_ERROR,
+                    "error_type": "invalid-format",
                     "source_id": source.pk,
                     "source_url": source.url,
                     "source_name": source.name,
@@ -161,7 +162,8 @@ class SourceService:
             logger.error(
                 "Local source: Circular reference detected",
                 extra={
-                    "event": LogEvent.SOURCE_LOCAL_CIRCULAR_REF,
+                    "event": LogEvent.SOURCE_ERROR,
+                    "error_type": "circular-ref",
                     "source_id": source.pk,
                     "source_url": source.url,
                     "source_name": source.name,
@@ -177,7 +179,8 @@ class SourceService:
             logger.error(
                 "Local source: Calendar not found",
                 extra={
-                    "event": LogEvent.SOURCE_LOCAL_NOT_FOUND,
+                    "event": LogEvent.SOURCE_ERROR,
+                    "error_type": "not-found",
                     "source_id": source.pk,
                     "source_url": source.url,
                     "source_name": source.name,
@@ -195,7 +198,9 @@ class SourceService:
         logger.info(
             "Local source: Merging nested calendar",
             extra={
-                "event": LogEvent.SOURCE_LOCAL_MERGE_START,
+                "event": LogEvent.SOURCE_FETCH,
+                "status": "start",
+                "source_type": "local",
                 "source_id": source.pk,
                 "source_name": source.name,
                 "calendar_uuid": source.calendar.uuid,
@@ -211,7 +216,9 @@ class SourceService:
         logger.info(
             "Local source: Nested calendar merged successfully",
             extra={
-                "event": LogEvent.SOURCE_LOCAL_MERGE_SUCCESS,
+                "event": LogEvent.SOURCE_FETCH,
+                "status": "success",
+                "source_type": "local",
                 "source_id": source.pk,
                 "source_name": source.name,
                 "calendar_uuid": source.calendar.uuid,
@@ -228,7 +235,9 @@ class SourceService:
             logger.error(
                 "Failed to fetch Meetup calendar",
                 extra={
-                    "event": LogEvent.SOURCE_MEETUP_FETCH_ERROR,
+                    "event": LogEvent.SOURCE_FETCH,
+                    "status": "failed",
+                    "source_type": "meetup",
                     "source_id": source.pk,
                     "source_url": source.url,
                     "source_name": source.name,
