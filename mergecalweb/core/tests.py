@@ -1,7 +1,10 @@
 """Tests for core functionality."""
 
+import datetime
+
 import pytest
 from django.core import mail
+from django.utils import timezone
 
 from mergecalweb.billing.emails import downgrade_subscription_email
 from mergecalweb.billing.emails import send_trial_ending_email
@@ -54,10 +57,6 @@ class TestEmailSystem:
     def test_upgrade_subscription_email_existing_user(self, user: User):
         """Test upgrade email for existing user."""
         # Make user appear to be created over 2 hours ago
-        import datetime
-
-        from django.utils import timezone
-
         user.date_joined = timezone.now() - datetime.timedelta(hours=2)
         user.save()
 
@@ -99,10 +98,6 @@ class TestEmailSystem:
     def test_email_has_plain_text_fallback(self, user: User):
         """Test that emails include plain text fallback."""
         # Make user appear to be created over 2 hours ago
-        import datetime
-
-        from django.utils import timezone
-
         user.date_joined = timezone.now() - datetime.timedelta(hours=2)
         user.save()
 

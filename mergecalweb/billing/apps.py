@@ -7,4 +7,4 @@ class BillingConfig(AppConfig):
     verbose_name = "Billing"
 
     def ready(self):
-        import mergecalweb.billing.signals  # noqa: F401
+        import mergecalweb.billing.signals  # noqa: F401, PLC0415
