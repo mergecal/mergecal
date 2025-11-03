@@ -95,9 +95,9 @@ class CalendarCreateView(LoginRequiredMixin, CreateView):
         logger.info(
             "User created new calendar",
             extra={
-                "event": LogEvent.CALENDAR_CREATED,
+                "event": LogEvent.PAGE_VIEW,
+                "view_type": "calendar-create",
                 "user_id": user.pk,
-                "username": user.username,
                 "email": user.email,
                 "calendar_uuid": calendar.uuid,
                 "calendar_name": calendar.name,
@@ -138,9 +138,9 @@ class CalendarUpdateView(LoginRequiredMixin, UpdateView):
         logger.info(
             "User updated calendar",
             extra={
-                "event": LogEvent.CALENDAR_UPDATED,
+                "event": LogEvent.PAGE_VIEW,
+                "view_type": "calendar-update",
                 "user_id": user.pk,
-                "username": user.username,
                 "email": user.email,
                 "calendar_uuid": calendar.uuid,
                 "calendar_name": calendar.name,
@@ -166,9 +166,9 @@ class CalendarDeleteView(LoginRequiredMixin, DeleteView):
         logger.info(
             "User deleted calendar",
             extra={
-                "event": LogEvent.CALENDAR_DELETED,
+                "event": LogEvent.PAGE_VIEW,
+                "view_type": "calendar-delete",
                 "user_id": user.pk,
-                "username": user.username,
                 "email": user.email,
                 "calendar_uuid": calendar.uuid,
                 "calendar_name": calendar.name,
@@ -199,9 +199,9 @@ class SourceAddView(LoginRequiredMixin, CreateView):
         logger.info(
             "User added source to calendar",
             extra={
-                "event": LogEvent.SOURCE_ADDED,
+                "event": LogEvent.PAGE_VIEW,
+                "view_type": "source-add",
                 "user_id": user.pk,
-                "username": user.username,
                 "email": user.email,
                 "calendar_uuid": self.calendar.uuid,
                 "calendar_name": self.calendar.name,
@@ -259,9 +259,9 @@ class SourceEditView(LoginRequiredMixin, UpdateView):
         logger.info(
             "User updated source",
             extra={
-                "event": LogEvent.SOURCE_UPDATED,
+                "event": LogEvent.PAGE_VIEW,
+                "view_type": "source-edit",
                 "user_id": user.pk,
-                "username": user.username,
                 "email": user.email,
                 "calendar_uuid": source.calendar.uuid,
                 "calendar_name": source.calendar.name,
@@ -290,9 +290,9 @@ def source_delete(request, pk):
     logger.info(
         "User deleted source from calendar",
         extra={
-            "event": LogEvent.SOURCE_DELETED,
+            "event": LogEvent.PAGE_VIEW,
+            "view_type": "source-delete",
             "user_id": user.pk,
-            "username": user.username,
             "email": user.email,
             "calendar_uuid": source.calendar.uuid,
             "calendar_name": source.calendar.name,
@@ -353,7 +353,7 @@ class CalendarFileView(View):
             logger.error(
                 "Calendar merge failed during file access",
                 extra={
-                    "event": LogEvent.CALENDAR_FILE_MERGE_FAILED,
+                    "event": LogEvent.CALENDAR_FILE_ERROR,
                     "calendar_uuid": uuid,
                     "calendar_name": calendar.name,
                     "owner_id": calendar.owner.pk,
@@ -408,7 +408,8 @@ def calendar_view(request: HttpRequest, uuid: str) -> HttpResponse:
         logger.info(
             "User viewing calendar web page",
             extra={
-                "event": LogEvent.CALENDAR_WEB_VIEW,
+                "event": LogEvent.PAGE_VIEW,
+                "view_type": "calendar-web",
                 "user_id": user.pk,
                 "username": user.username,
                 "email": user.email,
@@ -468,9 +469,9 @@ def url_validator(request: HttpRequest) -> HttpResponse:
     logger.info(
         "Staff member accessed URL validator tool",
         extra={
-            "event": LogEvent.URL_VALIDATOR_ACCESS,
+            "event": LogEvent.PAGE_VIEW,
+            "view_type": "url-validator",
             "user_id": user.pk,
-            "username": user.username,
             "email": user.email,
             "is_staff": user.is_staff,
             "is_superuser": user.is_superuser,

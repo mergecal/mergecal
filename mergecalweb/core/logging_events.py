@@ -52,6 +52,7 @@ class LogEvent:
     # "calendar-web"/"calendar-iframe"/"url-validator"
     PAGE_VIEW = "page-view"
 
+    CALENDAR_IFRAME_VIEW = "calendar-iframe-view"
     # User Actions
     USER_PROFILE_UPDATED = "user-profile-updated"
     USER_PROFILE_SUBSCRIPTION_SYNC = "user-profile-subscription-sync"
