@@ -19,7 +19,7 @@ class BlogPostListView(ListView):
     paginate_by = 15  # that is all it takes to add pagination in a Class-Based View
 
     def get(self, request, *args, **kwargs):
-        extra = {"event": LogEvent.BLOG_POST_LIST_VIEW}
+        extra = {"event": LogEvent.PAGE_VIEW, "view_type": "blog_post_list"}
         if request.user.is_authenticated:
             extra["user_id"] = request.user.pk
             extra["email"] = request.user.email
