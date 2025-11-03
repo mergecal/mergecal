@@ -22,7 +22,8 @@ def update_stripe_subscription(self, user_id: int) -> None:
         logger.warning(
             "User missing Stripe customer during subscription update",
             extra={
-                "event": LogEvent.SUBSCRIPTION_UPDATE_NO_CUSTOMER,
+                "event": LogEvent.BILLING_ERROR,
+                "error_type": "no-customer",
                 "user_id": user_id,
                 "username": user.username,
                 "email": user.email,

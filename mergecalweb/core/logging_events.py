@@ -54,6 +54,7 @@ class LogEvent:
 
     # User Actions
     USER_PROFILE_UPDATED = "user-profile-updated"
+    USER_PROFILE_SUBSCRIPTION_SYNC = "user-profile-subscription-sync"
 
     # Calendar CRUD (use with "action" parameter)
     # Use with "action": "created"/"updated"/"deleted"
@@ -75,7 +76,7 @@ class LogEvent:
 
     # Calendar Fetching (external source fetching - use with "status" parameter)
     # Use with "status": "cache-hit"/"cache-miss"/"success"/"failed"/
-    # "domain-config"
+    # "domain-config"/"cached"
     CALENDAR_FETCH = "calendar-fetch"
 
     # Calendar Merging (use with "status" parameter)
@@ -85,7 +86,7 @@ class LogEvent:
 
     # Source Processing (use with "status" and optionally "source_type")
     # Use with "status": "start"/"success"/"timeout"/"network-error"/
-    # "validation-error"/"meetup-error"
+    # "validation-error"/"meetup-error"/"timeout-calculated"
     # Optionally "source_type": "remote"/"local"/"meetup"
     SOURCE_FETCH = "source-fetch"
 

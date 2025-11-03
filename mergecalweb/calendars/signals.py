@@ -27,13 +27,8 @@ def clear_calendar_cache_on_source(sender, instance, **kwargs):
         "Source %s",
         action,
         extra={
-            "event": LogEvent.SOURCE_ADDED
-            if action == "created"
-            else (
-                LogEvent.SOURCE_UPDATED
-                if action == "updated"
-                else LogEvent.SOURCE_DELETED
-            ),
+            "event": LogEvent.SOURCE_ACTION,
+            "action": action,
             "source_id": instance.pk,
             "source_url": instance.url,
             "source_name": instance.name,
@@ -49,7 +44,8 @@ def clear_calendar_cache_on_source(sender, instance, **kwargs):
     logger.info(
         "Cache invalidated due to source change",
         extra={
-            "event": LogEvent.CACHE_INVALIDATED_SOURCE_CHANGE,
+            "event": LogEvent.CACHE_INVALIDATED,
+            "cache_reason": "source-change",
             "cache_key": cache_key,
             "source_id": instance.pk,
             "source_name": instance.name,
@@ -74,13 +70,8 @@ def clear_calendar_cache_on_calendar(sender, instance, **kwargs):
         "Calendar %s",
         action,
         extra={
-            "event": LogEvent.CALENDAR_CREATED
-            if action == "created"
-            else (
-                LogEvent.CALENDAR_UPDATED
-                if action == "updated"
-                else LogEvent.CALENDAR_DELETED
-            ),
+            "event": LogEvent.CALENDAR_ACTION,
+            "action": action,
             "calendar_uuid": instance.uuid,
             "calendar_name": instance.name,
             "user_id": instance.owner.pk,
@@ -93,7 +84,8 @@ def clear_calendar_cache_on_calendar(sender, instance, **kwargs):
     logger.info(
         "Cache invalidated due to calendar change",
         extra={
-            "event": LogEvent.CACHE_INVALIDATED_CALENDAR_CHANGE,
+            "event": LogEvent.CACHE_INVALIDATED,
+            "cache_reason": "calendar-change",
             "cache_key": cache_key,
             "calendar_uuid": instance.uuid,
             "calendar_name": instance.name,

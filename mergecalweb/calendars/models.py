@@ -45,7 +45,10 @@ def validate_ical_url(url):
                 logger.warning(
                     "Validation failed: Local calendar not found",
                     extra={
-                        "event": LogEvent.VALIDATION_ICAL_URL_LOCAL_NOT_FOUND,
+                        "event": LogEvent.VALIDATION,
+                        "validation_type": "ical-url",
+                        "status": "failed",
+                        "error_type": "local-not-found",
                         "calendar_uuid": calendar_uuid,
                         "url": url,
                     },
@@ -76,7 +79,10 @@ def validate_ical_url(url):
             logger.warning(
                 "iCal URL validation failed (HTML detected)",
                 extra={
-                    "event": LogEvent.VALIDATION_ICAL_URL_HTML_DETECTED,
+                    "event": LogEvent.VALIDATION,
+                    "validation_type": "ical-url",
+                    "status": "failed",
+                    "error_type": "html-detected",
                     "url": url,
                     "response_preview": response[:MAX_ERROR_MESSAGE_LENGTH],
                 },
@@ -87,7 +93,9 @@ def validate_ical_url(url):
         logger.info(
             "iCal URL validation successful",
             extra={
-                "event": LogEvent.VALIDATION_ICAL_URL_SUCCESS,
+                "event": LogEvent.VALIDATION,
+                "validation_type": "ical-url",
+                "status": "success",
                 "url": url,
             },
         )
@@ -112,7 +120,10 @@ def validate_ical_url(url):
             logger.warning(
                 "iCal URL validation failed (HTML in error)",
                 extra={
-                    "event": LogEvent.VALIDATION_ICAL_URL_HTML_DETECTED,
+                    "event": LogEvent.VALIDATION,
+                    "validation_type": "ical-url",
+                    "status": "failed",
+                    "error_type": "html-detected",
                     "url": url,
                     "error_preview": err_str[:MAX_ERROR_MESSAGE_LENGTH],
                 },
@@ -203,7 +214,10 @@ class Calendar(TimeStampedModel):
             logger.warning(
                 "Calendar validation failed: User attempted to set custom update frequency",
                 extra={
-                    "event": LogEvent.VALIDATION_CALENDAR_CUSTOM_FREQUENCY_DENIED,
+                    "event": LogEvent.VALIDATION,
+                    "validation_type": "tier-feature",
+                    "status": "denied",
+                    "feature": "custom-frequency",
                     "user_id": self.owner.pk,
                     "email": self.owner.email,
                     "user_tier": self.owner.subscription_tier,
@@ -223,7 +237,10 @@ class Calendar(TimeStampedModel):
             logger.warning(
                 "Calendar validation failed: User attempted to remove branding",
                 extra={
-                    "event": LogEvent.VALIDATION_CALENDAR_REMOVE_BRANDING_DENIED,
+                    "event": LogEvent.VALIDATION,
+                    "validation_type": "tier-feature",
+                    "status": "denied",
+                    "feature": "remove-branding",
                     "user_id": self.owner.pk,
                     "email": self.owner.email,
                     "user_tier": self.owner.subscription_tier,
@@ -241,7 +258,9 @@ class Calendar(TimeStampedModel):
                 logger.warning(
                     "Calendar creation denied: User at limit",
                     extra={
-                        "event": LogEvent.VALIDATION_CALENDAR_LIMIT_REACHED,
+                        "event": LogEvent.VALIDATION,
+                        "validation_type": "calendar-limit",
+                        "status": "denied",
                         "user_id": self.owner.pk,
                         "email": self.owner.email,
                         "user_tier": self.owner.subscription_tier,
@@ -416,7 +435,9 @@ class Source(TimeStampedModel):
                 logger.warning(
                     "Source creation denied: Calendar at limit",
                     extra={
-                        "event": LogEvent.VALIDATION_SOURCE_LIMIT_REACHED,
+                        "event": LogEvent.VALIDATION,
+                        "validation_type": "source-limit",
+                        "status": "denied",
                         "calendar_uuid": self.calendar.uuid,
                         "calendar_name": self.calendar.name,
                         "user_id": self.calendar.owner.pk,
@@ -439,7 +460,10 @@ class Source(TimeStampedModel):
                 logger.warning(
                     "Source customization denied: User attempted to use premium features",
                     extra={
-                        "event": LogEvent.VALIDATION_SOURCE_CUSTOMIZATION_DENIED,
+                        "event": LogEvent.VALIDATION,
+                        "validation_type": "tier-feature",
+                        "status": "denied",
+                        "feature": "source-customization",
                         "user_id": self.calendar.owner.pk,
                         "email": self.calendar.owner.email,
                         "user_tier": self.calendar.owner.subscription_tier,

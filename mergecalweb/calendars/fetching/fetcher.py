@@ -24,7 +24,8 @@ class CalendarFetcher:
             logger.debug(
                 "Calendar fetch cache hit",
                 extra={
-                    "event": LogEvent.CALENDAR_FETCH_CACHE_HIT,
+                    "event": LogEvent.CALENDAR_FETCH,
+                    "status": "cache-hit",
                     "url": url[:200],
                     "size_bytes": len(cached_data),
                 },
@@ -34,7 +35,8 @@ class CalendarFetcher:
         logger.debug(
             "Calendar fetch cache miss, fetching from remote",
             extra={
-                "event": LogEvent.CALENDAR_FETCH_CACHE_MISS,
+                "event": LogEvent.CALENDAR_FETCH,
+                "status": "cache-miss",
                 "url": url[:200],
             },
         )
@@ -64,7 +66,8 @@ class CalendarFetcher:
             logger.debug(
                 "Applied domain-specific calendar fetch configuration",
                 extra={
-                    "event": LogEvent.CALENDAR_FETCH_DOMAIN_CONFIG,
+                    "event": LogEvent.CALENDAR_FETCH,
+                    "status": "domain-config",
                     "domain": domain,
                     "has_custom_ua": "user_agent" in domain_config,
                     "has_custom_accept": "accept" in domain_config,
@@ -87,7 +90,8 @@ class CalendarFetcher:
             logger.debug(
                 "Calendar fetched successfully from remote source",
                 extra={
-                    "event": LogEvent.CALENDAR_FETCH_SUCCESS,
+                    "event": LogEvent.CALENDAR_FETCH,
+                    "status": "success",
                     "url": url[:200],
                     "status_code": response.status_code,
                     "size_bytes": len(calendar_data),
@@ -99,7 +103,8 @@ class CalendarFetcher:
             logger.debug(
                 "Calendar data cached",
                 extra={
-                    "event": LogEvent.CALENDAR_FETCH_CACHED,
+                    "event": LogEvent.CALENDAR_FETCH,
+                    "status": "cached",
                     "cache_key": cache_key,
                     "ttl_seconds": CACHE_TIMEOUT.total_seconds(),
                     "size_bytes": len(calendar_data),

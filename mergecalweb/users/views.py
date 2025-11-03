@@ -28,7 +28,8 @@ class UserDetailView(LoginRequiredMixin, DetailView):
         logger.debug(
             "User accessing profile page",
             extra={
-                "event": LogEvent.USER_PROFILE_VIEW,
+                "event": LogEvent.PAGE_VIEW,
+                "view_type": "profile",
                 "profile_username": profile_username,
                 "viewer_id": viewer.pk,
                 "viewer_username": viewer.username,

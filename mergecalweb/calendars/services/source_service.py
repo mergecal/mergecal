@@ -70,7 +70,8 @@ class SourceService:
             logger.warning(
                 "Estimated fetch time exceeds Gunicorn timeout limit",
                 extra={
-                    "event": LogEvent.SOURCE_TIMEOUT_CALCULATED,
+                    "event": LogEvent.SOURCE_FETCH,
+                    "status": "timeout-calculated",
                     "source_count": source_count,
                     "per_source_timeout_seconds": effective_timeout,
                     "estimated_total_seconds": estimated_total_time,
@@ -82,7 +83,8 @@ class SourceService:
             logger.debug(
                 "Calculated per-source timeout",
                 extra={
-                    "event": LogEvent.SOURCE_TIMEOUT_CALCULATED,
+                    "event": LogEvent.SOURCE_FETCH,
+                    "status": "timeout-calculated",
                     "source_count": source_count,
                     "available_time_seconds": available_time,
                     "per_source_timeout_seconds": effective_timeout,
@@ -188,7 +190,7 @@ class SourceService:
         self.processed_uuids.add(uuid)
 
         # Import here to avoid circular imports
-        from .calendar_merger_service import CalendarMergerService
+        from .calendar_merger_service import CalendarMergerService  # noqa: PLC0415
 
         logger.info(
             "Local source: Merging nested calendar",
