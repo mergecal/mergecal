@@ -38,7 +38,8 @@ def update_stripe_subscription(self, user_id: int) -> None:
         logger.warning(
             "User missing active Stripe subscription during update",
             extra={
-                "event": LogEvent.SUBSCRIPTION_UPDATE_NO_SUBSCRIPTION,
+                "event": LogEvent.BILLING_ERROR,
+                "error_type": "no-subscription",
                 "user_id": user_id,
                 "username": user.username,
                 "email": user.email,
@@ -50,9 +51,9 @@ def update_stripe_subscription(self, user_id: int) -> None:
     logger.info(
         "Updating user subscription tier from Stripe data",
         extra={
-            "event": LogEvent.SUBSCRIPTION_UPDATE_TASK,
+            "event": LogEvent.SUBSCRIPTION_SYNC,
+            "status": "start",
             "user_id": user_id,
-            "username": user.username,
             "email": user.email,
             "customer_id": customer.id,
             "subscription_id": subscription.id,
@@ -76,7 +77,8 @@ def update_all_users_from_stripe_customers() -> None:
     logger.info(
         "Starting bulk Stripe subscription sync",
         extra={
-            "event": LogEvent.BULK_SUBSCRIPTION_SYNC_START,
+            "event": LogEvent.SUBSCRIPTION_SYNC,
+            "status": "start",
             "total_customers": total_customers,
         },
     )
@@ -89,9 +91,8 @@ def update_all_users_from_stripe_customers() -> None:
                 logger.debug(
                     "Queued subscription update task for user",
                     extra={
-                        "event": LogEvent.SUBSCRIPTION_SYNC_QUEUED,
+                        "event": LogEvent.SUBSCRIPTION_SYNC,
                         "user_id": user.id,
-                        "username": user.username,
                         "customer_id": customer.id,
                     },
                 )
@@ -100,7 +101,7 @@ def update_all_users_from_stripe_customers() -> None:
                 logger.warning(
                     "Stripe customer subscriber is not a User",
                     extra={
-                        "event": LogEvent.SUBSCRIPTION_SYNC_INVALID_SUBSCRIBER,
+                        "event": LogEvent.SUBSCRIPTION_SYNC,
                         "customer_id": customer.id,
                         "subscriber_type": type(user).__name__,
                     },
@@ -109,7 +110,7 @@ def update_all_users_from_stripe_customers() -> None:
             logger.exception(
                 "Error processing Stripe customer during bulk sync",
                 extra={
-                    "event": LogEvent.SUBSCRIPTION_SYNC_ERROR,
+                    "event": LogEvent.SUBSCRIPTION_SYNC,
                     "customer_id": customer.id,
                 },
             )
@@ -118,7 +119,8 @@ def update_all_users_from_stripe_customers() -> None:
     logger.info(
         "Completed bulk Stripe subscription sync",
         extra={
-            "event": LogEvent.BULK_SUBSCRIPTION_SYNC_COMPLETE,
+            "event": LogEvent.SUBSCRIPTION_SYNC,
+            "status": "complete",
             "total_customers": total_customers,
             "processed": processed,
             "errors": errors,
