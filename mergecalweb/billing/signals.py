@@ -122,7 +122,8 @@ def handle_trial_will_end(sender: Any, event: Event, **kwargs: dict[str, Any]) -
         logger.warning(
             "Trial ending webhook received for customer without user",
             extra={
-                "event": LogEvent.TRIAL_ENDING_NO_USER,
+                "event": LogEvent.TRIAL_ENDING,
+                "type": "no-user",
                 "customer_id": customer_id,
                 "webhook_type": event.type,
             },
@@ -184,7 +185,8 @@ def handle_subscription_update(
         logger.warning(
             "Subscription webhook received for customer without user",
             extra={
-                "event": LogEvent.SUBSCRIPTION_UPDATE_NO_USER,
+                "event": LogEvent.BILLING_ERROR,
+                "type": "no-user",
                 "customer_id": customer_id,
                 "subscription_id": subscription.id,
                 "subscription_status": subscription.status,
@@ -225,7 +227,8 @@ def handle_subscription_end(
         logger.warning(
             "Subscription end webhook received for customer without user",
             extra={
-                "event": LogEvent.SUBSCRIPTION_END_NO_USER,
+                "event": LogEvent.BILLING_ERROR,
+                "type": "no-user",
                 "customer_id": customer_id,
                 "webhook_type": event.type,
             },
@@ -266,7 +269,8 @@ def handle_invoice_events(sender: Any, event: Event, **kwargs: dict[str, Any]) -
         logger.warning(
             "Invoice webhook received for customer without user",
             extra={
-                "event": LogEvent.INVOICE_EVENT_NO_USER,
+                "event": LogEvent.BILLING_ERROR,
+                "type": "no-user",
                 "customer_id": customer.id,
                 "invoice_id": invoice_id,
                 "webhook_type": event.type,
@@ -279,9 +283,9 @@ def handle_invoice_events(sender: Any, event: Event, **kwargs: dict[str, Any]) -
         logger.info(
             "Invoice paid successfully",
             extra={
-                "event": LogEvent.INVOICE_PAID,
+                "event": LogEvent.INVOICE_EVENT,
+                "type": "paid",
                 "user_id": user.pk,
-                "username": user.username,
                 "email": user.email,
                 "customer_id": customer.id,
                 "invoice_id": invoice_id,
@@ -300,9 +304,8 @@ def handle_invoice_events(sender: Any, event: Event, **kwargs: dict[str, Any]) -
         logger.warning(
             "Invoice payment failed, downgrading to free tier",
             extra={
-                "event": LogEvent.INVOICE_PAYMENT_FAILED,
+                "event": LogEvent.INVOICE_EVENT,
                 "user_id": user.pk,
-                "username": user.username,
                 "email": user.email,
                 "customer_id": customer.id,
                 "invoice_id": invoice_id,
@@ -322,7 +325,6 @@ def handle_invoice_events(sender: Any, event: Event, **kwargs: dict[str, Any]) -
             extra={
                 "event": LogEvent.INVOICE_EVENT,
                 "user_id": user.pk,
-                "username": user.username,
                 "email": user.email,
                 "customer_id": customer.id,
                 "invoice_id": invoice_id,
@@ -347,7 +349,7 @@ def handle_payment_method_attached(
         logger.warning(
             "Payment method attached but customer not found",
             extra={
-                "event": LogEvent.PAYMENT_METHOD_NO_CUSTOMER,
+                "event": LogEvent.PAYMENT_METHOD_ATTACHED,
                 "payment_method_id": payment_method_id,
                 "payment_method_type": payment_method.type,
             },
@@ -359,7 +361,7 @@ def handle_payment_method_attached(
         logger.warning(
             "Payment method attached but user not found for customer",
             extra={
-                "event": LogEvent.PAYMENT_METHOD_NO_USER,
+                "event": LogEvent.PAYMENT_METHOD_ATTACHED,
                 "payment_method_id": payment_method_id,
                 "customer_id": customer.id,
                 "payment_method_type": payment_method.type,
