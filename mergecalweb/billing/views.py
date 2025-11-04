@@ -43,7 +43,7 @@ class PricingTableView(TemplateView):
             logger.info(
                 "User accessed pricing table",
                 extra={
-                    "event": LogEvent.PRICING_TABLE_VIEW,
+                    "event": "temp",
                     "user_id": user.pk,
                     "username": user.username,
                     "email": user.email,
@@ -73,7 +73,7 @@ class ManageBillingView(LoginRequiredMixin, RedirectView):
         logger.info(
             "User accessing billing portal",
             extra={
-                "event": LogEvent.BILLING_PORTAL_ACCESS,
+                "event": "temp",
                 "user_id": user.pk,
                 "username": user.username,
                 "email": user.email,
@@ -106,7 +106,7 @@ def checkout_session_success(request: HttpRequest) -> HttpResponse:
             logger.info(
                 "Checkout session retrieved and user tier updated",
                 extra={
-                    "event": LogEvent.CHECKOUT_SESSION_RETRIEVED,
+                    "event": "temp",
                     "user_id": request.user.pk,
                     "username": request.user.username,
                     "email": request.user.email,
@@ -136,7 +136,7 @@ def checkout_session_success(request: HttpRequest) -> HttpResponse:
         logger.info(
             "User accessed checkout success page",
             extra={
-                "event": LogEvent.CHECKOUT_SUCCESS_PAGE_VIEW,
+                "event": "temp",
                 "user_id": user.pk,
                 "username": user.username,
                 "email": user.email,
