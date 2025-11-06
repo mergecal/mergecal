@@ -10,6 +10,7 @@ from sentry_sdk.integrations.redis import RedisIntegration
 from .base import *  # noqa: F403
 from .base import DATABASES
 from .base import INSTALLED_APPS
+from .base import MIDDLEWARE
 from .base import REDIS_URL
 from .base import env
 
@@ -248,3 +249,28 @@ STRIPE_SECRET_KEY = env("STRIPE_LIVE_SECRET_KEY")
 STRIPE_PUBLIC_KEY = env("STRIPE_LIVE_PUBLIC_KEY")
 STRIPE_LIVE_SECRET_KEY = env("STRIPE_LIVE_SECRET_KEY")
 STRIP_LIVE_PUBLIC_KEY = env("STRIPE_LIVE_PUBLIC_KEY")
+
+# PostHog
+# ------------------------------------------------------------------------------
+# Add PostHog middleware only in production
+MIDDLEWARE += ["posthog.integrations.django.PosthogContextMiddleware"]
+
+POSTHOG_API_KEY = env("POSTHOG_API_KEY", default="")
+
+
+def add_request_context(request):
+    # type: (HttpRequest) -> Dict[str, Any]
+    tags = {}
+    if hasattr(request, "user") and request.user.is_authenticated:
+        tags["user_type"] = "authenticated"
+        tags["user_id"] = str(request.user.id)
+    else:
+        tags["user_type"] = "anonymous"
+
+    # Add request info
+    tags["user_agent"] = request.headers.get("user-agent", "")
+    return tags
+
+
+POSTHOG_MW_EXTRA_TAGS = add_request_context
+POSTHOG_MW_CAPTURE_EXCEPTIONS = True
