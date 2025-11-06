@@ -15,7 +15,6 @@ from django.views.generic import TemplateView
 from djstripe.models import Session
 
 from mergecalweb.billing.signals import update_user_subscription_tier
-from mergecalweb.core.logging_events import LogEvent
 
 logger = logging.getLogger(__name__)
 
