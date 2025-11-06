@@ -197,9 +197,9 @@
   {# djlint:off #}
   {% if request.user.is_authenticated %}
     <script>
-    posthog.identify('{{ request.user.id }}', {
-      name: "{{ request.user.name }}",
-      email: "{{ request.user.email }}"
+    posthog.identify('{{ request.user.id|escapejs }}', {
+      name: "{{ request.user.name|escapejs }}",
+      email: "{{ request.user.email|escapejs }}"
     })
 </script>
   {% endif %}
