@@ -40,5 +40,5 @@ django-health-check==3.20.0  # https://github.com/revsys/django-health-check
 djangorestframework==3.15.2  # https://github.com/encode/django-rest-framework
 
 # Stripe
-stripe==10.4.0  # https://github.com/stripe/stripe-python
+stripe==13.1.0  # https://github.com/stripe/stripe-python
 dj-stripe==2.9.0b3  # https://github.com/dj-stripe/dj-stripe
