@@ -10,4 +10,4 @@ sentry-sdk[django]==2.43.0  # https://github.com/getsentry/sentry-python
 # ------------------------------------------------------------------------------
 django-storages[s3]==1.14.4  # https://github.com/jschneier/django-storages
 django-anymail[mailjet]==12.0  # https://github.com/anymail/django-anymail
-posthog==6.8.0  # https://github.com/posthog/posthog-python
+posthog==7.0.1  # https://github.com/posthog/posthog-python
