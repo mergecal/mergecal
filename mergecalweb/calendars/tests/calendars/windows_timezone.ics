@@ -1,0 +1,15 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Test Calendar//EN
+METHOD:PUBLISH
+X-WR-CALNAME:Windows Timezone Test Calendar
+X-WR-TIMEZONE:Eastern Standard Time
+BEGIN:VEVENT
+UID:test-event-windows-tz@example.com
+DTSTART:20250115T140000
+DTEND:20250115T150000
+SUMMARY:Test Event with Windows Timezone
+DESCRIPTION:This event uses Windows timezone identifier
+LOCATION:Test Location
+END:VEVENT
+END:VCALENDAR
