@@ -107,7 +107,7 @@ THIRD_PARTY_APPS = [
     "health_check.contrib.migrations",
     # "health_check.contrib.celery",
     # "health_check.contrib.celery_ping",
-    "health_check.contrib.s3boto3_storage",
+    # "health_check.contrib.s3boto3_storage",
     "health_check.contrib.redis",
     "health_check.contrib.mail",
 ]
