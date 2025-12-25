@@ -55,6 +55,7 @@ class UserAdmin(auth_admin.UserAdmin):
     ]
     search_fields = ["name", "username", "email"]
     list_filter = ["is_superuser", "is_active", "subscription_tier"]
+    ordering = ["-last_login"]
 
     def get_queryset(self, request):
         # Annotate each user with the count of calendars they own
