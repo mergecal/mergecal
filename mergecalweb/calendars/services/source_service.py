@@ -1,5 +1,6 @@
 # ruff: noqa: SLF001
 import logging
+import time
 
 from icalendar import Calendar as ICalendar
 from requests.exceptions import RequestException
@@ -96,14 +97,45 @@ class SourceService:
         return effective_timeout
 
     def process_sources(self, sources: list[Source]) -> list[SourceData]:
-        """Process multiple sources, handling special source types"""
+        """Process multiple sources, handling special source types with dynamic timeout distribution"""
         processed_sources = []
-
-        # Calculate timeout based on source count
         source_count = len(sources)
-        per_source_timeout = self._calculate_per_source_timeout(source_count)
 
-        for source in sources:
+        # Track time for dynamic timeout redistribution
+        start_time = time.time()
+        available_time = MAX_REQUEST_TIMEOUT - SAFETY_BUFFER
+
+        for idx, source in enumerate(sources):
+            # Calculate dynamic timeout based on remaining time and sources
+            elapsed_time = time.time() - start_time
+            remaining_time = available_time - elapsed_time
+            remaining_sources = source_count - idx
+
+            # Distribute remaining time across remaining sources
+            if remaining_sources > 0 and remaining_time > 0:
+                per_source_timeout = max(
+                    int(remaining_time / remaining_sources),
+                    MIN_PER_SOURCE_TIMEOUT,
+                )
+            else:
+                # Fallback to minimum timeout if we're running out of time
+                per_source_timeout = MIN_PER_SOURCE_TIMEOUT
+
+            logger.debug(
+                "Dynamic timeout calculated for source",
+                extra={
+                    "event": LogEvent.SOURCE_FETCH,
+                    "status": "timeout-calculated",
+                    "source_index": idx,
+                    "source_id": source.pk,
+                    "source_name": source.name,
+                    "elapsed_seconds": round(elapsed_time, 2),
+                    "remaining_seconds": round(remaining_time, 2),
+                    "remaining_sources": remaining_sources,
+                    "per_source_timeout_seconds": per_source_timeout,
+                },
+            )
+
             processor = SourceProcessor(source, timeout=per_source_timeout)
 
             if is_local_url(source.url):
@@ -127,6 +159,20 @@ class SourceService:
             if processor.source_data.ical:
                 processor.customize_calendar()
             processed_sources.append(processor.source_data)
+
+        # Log final statistics
+        total_elapsed = time.time() - start_time
+        logger.info(
+            "Completed processing all sources",
+            extra={
+                "event": LogEvent.SOURCE_FETCH,
+                "status": "completed",
+                "source_count": source_count,
+                "total_elapsed_seconds": round(total_elapsed, 2),
+                "available_time_seconds": available_time,
+                "time_saved_seconds": round(available_time - total_elapsed, 2),
+            },
+        )
 
         return processed_sources
 
