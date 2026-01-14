@@ -33,69 +33,6 @@ class SourceService:
         else:
             self.processed_uuids = existing_uuids
 
-    def _calculate_per_source_timeout(self, source_count: int) -> int:
-        """
-        Calculate timeout per source based on total source count.
-
-        With a 60-second Gunicorn timeout, we need to ensure all sources
-        can be fetched within that time. We distribute the available time
-        across all sources, with a minimum timeout per source.
-
-        Note: If there are many sources (>11), each source will get the
-        minimum timeout (5s), which may cause the total time to exceed
-        the Gunicorn timeout. In this case, some sources may fail due to
-        the overall request timeout, and the request should be moved to
-        a background task.
-
-        Args:
-            source_count: Total number of sources to fetch
-
-        Returns:
-            Timeout in seconds per source
-        """
-        if source_count <= 0:
-            return MIN_PER_SOURCE_TIMEOUT
-
-        # Calculate available time after safety buffer
-        available_time = MAX_REQUEST_TIMEOUT - SAFETY_BUFFER
-
-        # Distribute time across all sources
-        per_source_timeout = available_time // source_count
-
-        # Ensure we don't go below minimum timeout
-        effective_timeout = max(per_source_timeout, MIN_PER_SOURCE_TIMEOUT)
-
-        # Warn if total estimated time exceeds max timeout
-        estimated_total_time = effective_timeout * source_count
-        if estimated_total_time > MAX_REQUEST_TIMEOUT:
-            logger.warning(
-                "Estimated fetch time exceeds Gunicorn timeout limit",
-                extra={
-                    "event": LogEvent.SOURCE_FETCH,
-                    "status": "timeout-calculated",
-                    "source_count": source_count,
-                    "per_source_timeout_seconds": effective_timeout,
-                    "estimated_total_seconds": estimated_total_time,
-                    "max_request_timeout_seconds": MAX_REQUEST_TIMEOUT,
-                    "warning": "Consider using background task for this calendar",
-                },
-            )
-        else:
-            logger.debug(
-                "Calculated per-source timeout",
-                extra={
-                    "event": LogEvent.SOURCE_FETCH,
-                    "status": "timeout-calculated",
-                    "source_count": source_count,
-                    "available_time_seconds": available_time,
-                    "per_source_timeout_seconds": effective_timeout,
-                    "estimated_total_seconds": estimated_total_time,
-                    "max_request_timeout_seconds": MAX_REQUEST_TIMEOUT,
-                },
-            )
-
-        return effective_timeout
-
     def process_sources(self, sources: list[Source]) -> list[SourceData]:
         """Process multiple sources, handling special source types with dynamic timeout distribution"""
         processed_sources = []
@@ -104,6 +41,23 @@ class SourceService:
         # Track time for dynamic timeout redistribution
         start_time = time.time()
         available_time = MAX_REQUEST_TIMEOUT - SAFETY_BUFFER
+
+        # Warn if minimum timeout requirement exceeds available time
+        minimum_required_time = source_count * MIN_PER_SOURCE_TIMEOUT
+        if minimum_required_time > available_time:
+            logger.warning(
+                "Source count too high for available time budget",
+                extra={
+                    "event": LogEvent.SOURCE_FETCH,
+                    "status": "timeout-warning",
+                    "source_count": source_count,
+                    "min_per_source_timeout_seconds": MIN_PER_SOURCE_TIMEOUT,
+                    "minimum_required_seconds": minimum_required_time,
+                    "available_time_seconds": available_time,
+                    "max_request_timeout_seconds": MAX_REQUEST_TIMEOUT,
+                    "warning": "Consider using background task for this calendar",
+                },
+            )
 
         for idx, source in enumerate(sources):
             # Calculate dynamic timeout based on remaining time and sources
