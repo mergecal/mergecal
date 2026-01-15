@@ -3,12 +3,10 @@ from unittest.mock import patch
 
 import pytest
 
-from mergecalweb.calendars.services.source_service import (
-    MAX_REQUEST_TIMEOUT,
-    MIN_PER_SOURCE_TIMEOUT,
-    SAFETY_BUFFER,
-    SourceService,
-)
+from mergecalweb.calendars.services.source_service import MAX_REQUEST_TIMEOUT
+from mergecalweb.calendars.services.source_service import MIN_PER_SOURCE_TIMEOUT
+from mergecalweb.calendars.services.source_service import SAFETY_BUFFER
+from mergecalweb.calendars.services.source_service import SourceService
 
 from .factories import CalendarFactory
 from .factories import SourceFactory
@@ -19,7 +17,7 @@ class TestDynamicTimeoutRedistribution:
     """Test that dynamic timeout redistribution works correctly"""
 
     def test_timeout_increases_when_sources_are_fast(self) -> None:
-        """Test that remaining time is redistributed to later sources when earlier sources are fast"""
+        """Test remaining time is redistributed to later sources when earlier are fast"""
         # Setup: Create 3 sources
         calendar = CalendarFactory()
         sources = [
@@ -37,7 +35,10 @@ class TestDynamicTimeoutRedistribution:
         # We need to capture timeouts during processor creation
         processor_timeouts = []
 
-        with patch("mergecalweb.calendars.services.source_service.SourceProcessor") as mock_processor_class:
+        with patch(
+            "mergecalweb.calendars.services.source_service.SourceProcessor"
+        ) as mock_processor_class:
+
             def create_processor(source, timeout):
                 processor_timeouts.append(timeout)
                 processor = MagicMock()
@@ -49,7 +50,8 @@ class TestDynamicTimeoutRedistribution:
             mock_processor_class.side_effect = create_processor
             service.process_sources(sources)
 
-        # Verify: Check that timeouts were calculated (should be around 18s for first source initially)
+        # Verify: Check that timeouts were calculated
+        # (should be around 18s for first source initially)
         assert len(processor_timeouts) == 3
 
         # First source gets roughly available_time / 3
@@ -70,7 +72,7 @@ class TestDynamicTimeoutRedistribution:
         mock_processor_class: MagicMock,
         mock_logger: MagicMock,
     ) -> None:
-        """Test that a warning is logged when there are too many sources for available time"""
+        """Test warning is logged when too many sources for available time"""
         # Setup: Create sources that would require more time than available
         calendar = CalendarFactory()
         available_time = MAX_REQUEST_TIMEOUT - SAFETY_BUFFER  # 55 seconds
@@ -109,10 +111,10 @@ class TestDynamicTimeoutRedistribution:
         """Test that timeouts never go below MIN_PER_SOURCE_TIMEOUT"""
         # Setup: Create many sources to force minimum timeout
         calendar = CalendarFactory()
-        available_time = MAX_REQUEST_TIMEOUT - SAFETY_BUFFER  # 55 seconds
 
-        # Create enough sources that each would get less than minimum if divided evenly
-        # With 55s available and 5s minimum, anything over 11 sources will hit the minimum
+        # Create enough sources that each would get less than minimum
+        # if divided evenly. With 55s available and 5s minimum, anything
+        # over 11 sources will hit the minimum
         num_sources = 15
 
         sources = [

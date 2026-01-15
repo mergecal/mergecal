@@ -34,7 +34,7 @@ class SourceService:
             self.processed_uuids = existing_uuids
 
     def process_sources(self, sources: list[Source]) -> list[SourceData]:
-        """Process multiple sources, handling special source types with dynamic timeout distribution"""
+        """Process multiple sources with dynamic timeout distribution"""
         processed_sources = []
         source_count = len(sources)
 
