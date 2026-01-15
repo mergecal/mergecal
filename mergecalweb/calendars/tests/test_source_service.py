@@ -17,8 +17,9 @@ class TestDynamicTimeoutRedistribution:
     """Test that dynamic timeout redistribution works correctly"""
 
     def test_timeout_increases_when_sources_are_fast(self) -> None:
-        """Test remaining time is redistributed to later sources when earlier are fast"""
+        """Test remaining time is redistributed to later sources"""
         # Setup: Create 3 sources
+        num_sources = 3
         calendar = CalendarFactory()
         sources = [
             SourceFactory(calendar=calendar, url="http://example.com/cal1.ics"),
@@ -36,7 +37,7 @@ class TestDynamicTimeoutRedistribution:
         processor_timeouts = []
 
         with patch(
-            "mergecalweb.calendars.services.source_service.SourceProcessor"
+            "mergecalweb.calendars.services.source_service.SourceProcessor",
         ) as mock_processor_class:
 
             def create_processor(source, timeout):
@@ -52,18 +53,20 @@ class TestDynamicTimeoutRedistribution:
 
         # Verify: Check that timeouts were calculated
         # (should be around 18s for first source initially)
-        assert len(processor_timeouts) == 3
+        assert len(processor_timeouts) == num_sources
 
-        # First source gets roughly available_time / 3
+        # First source gets roughly available_time / num_sources
         first_timeout = processor_timeouts[0]
-        assert first_timeout >= int(available_time / 3) - 1
-        assert first_timeout <= int(available_time / 3) + 1
+        expected_first_timeout = int(available_time / num_sources)
+        assert first_timeout >= expected_first_timeout - 1
+        assert first_timeout <= expected_first_timeout + 1
 
-        # Since the sources complete quickly (mocked), later sources should get more time
-        # The timeouts should generally trend upward due to redistribution
-        # (though exact values depend on real execution time which is very fast)
-        assert processor_timeouts[1] >= first_timeout - 5  # Allow some variance
-        assert processor_timeouts[2] >= first_timeout - 5  # Allow some variance
+        # Since sources complete quickly (mocked), later sources should
+        # get more time. The timeouts should generally trend upward due
+        # to redistribution (though exact values depend on real execution
+        # time which is very fast)
+        assert processor_timeouts[1] >= first_timeout - 5  # Allow variance
+        assert processor_timeouts[2] >= first_timeout - 5  # Allow variance
 
     @patch("mergecalweb.calendars.services.source_service.logger")
     @patch("mergecalweb.calendars.services.source_service.SourceProcessor")
@@ -143,4 +146,3 @@ class TestDynamicTimeoutRedistribution:
             assert timeout >= MIN_PER_SOURCE_TIMEOUT, (
                 f"Timeout {timeout} is below minimum {MIN_PER_SOURCE_TIMEOUT}"
             )
-
