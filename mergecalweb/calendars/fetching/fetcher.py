@@ -12,7 +12,7 @@ from mergecalweb.core.logging_events import LogEvent
 logger = logging.getLogger(__name__)
 
 CACHE_TIMEOUT = timedelta(minutes=2)  # Freshness threshold
-MAX_STALE_AGE = timedelta(days=7)  # Maximum age to keep stale cache data
+MAX_STALE_AGE = timedelta(hours=24)  # Maximum age to keep stale cache data
 DEFAULT_TIMEOUT = 30
 
 
@@ -23,7 +23,7 @@ class CalendarFetcher:
 
         This implements a resilient caching strategy:
         - If cache is fresh (< 2 minutes): return immediately
-        - If cache is stale but < 7 days old: try to refetch,
+        - If cache is stale but < 24 hours old: try to refetch,
           fall back to stale on error
         - If cache is too old or missing: fetch fresh data
 
