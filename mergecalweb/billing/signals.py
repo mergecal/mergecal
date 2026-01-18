@@ -209,6 +209,56 @@ def handle_subscription_update(
         },
     )
 
+    # Check for cancellation details on update (user clicked cancel in portal)
+    if event.data["object"].get("cancel_at_period_end") is True:
+        # Handle case where cancellation_details might be None or missing
+        cancellation_details = event.data["object"].get("cancellation_details") or {}
+
+        # 'feedback' contains the user-selected reason (e.g., 'too_expensive')
+        # 'reason' contains the technical reason (e.g., 'cancellation_requested')
+        feedback = cancellation_details.get("feedback")
+        reason = cancellation_details.get("reason")
+        comment = cancellation_details.get("comment")
+
+        # Exclude automatic cancellations due to payment failure
+        if reason == "payment_failed":
+            return
+
+        # Only capture if user provided feedback or explicitly requested cancellation
+        if feedback or comment or (reason == "cancellation_requested"):
+            display_reason = feedback or reason
+
+            with sentry_sdk.configure_scope() as scope:
+                scope.set_user({"id": user.pk, "email": user.email})
+                scope.set_tag("subscription_status", "canceling")
+                scope.set_context(
+                    "cancellation",
+                    {
+                        "feedback": feedback,
+                        "reason": reason,
+                        "comment": comment,
+                        "customer_id": customer_id,
+                        "subscription_id": subscription.id,
+                    },
+                )
+                sentry_sdk.capture_message(
+                    f"Subscription cancellation scheduled: {display_reason}",
+                    level="info",
+                )
+
+            logger.info(
+                "Subscription cancellation scheduled with feedback",
+                extra={
+                    "event": LogEvent.SUBSCRIPTION_CANCELLED,
+                    "user_id": user.pk,
+                    "email": user.email,
+                    "customer_id": customer_id,
+                    "reason": display_reason,
+                    "technical_reason": reason,
+                    "comment": comment,
+                },
+            )
+
     update_user_subscription_tier(user, subscription)
 
 
