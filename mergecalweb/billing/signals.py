@@ -210,7 +210,7 @@ def handle_subscription_update(
     )
 
     # Check for cancellation details on update (user clicked cancel in portal)
-    if event.data["object"].get("cancel_at_period_end"):
+    if event.data["object"].get("cancel_at_period_end") is True:
         # Handle case where cancellation_details might be None or missing
         cancellation_details = event.data["object"].get("cancellation_details") or {}
 
@@ -225,7 +225,7 @@ def handle_subscription_update(
             return
 
         # Only capture if user provided feedback or explicitly requested cancellation
-        if feedback or comment or reason == "cancellation_requested":
+        if feedback or comment or (reason == "cancellation_requested"):
             display_reason = feedback or reason
 
             with sentry_sdk.configure_scope() as scope:
