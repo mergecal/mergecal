@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 CACHE_TIMEOUT = timedelta(minutes=2)  # Freshness threshold
 MAX_STALE_AGE = timedelta(hours=24)  # Maximum age to keep stale cache data
 DEFAULT_TIMEOUT = 30
+CACHE_TUPLE_LENGTH = 2  # Expected length of (content, timestamp) cache tuple
 
 
 class CalendarFetcher:
@@ -42,7 +43,10 @@ class CalendarFetcher:
 
         if cached_data is not None:
             # Unpack cached data (content, timestamp) or handle legacy format
-            if isinstance(cached_data, tuple) and len(cached_data) == 2:  # noqa: PLR2004
+            if (
+                isinstance(cached_data, tuple)
+                and len(cached_data) == CACHE_TUPLE_LENGTH
+            ):
                 content, cached_at = cached_data
             else:
                 # Legacy cache format (just string) - treat as stale and refetch
@@ -174,31 +178,28 @@ class CalendarFetcher:
 
         effective_timeout = timeout if timeout is not None else DEFAULT_TIMEOUT
 
-        try:
-            response = requests.get(
-                url,
-                headers=headers,
-                timeout=effective_timeout,
-            )
-            response.raise_for_status()
-            response.encoding = "utf-8"
-            calendar_data = response.text
+        response = requests.get(
+            url,
+            headers=headers,
+            timeout=effective_timeout,
+        )
+        response.raise_for_status()
+        response.encoding = "utf-8"
+        calendar_data = response.text
 
-            fetch_duration = time.time() - start_time
-            logger.debug(
-                "Calendar fetched successfully from remote source",
-                extra={
-                    "event": LogEvent.CALENDAR_FETCH,
-                    "status": "success",
-                    "url": url[:200],
-                    "status_code": response.status_code,
-                    "size_bytes": len(calendar_data),
-                    "duration_seconds": round(fetch_duration, 2),
-                },
-            )
-            return calendar_data  # noqa: TRY300
-        except requests.RequestException as e:
-            raise e from None
+        fetch_duration = time.time() - start_time
+        logger.debug(
+            "Calendar fetched successfully from remote source",
+            extra={
+                "event": LogEvent.CALENDAR_FETCH,
+                "status": "success",
+                "url": url[:200],
+                "status_code": response.status_code,
+                "size_bytes": len(calendar_data),
+                "duration_seconds": round(fetch_duration, 2),
+            },
+        )
+        return calendar_data
 
     def _cache_content(self, cache_key: str, content: str) -> None:
         """
