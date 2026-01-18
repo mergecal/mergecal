@@ -81,7 +81,7 @@ class CalendarFetcher:
                     self._cache_content(cache_key, fresh_content)
                 except requests.RequestException as e:
                     # Network/timeout error - fall back to stale cached content
-                    logger.warning(
+                    logger.info(
                         "Calendar fetch failed, using stale cache",
                         extra={
                             "event": LogEvent.CALENDAR_FETCH,
