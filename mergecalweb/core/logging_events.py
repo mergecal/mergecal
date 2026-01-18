@@ -43,6 +43,9 @@ class LogEvent:
     # Use with "error_type": "no-user"/"no-customer"/"no-subscription"
     BILLING_ERROR = "billing-error"
 
+    # Billing - Cancellation
+    SUBSCRIPTION_CANCELLED = "subscription-cancelled"
+
     # Billing - Background Tasks
     # Use with "status": "start"/"queued"/"complete"/"error"
     SUBSCRIPTION_SYNC = "subscription-sync"

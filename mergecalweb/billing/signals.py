@@ -235,6 +235,46 @@ def handle_subscription_end(
         )
         return
 
+    subscription: Subscription = Subscription.objects.get(
+        id=event.data["object"]["id"],
+    )
+
+    # Check for cancellation details
+    cancellation_details = event.data["object"].get("cancellation_details", {})
+    cancellation_reason = cancellation_details.get("reason")
+    cancellation_comment = cancellation_details.get("comment")
+
+    # Only capture if user provided feedback (not automatic system cancellations)
+    if cancellation_reason or cancellation_comment:
+        with sentry_sdk.configure_scope() as scope:
+            scope.set_user({"id": user.pk, "email": user.email})
+            scope.set_tag("subscription_status", "canceled")
+            scope.set_context(
+                "cancellation",
+                {
+                    "reason": cancellation_reason,
+                    "comment": cancellation_comment,
+                    "customer_id": customer_id,
+                    "subscription_id": subscription.id,
+                },
+            )
+            sentry_sdk.capture_message(
+                f"Subscription canceled: {cancellation_reason}",
+                level="info",
+            )
+
+        logger.info(
+            "Subscription canceled with feedback",
+            extra={
+                "event": LogEvent.SUBSCRIPTION_CANCELLED,
+                "user_id": user.pk,
+                "email": user.email,
+                "customer_id": customer_id,
+                "reason": cancellation_reason,
+                "comment": cancellation_comment,
+            },
+        )
+
     old_tier = user.subscription_tier
     user.subscription_tier = User.SubscriptionTier.FREE
     user.save()
