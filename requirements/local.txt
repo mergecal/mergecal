@@ -15,7 +15,7 @@ mypy==1.13.0  # https://github.com/python/mypy
 django-stubs[compatible-mypy]==5.1.2  # https://github.com/typeddjango/django-stubs
 pytest==8.3.4  # https://github.com/pytest-dev/pytest
 pytest-sugar==1.0.0  # https://github.com/Frozenball/pytest-sugar
-time-machine==2.16.0  # https://github.com/adamchainz/time-machine
+time-machine==2.19.0  # https://github.com/adamchainz/time-machine
 kolo==2.33.8 # https://docs.kolo.app/en/latest/#trace-a-django-request
 
 # Documentation
