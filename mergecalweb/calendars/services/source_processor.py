@@ -3,6 +3,7 @@ import logging
 from typing import Final
 from zoneinfo import ZoneInfoNotFoundError
 
+import pytz
 import requests
 import x_wr_timezone
 from icalendar import Calendar as ICalendar
@@ -14,6 +15,7 @@ from mergecalweb.calendars.exceptions import CalendarValidationError
 from mergecalweb.calendars.exceptions import CustomizationWithoutCalendarError
 from mergecalweb.calendars.fetching import CalendarFetcher
 from mergecalweb.calendars.models import Source
+from mergecalweb.calendars.timezone_utils import normalize_timezone_name
 from mergecalweb.core.logging_events import LogEvent
 
 from .source_data import SourceData
@@ -56,6 +58,24 @@ class SourceProcessor:
             with contextlib.suppress(KeyError):
                 ical.add_missing_timezones()
 
+            # Normalize Windows timezone names to IANA identifiers
+            if "X-WR-TIMEZONE" in ical:
+                original_tz = str(ical.get("X-WR-TIMEZONE"))
+                normalized_tz = normalize_timezone_name(original_tz)
+                if normalized_tz != original_tz:
+                    ical["X-WR-TIMEZONE"] = normalized_tz
+                    logger.debug(
+                        "Normalized Windows timezone to IANA identifier",
+                        extra={
+                            "event": LogEvent.SOURCE_TIMEZONE,
+                            "action": "normalized",
+                            "source_id": self.source.pk,
+                            "source_name": self.source.name,
+                            "original_timezone": original_tz,
+                            "normalized_timezone": normalized_tz,
+                        },
+                    )
+
             try:
                 self.source_data.ical = x_wr_timezone.to_standard(ical)
                 logger.debug(
@@ -67,8 +87,12 @@ class SourceProcessor:
                         "source_name": self.source.name,
                     },
                 )
-            except (AttributeError, ZoneInfoNotFoundError) as e:
-                # skip do to bug in x_wr_timezone
+            except (
+                AttributeError,
+                ZoneInfoNotFoundError,
+                pytz.UnknownTimeZoneError,
+            ) as e:
+                # skip due to bug in x_wr_timezone or unrecognized timezone
                 # https://github.com/niccokunzmann/x-wr-timezone/issues/25
                 logger.warning(
                     "Source timezone standardization skipped due to error",
