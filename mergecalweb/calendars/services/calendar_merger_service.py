@@ -159,15 +159,6 @@ class CalendarMergerService:
         icalendar: ICalendar = merger.merge()
         icalendar.add("x-wr-calname", self.calendar.name)
 
-        existing_tzids = set()
-        for cal in calendars:
-            for component in cal.walk("VTIMEZONE"):
-                tzid = component.get("tzid")
-                if tzid in existing_tzids:
-                    continue
-                existing_tzids.add(tzid)
-                icalendar.add_component(component)
-
         return icalendar
 
     def _add_error_events(

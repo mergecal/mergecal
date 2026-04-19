@@ -1,10 +1,8 @@
 import contextlib
 import logging
 from typing import Final
-from zoneinfo import ZoneInfoNotFoundError
 
 import requests
-import x_wr_timezone
 from icalendar import Calendar as ICalendar
 from icalendar import Event
 from requests.exceptions import RequestException
@@ -56,31 +54,7 @@ class SourceProcessor:
             with contextlib.suppress(KeyError):
                 ical.add_missing_timezones()
 
-            try:
-                self.source_data.ical = x_wr_timezone.to_standard(ical)
-                logger.debug(
-                    "Source timezone standardization successful",
-                    extra={
-                        "event": LogEvent.SOURCE_TIMEZONE,
-                        "action": "standardized",
-                        "source_id": self.source.pk,
-                        "source_name": self.source.name,
-                    },
-                )
-            except (AttributeError, ZoneInfoNotFoundError) as e:
-                # skip do to bug in x_wr_timezone
-                # https://github.com/niccokunzmann/x-wr-timezone/issues/25
-                logger.warning(
-                    "Source timezone standardization skipped due to error",
-                    extra={
-                        "event": LogEvent.SOURCE_TIMEZONE,
-                        "action": "skipped",
-                        "source_id": self.source.pk,
-                        "source_name": self.source.name,
-                        "error": str(e),
-                    },
-                )
-                self.source_data.ical = ical
+            self.source_data.ical = ical
 
             logger.debug(
                 "Source fetched and validated successfully",
