@@ -114,6 +114,4 @@ END:VCALENDAR
     )
     original = calendar.to_ical()
 
-    normalized_calendar = normalize_tzids(calendar)
-
-    assert normalized_calendar.to_ical() == original
+    assert normalize_tzids(calendar).to_ical() == original

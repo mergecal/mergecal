@@ -124,10 +124,8 @@ class SourceProcessor:
             msg = "Calendar contains no components"
             raise CalendarValidationError(msg)
 
-        normalize_tzids(ical)
-
         # TODO: Explore other type of calendar validation
-        return ical
+        return normalize_tzids(ical)
 
     def customize_calendar(self) -> None:
         """Apply source-specific customizations to calendar"""
