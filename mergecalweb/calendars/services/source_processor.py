@@ -12,6 +12,7 @@ from mergecalweb.calendars.exceptions import CalendarValidationError
 from mergecalweb.calendars.exceptions import CustomizationWithoutCalendarError
 from mergecalweb.calendars.fetching import CalendarFetcher
 from mergecalweb.calendars.models import Source
+from mergecalweb.calendars.tz_normalize import normalize_tzids
 from mergecalweb.core.logging_events import LogEvent
 
 from .source_data import SourceData
@@ -122,6 +123,8 @@ class SourceProcessor:
         if not ical.walk():
             msg = "Calendar contains no components"
             raise CalendarValidationError(msg)
+
+        normalize_tzids(ical)
 
         # TODO: Explore other type of calendar validation
         return ical
