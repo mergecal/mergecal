@@ -45,7 +45,7 @@ repos:
 
   # Semgrep for custom code pattern enforcement
   - repo: https://github.com/semgrep/semgrep
-    rev: v1.89.0
+    rev: v1.159.0
     hooks:
       - id: semgrep
         name: semgrep-logging-conventions
