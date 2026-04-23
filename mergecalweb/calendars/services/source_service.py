@@ -1,5 +1,6 @@
 # ruff: noqa: SLF001
 import logging
+import time
 
 from icalendar import Calendar as ICalendar
 from requests.exceptions import RequestException
@@ -32,78 +33,63 @@ class SourceService:
         else:
             self.processed_uuids = existing_uuids
 
-    def _calculate_per_source_timeout(self, source_count: int) -> int:
-        """
-        Calculate timeout per source based on total source count.
+    def process_sources(self, sources: list[Source]) -> list[SourceData]:
+        """Process multiple sources with dynamic timeout distribution"""
+        processed_sources = []
+        source_count = len(sources)
 
-        With a 60-second Gunicorn timeout, we need to ensure all sources
-        can be fetched within that time. We distribute the available time
-        across all sources, with a minimum timeout per source.
-
-        Note: If there are many sources (>11), each source will get the
-        minimum timeout (5s), which may cause the total time to exceed
-        the Gunicorn timeout. In this case, some sources may fail due to
-        the overall request timeout, and the request should be moved to
-        a background task.
-
-        Args:
-            source_count: Total number of sources to fetch
-
-        Returns:
-            Timeout in seconds per source
-        """
-        if source_count <= 0:
-            return MIN_PER_SOURCE_TIMEOUT
-
-        # Calculate available time after safety buffer
+        # Track time for dynamic timeout redistribution
+        start_time = time.time()
         available_time = MAX_REQUEST_TIMEOUT - SAFETY_BUFFER
 
-        # Distribute time across all sources
-        per_source_timeout = available_time // source_count
-
-        # Ensure we don't go below minimum timeout
-        effective_timeout = max(per_source_timeout, MIN_PER_SOURCE_TIMEOUT)
-
-        # Warn if total estimated time exceeds max timeout
-        estimated_total_time = effective_timeout * source_count
-        if estimated_total_time > MAX_REQUEST_TIMEOUT:
+        # Warn if minimum timeout requirement exceeds available time
+        minimum_required_time = source_count * MIN_PER_SOURCE_TIMEOUT
+        if minimum_required_time > available_time:
             logger.warning(
-                "Estimated fetch time exceeds Gunicorn timeout limit",
+                "Source count too high for available time budget",
                 extra={
                     "event": LogEvent.SOURCE_FETCH,
-                    "status": "timeout-calculated",
+                    "status": "timeout-warning",
                     "source_count": source_count,
-                    "per_source_timeout_seconds": effective_timeout,
-                    "estimated_total_seconds": estimated_total_time,
+                    "min_per_source_timeout_seconds": MIN_PER_SOURCE_TIMEOUT,
+                    "minimum_required_seconds": minimum_required_time,
+                    "available_time_seconds": available_time,
                     "max_request_timeout_seconds": MAX_REQUEST_TIMEOUT,
                     "warning": "Consider using background task for this calendar",
                 },
             )
-        else:
+
+        for idx, source in enumerate(sources):
+            # Calculate dynamic timeout based on remaining time and sources
+            elapsed_time = time.time() - start_time
+            remaining_time = available_time - elapsed_time
+            remaining_sources = source_count - idx
+
+            # Distribute remaining time across remaining sources
+            if remaining_sources > 0 and remaining_time > 0:
+                per_source_timeout = max(
+                    int(remaining_time / remaining_sources),
+                    MIN_PER_SOURCE_TIMEOUT,
+                )
+            else:
+                # Fallback to minimum timeout if we're running out of time
+                per_source_timeout = MIN_PER_SOURCE_TIMEOUT
+
             logger.debug(
-                "Calculated per-source timeout",
+                "Dynamic timeout calculated for source",
                 extra={
                     "event": LogEvent.SOURCE_FETCH,
                     "status": "timeout-calculated",
-                    "source_count": source_count,
-                    "available_time_seconds": available_time,
-                    "per_source_timeout_seconds": effective_timeout,
-                    "estimated_total_seconds": estimated_total_time,
-                    "max_request_timeout_seconds": MAX_REQUEST_TIMEOUT,
+                    "source_index": idx,
+                    "source_id": source.pk,
+                    "source_name": source.name,
+                    "elapsed_seconds": round(elapsed_time, 2),
+                    "remaining_seconds": round(remaining_time, 2),
+                    "remaining_sources": remaining_sources,
+                    "per_source_timeout_seconds": per_source_timeout,
                 },
             )
 
-        return effective_timeout
-
-    def process_sources(self, sources: list[Source]) -> list[SourceData]:
-        """Process multiple sources, handling special source types"""
-        processed_sources = []
-
-        # Calculate timeout based on source count
-        source_count = len(sources)
-        per_source_timeout = self._calculate_per_source_timeout(source_count)
-
-        for source in sources:
             processor = SourceProcessor(source, timeout=per_source_timeout)
 
             if is_local_url(source.url):
@@ -127,6 +113,20 @@ class SourceService:
             if processor.source_data.ical:
                 processor.customize_calendar()
             processed_sources.append(processor.source_data)
+
+        # Log final statistics
+        total_elapsed = time.time() - start_time
+        logger.info(
+            "Completed processing all sources",
+            extra={
+                "event": LogEvent.SOURCE_FETCH,
+                "status": "completed",
+                "source_count": source_count,
+                "total_elapsed_seconds": round(total_elapsed, 2),
+                "available_time_seconds": available_time,
+                "time_saved_seconds": round(available_time - total_elapsed, 2),
+            },
+        )
 
         return processed_sources
 
