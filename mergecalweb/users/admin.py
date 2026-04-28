@@ -73,7 +73,11 @@ class UserAdmin(auth_admin.UserAdmin):
         )
         return format_html('<a href="{}">{} Calendars</a>', url, count)
 
-    actions = ["send_feedback_email", "send_shorterm_rental_feedback_email"]
+    actions = [
+        "send_feedback_email",
+        "send_shorterm_rental_feedback_email",
+        "send_nlnet_funding_email",
+    ]
 
     @admin.action(description="Send feedback email")
     def send_feedback_email(self, request, queryset):
@@ -129,5 +133,61 @@ class UserAdmin(auth_admin.UserAdmin):
         self.message_user(
             request,
             f"Short-term rental feedback email sent to {queryset.count()} users",
+            messages.SUCCESS,
+        )
+
+    @admin.action(description="Send NLnet funding / anonymizer ask email")
+    def send_nlnet_funding_email(self, request, queryset):
+        for user in queryset:
+            send_email(
+                to_users=[user],
+                subject="Helping make MergeCal more reliable \u2014 quick ask",
+                bodies=[
+                    (
+                        "I wanted to share something exciting and ask if"
+                        " you\u2019d be willing to help."
+                    ),
+                    (
+                        "The Python library that powers MergeCal\u2019s"
+                        " calendar merging just received funding from NLnet"
+                        " \u2014 a nonprofit that supports open internet"
+                        " infrastructure"
+                        ' (<a href="https://nlnet.nl/project/OpenWebCalendar-recurring/">'
+                        "https://nlnet.nl/project/OpenWebCalendar-recurring/</a>)."
+                        " Part of that funding is going toward making the library"
+                        " more reliable across different calendar apps and services,"
+                        " and we need real-world test cases to do that well."
+                    ),
+                    (
+                        "That\u2019s where the ask comes in: would you be open"
+                        " to letting us use your MergeCal setup as a test case?"
+                    ),
+                    (
+                        "A contributor built a privacy-focused anonymizer"
+                        ' (<a href="https://github.com/mergecal/icalendar-anonymizer">'
+                        "https://github.com/mergecal/icalendar-anonymizer</a>) that"
+                        " would strip all personal details \u2014 names, descriptions,"
+                        " locations \u2014 from your calendar sources and the merged"
+                        " output, leaving only the structural data. We\u2019d use"
+                        " that anonymized snapshot to verify the merge produces"
+                        " consistent results over time. None of your actual data"
+                        " would be retained."
+                    ),
+                    (
+                        "It would be a genuine contribution to the open source"
+                        " community \u2014 not just MergeCal, but anyone building"
+                        " on top of the library."
+                    ),
+                    (
+                        "No pressure at all, and happy to answer any questions"
+                        " about how it works before you decide."
+                    ),
+                ],
+                from_email="Abe <abe@mergecal.org>",
+            )
+
+        self.message_user(
+            request,
+            f"NLnet funding email sent to {queryset.count()} users",
             messages.SUCCESS,
         )
