@@ -13,7 +13,6 @@ logger = logging.getLogger(__name__)
 
 MAX_STALE_AGE = timedelta(minutes=45)
 DEFAULT_TIMEOUT = 30
-CACHE_TUPLE_LENGTH = 2  # Expected length of (content, timestamp) cache tuple
 
 
 class CalendarFetcher:
@@ -48,16 +47,7 @@ class CalendarFetcher:
             cached_data = cache.get(cache_key)
 
             if cached_data is not None:
-                if (
-                    isinstance(cached_data, tuple)
-                    and len(cached_data) == CACHE_TUPLE_LENGTH
-                ):
-                    content, cached_at = cached_data
-                else:
-                    # Legacy cache format (just string) — still usable
-                    content = cached_data
-                    cached_at = time.time()
-
+                content, cached_at = cached_data
                 age_seconds = time.time() - cached_at
                 logger.debug(
                     "Calendar fetch cache hit",
