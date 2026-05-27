@@ -89,7 +89,7 @@ class Command(BaseCommand):
         for source in sources:
             start = time.time()
             try:
-                fetcher.fetch_calendar(source.url)
+                fetcher.fetch_calendar(source.url, force_refresh=True)
                 fetched += 1
                 logger.info(
                     "Prefetched source URL",

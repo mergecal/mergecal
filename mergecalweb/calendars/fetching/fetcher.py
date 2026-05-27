@@ -11,57 +11,59 @@ from mergecalweb.core.logging_events import LogEvent
 
 logger = logging.getLogger(__name__)
 
-CACHE_TIMEOUT = timedelta(minutes=2)  # Freshness threshold
-MAX_STALE_AGE = timedelta(hours=24)  # Maximum age to keep stale cache data
+MAX_STALE_AGE = timedelta(minutes=45)
 DEFAULT_TIMEOUT = 30
 CACHE_TUPLE_LENGTH = 2  # Expected length of (content, timestamp) cache tuple
 
 
 class CalendarFetcher:
-    def fetch_calendar(self, url: str, timeout: int | None = None) -> str:
+    def fetch_calendar(
+        self,
+        url: str,
+        timeout: int | None = None,
+        *,
+        force_refresh: bool = False,
+    ) -> str:
         """
-        Fetch calendar data from URL with stale-while-revalidate caching.
+        Fetch calendar data from URL with cache-first strategy.
 
-        This implements a resilient caching strategy:
-        - If cache is fresh (< 2 minutes): return immediately
-        - If cache is stale but < 24 hours old: try to refetch,
-          fall back to stale on error
-        - If cache is too old or missing: fetch fresh data
+        Returns cached content immediately if available (fresh or stale).
+        Only fetches from remote on a cache miss, cache expiry, or force_refresh.
 
         Args:
             url: Calendar URL to fetch
             timeout: Request timeout in seconds (defaults to 30)
+            force_refresh: If True, bypass cache and fetch from remote unconditionally.
+                           Used by the prefetch management command to warm the cache.
 
         Returns:
             Calendar data as string
 
         Raises:
-            requests.RequestException: If fetch fails and no stale cache available
+            requests.RequestException: If fetch fails and no cached content available
         """
         cache_key = f"calendar_data_{url}"
-        cached_data = cache.get(cache_key)
 
-        if cached_data is not None:
-            # Unpack cached data (content, timestamp) or handle legacy format
-            if (
-                isinstance(cached_data, tuple)
-                and len(cached_data) == CACHE_TUPLE_LENGTH
-            ):
-                content, cached_at = cached_data
-            else:
-                # Legacy cache format (just string) - treat as stale and refetch
-                content = cached_data
-                cached_at = 0  # Force refresh by setting to epoch
+        if not force_refresh:
+            cached_data = cache.get(cache_key)
 
-            age_seconds = time.time() - cached_at
+            if cached_data is not None:
+                if (
+                    isinstance(cached_data, tuple)
+                    and len(cached_data) == CACHE_TUPLE_LENGTH
+                ):
+                    content, cached_at = cached_data
+                else:
+                    # Legacy cache format (just string) — still usable
+                    content = cached_data
+                    cached_at = time.time()
 
-            if age_seconds < CACHE_TIMEOUT.total_seconds():
-                # Cache is fresh - return immediately
+                age_seconds = time.time() - cached_at
                 logger.debug(
-                    "Calendar fetch cache hit (fresh)",
+                    "Calendar fetch cache hit",
                     extra={
                         "event": LogEvent.CALENDAR_FETCH,
-                        "status": "cache-hit-fresh",
+                        "status": "cache-hit",
                         "url": url[:200],
                         "size_bytes": len(content),
                         "age_seconds": round(age_seconds, 2),
@@ -69,58 +71,11 @@ class CalendarFetcher:
                 )
                 return content
 
-            if age_seconds < MAX_STALE_AGE.total_seconds():
-                # Cache is stale but usable - try to refetch, fall back on error
-                logger.debug(
-                    "Calendar fetch cache hit (stale), attempting refresh",
-                    extra={
-                        "event": LogEvent.CALENDAR_FETCH,
-                        "status": "cache-hit-stale",
-                        "url": url[:200],
-                        "age_seconds": round(age_seconds, 2),
-                    },
-                )
-                try:
-                    fresh_content = self._fetch_from_remote(url, timeout)
-                    self._cache_content(cache_key, fresh_content)
-                except requests.RequestException as e:
-                    # Network/timeout error - fall back to stale cached content
-                    logger.info(
-                        "Calendar fetch failed, using stale cache",
-                        extra={
-                            "event": LogEvent.CALENDAR_FETCH,
-                            "status": "fetch-failed-using-stale",
-                            "url": url[:200],
-                            "error": str(e),
-                            "error_type": type(e).__name__,
-                            "age_seconds": round(age_seconds, 2),
-                            "size_bytes": len(content),
-                        },
-                    )
-                    return content
-                else:
-                    return fresh_content
-
-            # Cache is too old - must refetch (will raise on error)
-            logger.debug(
-                "Calendar fetch cache expired (too old)",
-                extra={
-                    "event": LogEvent.CALENDAR_FETCH,
-                    "status": "cache-expired",
-                    "url": url[:200],
-                    "age_seconds": round(age_seconds, 2),
-                },
-            )
-            fresh_content = self._fetch_from_remote(url, timeout)
-            self._cache_content(cache_key, fresh_content)
-            return fresh_content
-
-        # No cache - fetch fresh
         logger.debug(
             "Calendar fetch cache miss, fetching from remote",
             extra={
                 "event": LogEvent.CALENDAR_FETCH,
-                "status": "cache-miss",
+                "status": "force-refresh" if force_refresh else "cache-miss",
                 "url": url[:200],
             },
         )
@@ -209,8 +164,6 @@ class CalendarFetcher:
             cache_key: Cache key to use
             content: Calendar data to cache
         """
-        # Store tuple of (content, timestamp) with long TTL
-        # The long TTL keeps stale data available as fallback
         cached_value = (content, time.time())
         cache.set(cache_key, cached_value, MAX_STALE_AGE.total_seconds())
 
