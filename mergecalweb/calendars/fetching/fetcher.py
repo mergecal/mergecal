@@ -11,7 +11,8 @@ from mergecalweb.core.logging_events import LogEvent
 
 logger = logging.getLogger(__name__)
 
-MAX_STALE_AGE = timedelta(minutes=45)
+CACHE_TIMEOUT = timedelta(minutes=40)  # Freshness threshold
+MAX_STALE_AGE = timedelta(hours=24)  # Maximum age to keep stale cache data
 DEFAULT_TIMEOUT = 30
 
 
@@ -24,22 +25,25 @@ class CalendarFetcher:
         force_refresh: bool = False,
     ) -> str:
         """
-        Fetch calendar data from URL with cache-first strategy.
+        Fetch calendar data from URL with stale-while-revalidate caching.
 
-        Returns cached content immediately if available (fresh or stale).
-        Only fetches from remote on a cache miss, cache expiry, or force_refresh.
+        - Fresh cache (< 40 min): return immediately, no network call.
+        - Stale cache (40 min - 24 hr): return stale immediately, try to
+          refresh in the background; fall back to stale on error.
+        - Expired / miss (> 24 hr or no entry): fetch from remote.
+        - force_refresh=True: always fetch from remote unconditionally.
+          Used by the prefetch management command to warm the cache.
 
         Args:
             url: Calendar URL to fetch
             timeout: Request timeout in seconds (defaults to 30)
-            force_refresh: If True, bypass cache and fetch from remote unconditionally.
-                           Used by the prefetch management command to warm the cache.
+            force_refresh: Bypass cache and fetch from remote unconditionally.
 
         Returns:
             Calendar data as string
 
         Raises:
-            requests.RequestException: If fetch fails and no cached content available
+            requests.RequestException: If fetch fails and no stale cache available
         """
         cache_key = f"calendar_data_{url}"
 
@@ -49,17 +53,64 @@ class CalendarFetcher:
             if cached_data is not None:
                 content, cached_at = cached_data
                 age_seconds = time.time() - cached_at
+
+                if age_seconds < CACHE_TIMEOUT.total_seconds():
+                    logger.debug(
+                        "Calendar fetch cache hit (fresh)",
+                        extra={
+                            "event": LogEvent.CALENDAR_FETCH,
+                            "status": "cache-hit-fresh",
+                            "url": url[:200],
+                            "size_bytes": len(content),
+                            "age_seconds": round(age_seconds, 2),
+                        },
+                    )
+                    return content
+
+                if age_seconds < MAX_STALE_AGE.total_seconds():
+                    # Stale but usable — try to refresh, fall back on error
+                    logger.debug(
+                        "Calendar fetch cache hit (stale), attempting refresh",
+                        extra={
+                            "event": LogEvent.CALENDAR_FETCH,
+                            "status": "cache-hit-stale",
+                            "url": url[:200],
+                            "age_seconds": round(age_seconds, 2),
+                        },
+                    )
+                    try:
+                        fresh_content = self._fetch_from_remote(url, timeout)
+                    except requests.RequestException as e:
+                        logger.info(
+                            "Calendar fetch failed, using stale cache",
+                            extra={
+                                "event": LogEvent.CALENDAR_FETCH,
+                                "status": "fetch-failed-using-stale",
+                                "url": url[:200],
+                                "error": str(e),
+                                "error_type": type(e).__name__,
+                                "age_seconds": round(age_seconds, 2),
+                                "size_bytes": len(content),
+                            },
+                        )
+                        return content
+                    else:
+                        self._cache_content(cache_key, fresh_content)
+                        return fresh_content
+
+                # Cache too old — must refetch
                 logger.debug(
-                    "Calendar fetch cache hit",
+                    "Calendar fetch cache expired",
                     extra={
                         "event": LogEvent.CALENDAR_FETCH,
-                        "status": "cache-hit",
+                        "status": "cache-expired",
                         "url": url[:200],
-                        "size_bytes": len(content),
                         "age_seconds": round(age_seconds, 2),
                     },
                 )
-                return content
+                fresh_content = self._fetch_from_remote(url, timeout)
+                self._cache_content(cache_key, fresh_content)
+                return fresh_content
 
         logger.debug(
             "Calendar fetch cache miss, fetching from remote",
@@ -89,19 +140,16 @@ class CalendarFetcher:
         """
         start_time = time.time()
 
-        # Get domain-specific configuration if available
         parsed_url = urlparse(url)
         domain = parsed_url.netloc
         domain_config = get_domain_config(domain)
 
-        # Build headers with domain-specific overrides
         headers = {
             "User-Agent": "MergeCal/1.0 (https://mergecal.org)",
             "Accept": "text/calendar, application/calendar+xml, application/calendar+json",  # noqa: E501
             "Accept-Language": "en-US,en;q=0.9",
         }
 
-        # Apply domain-specific overrides
         if domain_config:
             if "user_agent" in domain_config:
                 headers["User-Agent"] = domain_config["user_agent"]
