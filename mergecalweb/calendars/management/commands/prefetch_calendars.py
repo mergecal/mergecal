@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import logging
 import time
+from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import as_completed
 
 import requests
 from django.conf import settings
@@ -30,6 +32,14 @@ TIER_PRIORITY = Case(
 class Command(BaseCommand):
     help = "Prefetch and cache source calendar URLs for configured premium users."
 
+    def add_arguments(self, parser) -> None:
+        parser.add_argument(
+            "--concurrency",
+            type=int,
+            default=5,
+            help="Source URLs to fetch in parallel per calendar (default: 5).",
+        )
+
     def handle(self, *args, **options) -> None:
         user_ids: list[int] = settings.CALENDAR_PREFETCH_USER_IDS
         if not user_ids:
@@ -45,6 +55,7 @@ class Command(BaseCommand):
         )
 
         total_calendars = calendars.count()
+        concurrency = options["concurrency"]
         logger.info(
             "Calendar prefetch started",
             extra={
@@ -52,6 +63,7 @@ class Command(BaseCommand):
                 "status": "start",
                 "user_ids": user_ids,
                 "total_calendars": total_calendars,
+                "concurrency": concurrency,
             },
         )
 
@@ -60,7 +72,7 @@ class Command(BaseCommand):
         total_errors = 0
 
         for calendar in calendars:
-            fetched, errors = self._prefetch_calendar(fetcher, calendar)
+            fetched, errors = self._prefetch_calendar(fetcher, calendar, concurrency)
             total_fetched += fetched
             total_errors += errors
 
@@ -83,43 +95,60 @@ class Command(BaseCommand):
         self,
         fetcher: CalendarFetcher,
         calendar: Calendar,
+        concurrency: int,
     ) -> tuple[int, int]:
-        sources = calendar.calendarOf.all()
+        sources = list(calendar.calendarOf.all())
         fetched = 0
         errors = 0
 
-        for source in sources:
-            start = time.time()
-            try:
-                fetcher.fetch_calendar(source.url, force_refresh=True)
-                fetched += 1
-                logger.info(
-                    "Prefetched source URL",
-                    extra={
-                        "event": LogEvent.CALENDAR_PREFETCH,
-                        "status": "source-fetched",
-                        "calendar_id": calendar.pk,
-                        "calendar_uuid": str(calendar.uuid),
-                        "source_id": source.pk,
-                        "source_url": source.url[:200],
-                        "duration_seconds": round(time.time() - start, 2),
-                    },
-                )
-            except requests.RequestException as e:
-                errors += 1
-                logger.warning(
-                    "Prefetch failed for source URL",
-                    extra={
-                        "event": LogEvent.CALENDAR_PREFETCH,
-                        "status": "error",
-                        "calendar_id": calendar.pk,
-                        "calendar_uuid": str(calendar.uuid),
-                        "owner_id": calendar.owner.pk,
-                        "source_id": source.pk,
-                        "source_url": source.url[:200],
-                        "error_type": type(e).__name__,
-                        "error": str(e),
-                    },
-                )
+        with ThreadPoolExecutor(max_workers=concurrency) as executor:
+            futures = {
+                executor.submit(self._fetch_source, fetcher, calendar, source): source
+                for source in sources
+            }
+            for future in as_completed(futures):
+                source_fetched, source_errors = future.result()
+                fetched += source_fetched
+                errors += source_errors
 
         return fetched, errors
+
+    def _fetch_source(
+        self,
+        fetcher: CalendarFetcher,
+        calendar: Calendar,
+        source,
+    ) -> tuple[int, int]:
+        start = time.time()
+        try:
+            fetcher.fetch_calendar(source.url, force_refresh=True)
+        except requests.RequestException as e:
+            logger.warning(
+                "Prefetch failed for source URL",
+                extra={
+                    "event": LogEvent.CALENDAR_PREFETCH,
+                    "status": "error",
+                    "calendar_id": calendar.pk,
+                    "calendar_uuid": str(calendar.uuid),
+                    "owner_id": calendar.owner.pk,
+                    "source_id": source.pk,
+                    "source_url": source.url[:200],
+                    "error_type": type(e).__name__,
+                    "error": str(e),
+                },
+            )
+            return 0, 1
+        else:
+            logger.info(
+                "Prefetched source URL",
+                extra={
+                    "event": LogEvent.CALENDAR_PREFETCH,
+                    "status": "source-fetched",
+                    "calendar_id": calendar.pk,
+                    "calendar_uuid": str(calendar.uuid),
+                    "source_id": source.pk,
+                    "source_url": source.url[:200],
+                    "duration_seconds": round(time.time() - start, 2),
+                },
+            )
+            return 1, 0
