@@ -80,7 +80,9 @@ class Command(BaseCommand):
         )
 
     def _prefetch_calendar(
-        self, fetcher: CalendarFetcher, calendar: Calendar,
+        self,
+        fetcher: CalendarFetcher,
+        calendar: Calendar,
     ) -> tuple[int, int]:
         sources = calendar.calendarOf.all()
         fetched = 0

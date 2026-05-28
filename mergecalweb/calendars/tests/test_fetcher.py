@@ -45,7 +45,9 @@ class TestCalendarFetcher:
         mock_cache.get.return_value = None
 
         with patch.object(
-            fetcher, "_fetch_from_remote", return_value="FRESH DATA",
+            fetcher,
+            "_fetch_from_remote",
+            return_value="FRESH DATA",
         ) as mock_fetch:
             result = fetcher.fetch_calendar(url)
 
@@ -59,7 +61,9 @@ class TestCalendarFetcher:
         mock_cache.get.return_value = ("CACHED DATA", time.time())
 
         with patch.object(
-            fetcher, "_fetch_from_remote", return_value="FRESH DATA",
+            fetcher,
+            "_fetch_from_remote",
+            return_value="FRESH DATA",
         ) as mock_fetch:
             result = fetcher.fetch_calendar(url, force_refresh=True)
 
