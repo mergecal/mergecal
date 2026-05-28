@@ -113,5 +113,9 @@ class LogEvent:
     # Use with "cache_reason": "source-change"/"calendar-change"
     CACHE_INVALIDATED = "cache-invalidated"
 
+    # Calendar Prefetch Background Tasks
+    # Use with "status": "start"/"queued"/"source-fetched"/"success"/"error"
+    CALENDAR_PREFETCH = "calendar-prefetch"
+
     # Deprecated - Old calendar utils (to be removed)
     DEPRECATED_CALENDAR_OPERATION = "deprecated-calendar-operation"

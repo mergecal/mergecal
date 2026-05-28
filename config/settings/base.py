@@ -363,6 +363,11 @@ CELERY_WORKER_SEND_TASK_EVENTS = True
 CELERY_TASK_SEND_SENT_EVENT = True
 # https://docs.celeryq.dev/en/stable/userguide/configuration.html#worker-hijack-root-logger
 CELERY_WORKER_HIJACK_ROOT_LOGGER = False
+# Comma-separated list of user IDs that get background calendar source prefetching.
+# Example: CALENDAR_PREFETCH_USER_IDS=1,2,3
+CALENDAR_PREFETCH_USER_IDS: list[int] = [
+    int(uid) for uid in env.list("CALENDAR_PREFETCH_USER_IDS", default=[]) if uid
+]
 # django-allauth
 # ------------------------------------------------------------------------------
 ACCOUNT_ALLOW_REGISTRATION = env.bool("DJANGO_ACCOUNT_ALLOW_REGISTRATION", True)

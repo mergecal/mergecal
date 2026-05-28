@@ -61,7 +61,7 @@ def clear_calendar_cache_on_source(sender, instance, **kwargs):
         },
     )
 
-    # Check if the cache exists and delete it
+    # Clear the merged calendar string cache
     cache.delete(cache_key)
     logger.info(
         "Cache invalidated due to source change",
@@ -71,6 +71,22 @@ def clear_calendar_cache_on_source(sender, instance, **kwargs):
             "cache_key": cache_key,
             "source_id": instance.pk,
             "source_name": instance.name,
+            "action": action,
+            "calendar_uuid": calendar.uuid,
+        },
+    )
+
+    # Clear the source URL cache so the next fetch gets fresh content
+    source_cache_key = f"calendar_data_{instance.url}"
+    cache.delete(source_cache_key)
+    logger.info(
+        "Source URL cache invalidated",
+        extra={
+            "event": LogEvent.CACHE_INVALIDATED,
+            "cache_reason": "source-change",
+            "cache_key": source_cache_key,
+            "source_id": instance.pk,
+            "source_url": instance.url,
             "action": action,
             "calendar_uuid": calendar.uuid,
         },
