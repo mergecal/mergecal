@@ -1,11 +1,10 @@
 import logging
 
-from django.core.cache import cache
 from django.db.models.signals import post_delete
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from mergecalweb.calendars.cache import calendar_output_cache_key
+from mergecalweb.calendars.cache import invalidate_calendar_cache
 from mergecalweb.calendars.models import Calendar
 from mergecalweb.calendars.models import Source
 from mergecalweb.core.logging_events import LogEvent
@@ -16,16 +15,16 @@ logger = logging.getLogger(__name__)
 @receiver(post_save, sender=Source)
 @receiver(post_delete, sender=Source)
 def clear_calendar_cache_on_source(sender, instance, **kwargs):
-    if kwargs.get("created") is not None:
-        action = "created" if kwargs.get("created") else "updated"
-    else:
-        action = "deleted"
+    action = (
+        "created"
+        if kwargs.get("created")
+        else ("deleted" if kwargs.get("created") is None else "updated")
+    )
 
     # When a Calendar is deleted, its Sources are cascade-deleted.
     # The post_delete signal fires after the Calendar is already gone,
     # so accessing instance.calendar raises Calendar.DoesNotExist.
-    # In this case, we skip cache invalidation here since the Calendar's
-    # own post_delete signal (clear_calendar_cache_on_calendar) will handle it.
+    # Skip here — the Calendar's own post_delete signal handles invalidation.
     try:
         calendar = instance.calendar
     except Calendar.DoesNotExist:
@@ -43,8 +42,6 @@ def clear_calendar_cache_on_source(sender, instance, **kwargs):
         )
         return
 
-    cache_key = calendar_output_cache_key(calendar.uuid)
-
     logger.info(
         "Source %s",
         action,
@@ -60,32 +57,17 @@ def clear_calendar_cache_on_source(sender, instance, **kwargs):
             "email": calendar.owner.email,
         },
     )
-
-    # Check if the cache exists and delete it
-    cache.delete(cache_key)
-    logger.info(
-        "Cache invalidated due to source change",
-        extra={
-            "event": LogEvent.CACHE_INVALIDATED,
-            "cache_reason": "source-change",
-            "cache_key": cache_key,
-            "source_id": instance.pk,
-            "source_name": instance.name,
-            "action": action,
-            "calendar_uuid": calendar.uuid,
-        },
-    )
+    invalidate_calendar_cache(calendar)
 
 
 @receiver(post_save, sender=Calendar)
 @receiver(post_delete, sender=Calendar)
 def clear_calendar_cache_on_calendar(sender, instance, **kwargs):
-    cache_key = calendar_output_cache_key(instance.uuid)
-
-    if kwargs.get("created") is not None:
-        action = "created" if kwargs.get("created") else "updated"
-    else:
-        action = "deleted"
+    action = (
+        "created"
+        if kwargs.get("created")
+        else ("deleted" if kwargs.get("created") is None else "updated")
+    )
 
     logger.info(
         "Calendar %s",
@@ -99,17 +81,4 @@ def clear_calendar_cache_on_calendar(sender, instance, **kwargs):
             "email": instance.owner.email,
         },
     )
-
-    # Check if the cache exists and delete it
-    cache.delete(cache_key)
-    logger.info(
-        "Cache invalidated due to calendar change",
-        extra={
-            "event": LogEvent.CACHE_INVALIDATED,
-            "cache_reason": "calendar-change",
-            "cache_key": cache_key,
-            "calendar_uuid": instance.uuid,
-            "calendar_name": instance.name,
-            "action": action,
-        },
-    )
+    invalidate_calendar_cache(instance)
