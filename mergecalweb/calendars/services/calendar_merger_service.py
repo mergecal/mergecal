@@ -128,7 +128,6 @@ class CalendarMergerService:
                 "size_bytes": len(calendar_str),
                 "duration_seconds": round(merge_duration, 2),
                 "cache_ttl_seconds": cache_ttl,
-                "is_in_bypass_period": self.calendar.is_in_cache_bypass_period(),
             },
         )
 
