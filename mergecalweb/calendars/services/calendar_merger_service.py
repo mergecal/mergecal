@@ -11,6 +11,7 @@ from icalendar import Event
 from icalendar import vDuration
 from mergecal import CalendarMerger
 
+from mergecalweb.calendars.cache import calendar_output_cache_key
 from mergecalweb.calendars.models import Calendar
 from mergecalweb.core.logging_events import LogEvent
 
@@ -60,7 +61,7 @@ class CalendarMergerService:
             ical = self._add_tier_warnings()
             return ical.to_ical().decode("utf-8")
 
-        cache_key = f"calendar_str_{self.calendar.uuid}"
+        cache_key = calendar_output_cache_key(self.calendar.uuid)
         cached_calendar = cache.get(cache_key)
 
         if cached_calendar is not None:
@@ -127,7 +128,6 @@ class CalendarMergerService:
                 "size_bytes": len(calendar_str),
                 "duration_seconds": round(merge_duration, 2),
                 "cache_ttl_seconds": cache_ttl,
-                "is_in_bypass_period": self.calendar.is_in_cache_bypass_period(),
             },
         )
 

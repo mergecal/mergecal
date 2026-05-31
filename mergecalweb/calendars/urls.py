@@ -8,6 +8,7 @@ from mergecalweb.calendars.views import SourceAddView
 from mergecalweb.calendars.views import SourceEditView
 from mergecalweb.calendars.views import UserCalendarListView
 from mergecalweb.calendars.views import calendar_iframe
+from mergecalweb.calendars.views import calendar_refresh
 from mergecalweb.calendars.views import calendar_view
 from mergecalweb.calendars.views import source_delete
 
@@ -25,6 +26,7 @@ urlpatterns = [
         name="source_add",
     ),
     path("source/<int:pk>/delete/", source_delete, name="source_delete"),
+    path("<uuid:uuid>/refresh/", calendar_refresh, name="calendar_refresh"),
     path("<uuid>.ical", CalendarFileView.as_view(), name="calendar_file"),
     path("<uuid>.ics", CalendarFileView.as_view(), name="calendar_file_ics"),
     path("<uuid>/calendar/", calendar_view, name="calendar_view"),

@@ -8,16 +8,29 @@
     <div class="row align-items-center mb-4">
       <div class="col-md-4">
         {% if user.is_authenticated %}
-          <a href="{% url 'calendars:calendar_list' %}"
-             class="btn btn-outline-primary me-2">
-            <i class="bi bi-arrow-left"></i> Back to My Calendars
-          </a>
-          {% if calendar.owner == user %}
-            <a href="{% url 'calendars:calendar_update' calendar.uuid %}"
-               class="btn btn-primary">
-              <i class="bi bi-pencil"></i> Edit Calendar
+          <div class="d-flex gap-2 flex-wrap">
+            <a href="{% url 'calendars:calendar_list' %}"
+               class="btn btn-outline-primary">
+              <i class="bi bi-arrow-left"></i> Back to My Calendars
             </a>
-          {% endif %}
+            {% if calendar.owner == user %}
+              <a href="{% url 'calendars:calendar_update' calendar.uuid %}"
+                 class="btn btn-primary">
+                <i class="bi bi-pencil"></i> Edit Calendar
+              </a>
+              <form method="post"
+                    action="{% url 'calendars:calendar_refresh' calendar.uuid %}">
+                {% csrf_token %}
+                <button type="submit"
+                        class="btn btn-outline-secondary"
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="bottom"
+                        title="Your merged calendar is cached based on your update frequency. Click to clear the cache and re-fetch the latest data from all your sources immediately.">
+                  <i class="bi bi-arrow-clockwise"></i> Force Refresh
+                </button>
+              </form>
+            {% endif %}
+          </div>
         {% endif %}
       </div>
       <div class="col-md-4 text-center">

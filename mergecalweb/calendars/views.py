@@ -23,9 +23,9 @@ from django.views.generic import DeleteView
 from django.views.generic import ListView
 from django.views.generic import UpdateView
 
+from mergecalweb.calendars.cache import invalidate_calendar_cache
 from mergecalweb.calendars.forms import CalendarForm
 from mergecalweb.calendars.forms import SourceForm
-from mergecalweb.calendars.models import CACHE_BYPASS_HOURS
 from mergecalweb.calendars.models import Calendar
 from mergecalweb.calendars.models import Source
 from mergecalweb.calendars.services.calendar_merger_service import CalendarMergerService
@@ -120,7 +120,6 @@ class CalendarUpdateView(LoginRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["domain_name"] = get_site_url()
-        context["CACHE_BYPASS_HOURS"] = CACHE_BYPASS_HOURS
         return context
 
     def get_queryset(self):
@@ -369,17 +368,8 @@ class CalendarFileView(View):
         response = HttpResponse(calendar_str, content_type="text/calendar")
         response["Content-Disposition"] = f'attachment; filename="{uuid}.ics"'
 
-        # Set cache headers based on user's update frequency preference
-        # Optimized for Cloudflare CDN
-        # If calendar was modified in the last 3 hours, disable caching
-        # so users can see their changes immediately (like Cloudflare dev mode)
-        if calendar.is_in_cache_bypass_period():
-            # Disable cache for recently modified calendars
-            response["Cache-Control"] = "public, max-age=0, must-revalidate"
-        else:
-            # Use user's preferred cache TTL
-            cache_ttl = calendar.effective_update_frequency
-            response["Cache-Control"] = f"public, max-age={cache_ttl}"
+        cache_ttl = calendar.effective_update_frequency
+        response["Cache-Control"] = f"public, max-age={cache_ttl}"
 
         request_duration = time.time() - start_time
         logger.info(
@@ -398,6 +388,18 @@ class CalendarFileView(View):
         )
 
         return response
+
+
+@require_POST
+@login_required
+def calendar_refresh(request, uuid):
+    calendar = get_object_or_404(Calendar, uuid=uuid, owner=request.user)
+    invalidate_calendar_cache(calendar)
+    messages.success(
+        request,
+        "Done! Your calendar now shows the latest data from all your sources.",
+    )
+    return redirect("calendars:calendar_view", uuid=uuid)
 
 
 def calendar_view(request: HttpRequest, uuid: str) -> HttpResponse:
