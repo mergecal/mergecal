@@ -6,6 +6,7 @@ from urllib.parse import urlparse
 import requests
 from django.core.cache import cache
 
+from mergecalweb.calendars.cache import source_data_cache_key
 from mergecalweb.calendars.fetching.domain_configs import get_domain_config
 from mergecalweb.core.logging_events import LogEvent
 
@@ -38,7 +39,7 @@ class CalendarFetcher:
         Raises:
             requests.RequestException: If fetch fails and no stale cache available
         """
-        cache_key = f"calendar_data_{url}"
+        cache_key = source_data_cache_key(url)
         cached_data = cache.get(cache_key)
 
         if cached_data is not None:

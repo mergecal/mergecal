@@ -5,6 +5,7 @@ from django.db.models.signals import post_delete
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
+from mergecalweb.calendars.cache import calendar_output_cache_key
 from mergecalweb.calendars.models import Calendar
 from mergecalweb.calendars.models import Source
 from mergecalweb.core.logging_events import LogEvent
@@ -42,8 +43,7 @@ def clear_calendar_cache_on_source(sender, instance, **kwargs):
         )
         return
 
-    # Construct the cache key similar to how you set it
-    cache_key = f"calendar_str_{calendar.uuid}"
+    cache_key = calendar_output_cache_key(calendar.uuid)
 
     logger.info(
         "Source %s",
@@ -80,8 +80,7 @@ def clear_calendar_cache_on_source(sender, instance, **kwargs):
 @receiver(post_save, sender=Calendar)
 @receiver(post_delete, sender=Calendar)
 def clear_calendar_cache_on_calendar(sender, instance, **kwargs):
-    # Construct the cache key similar to how you set it
-    cache_key = f"calendar_str_{instance.uuid}"
+    cache_key = calendar_output_cache_key(instance.uuid)
 
     if kwargs.get("created") is not None:
         action = "created" if kwargs.get("created") else "updated"

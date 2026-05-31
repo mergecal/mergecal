@@ -11,6 +11,7 @@ from icalendar import Calendar
 from icalendar import Timezone
 from icalendar import TimezoneStandard
 
+from mergecalweb.calendars.cache import calendar_output_cache_key
 from mergecalweb.calendars.meetup import fetch_and_create_meetup_calendar
 from mergecalweb.calendars.meetup import is_meetup_url
 from mergecalweb.core.logging_events import LogEvent
@@ -19,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 def combine_calendar(calendar_instance, origin_domain):
-    cal_bye_str = cache.get(f"calendar_str_{calendar_instance.uuid}")
+    cal_bye_str = cache.get(calendar_output_cache_key(calendar_instance.uuid))
     user = calendar_instance.owner
     if not user.is_free_tier or not cal_bye_str:
         if not user.is_free_tier:
@@ -104,7 +105,11 @@ def combine_calendar(calendar_instance, origin_domain):
         cal_bye_str = newcal.to_ical().decode("utf8")
         calendar_instance.calendar_file_str = cal_bye_str
         calendar_instance.save()
-        cache.set(f"calendar_str_{calendar_instance.uuid}", cal_bye_str, 60 * 60 * 24)
+        cache.set(
+            calendar_output_cache_key(calendar_instance.uuid),
+            cal_bye_str,
+            60 * 60 * 24,
+        )
         logger.info(
             "Deprecated: Calendar combined and saved",
             extra={
