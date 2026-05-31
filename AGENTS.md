@@ -29,3 +29,6 @@
   - Levels: `logger.info` (normal ops), `logger.warning` (expected failures), `logger.exception` (Sentry alerts)
   - Debug logs may skip event constant if internal/verbose
   - Pre-commit hook (semgrep) enforces logging conventions automatically
+
+
+All work should be done with atomic commits which explain why and not what
