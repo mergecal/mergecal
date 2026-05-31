@@ -23,6 +23,7 @@ from django.views.generic import DeleteView
 from django.views.generic import ListView
 from django.views.generic import UpdateView
 
+from mergecalweb.calendars.cache import invalidate_calendar_cache
 from mergecalweb.calendars.forms import CalendarForm
 from mergecalweb.calendars.forms import SourceForm
 from mergecalweb.calendars.models import Calendar
@@ -387,6 +388,18 @@ class CalendarFileView(View):
         )
 
         return response
+
+
+@require_POST
+@login_required
+def calendar_refresh(request, uuid):
+    calendar = get_object_or_404(Calendar, uuid=uuid, owner=request.user)
+    invalidate_calendar_cache(calendar)
+    messages.success(
+        request,
+        "Done! Your calendar now shows the latest data from all your sources.",
+    )
+    return redirect("calendars:calendar_view", uuid=uuid)
 
 
 def calendar_view(request: HttpRequest, uuid: str) -> HttpResponse:
