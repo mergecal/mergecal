@@ -26,11 +26,15 @@ SAFETY_BUFFER = 5  # Safety buffer in seconds to complete before gunicorn timeou
 
 
 class SourceService:
-    def __init__(self, existing_uuids=None) -> None:
+    def __init__(self, existing_uuids=None, source_timeout: int | None = None) -> None:
         if existing_uuids is None:
             self.processed_uuids: set[str] = set()
         else:
             self.processed_uuids = existing_uuids
+        # Optional per-source timeout override (in seconds). When set, it bypasses
+        # the Gunicorn-budget calculation so background jobs can use a generous
+        # timeout. None preserves the live-request behavior.
+        self.source_timeout = source_timeout
 
     def _calculate_per_source_timeout(self, source_count: int) -> int:
         """
@@ -99,9 +103,13 @@ class SourceService:
         """Process multiple sources, handling special source types"""
         processed_sources = []
 
-        # Calculate timeout based on source count
+        # Calculate timeout based on source count, unless an override is provided
         source_count = len(sources)
-        per_source_timeout = self._calculate_per_source_timeout(source_count)
+        per_source_timeout = (
+            self.source_timeout
+            if self.source_timeout is not None
+            else self._calculate_per_source_timeout(source_count)
+        )
 
         for source in sources:
             processor = SourceProcessor(source, timeout=per_source_timeout)
@@ -209,7 +217,11 @@ class SourceService:
             },
         )
 
-        merger = CalendarMergerService(sub_calendar, self.processed_uuids)
+        merger = CalendarMergerService(
+            sub_calendar,
+            self.processed_uuids,
+            source_timeout=self.source_timeout,
+        )
         calendar_str = merger.merge()
         source_data.ical = ICalendar.from_ical(calendar_str)
 
