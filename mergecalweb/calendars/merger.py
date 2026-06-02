@@ -5,6 +5,7 @@ import httpx
 from django.core.cache import cache
 from icalendar import Calendar as ICalendar
 
+from mergecalweb.calendars.cache import source_data_cache_key
 from mergecalweb.calendars.models import Source
 
 logger = logging.getLogger(__name__)
@@ -21,7 +22,7 @@ class SoucreService:
 
     def _fetch_calendar(self) -> None:
         url = self.url
-        cache_key = f"calendar_data_{url}"
+        cache_key = source_data_cache_key(url)
         cached_data = cache.get(cache_key)
 
         if cached_data is not None:
