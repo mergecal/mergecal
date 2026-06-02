@@ -17,9 +17,11 @@ def source_data_cache_key(url: str) -> str:
 
 
 def invalidate_calendar_cache(calendar) -> None:
-    cache.delete(calendar_output_cache_key(calendar.uuid))
-    for source in calendar.calendarOf.all():
-        cache.delete(source_data_cache_key(source.url))
+    keys = [calendar_output_cache_key(calendar.uuid)]
+    keys.extend(
+        source_data_cache_key(source.url) for source in calendar.calendarOf.all()
+    )
+    cache.delete_many(keys)
     logger.info(
         "Cache invalidated",
         extra={
