@@ -26,9 +26,14 @@ class CalendarMergerService:
         self,
         calendar: Calendar,
         existing_uuids: set[str] | None = None,
+        source_timeout: int | None = None,
     ) -> None:
         self.calendar: Final[Calendar] = calendar
         self.existing_uuids: Final[set[str] | None] = existing_uuids
+        # Optional per-source timeout override (seconds). Passed through to
+        # SourceService so background jobs can fetch with a generous timeout
+        # instead of the Gunicorn-budget split. None keeps live-request behavior.
+        self.source_timeout: Final[int | None] = source_timeout
 
     def merge(self) -> str:
         """Merge all calendar sources into a single iCal string"""
@@ -136,7 +141,10 @@ class CalendarMergerService:
     def _process_sources(self) -> list[SourceData]:
         """Process all calendar sources"""
         sources = self.calendar.calendarOf.all()
-        source_service = SourceService(self.existing_uuids)
+        source_service = SourceService(
+            self.existing_uuids,
+            source_timeout=self.source_timeout,
+        )
         return source_service.process_sources(sources)
 
     def _merge_calendars(self, calendars: list[ICalendar]) -> ICalendar:
