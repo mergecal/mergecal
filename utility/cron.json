@@ -5,7 +5,7 @@
   },
   "deploy": {
     "startCommand": "python manage.py prefetch_calendars",
-    "cronSchedule": "0 * * * *",
+    "cronSchedule": "*/30 * * * *",
     "restartPolicyType": "NEVER"
   }
 }
