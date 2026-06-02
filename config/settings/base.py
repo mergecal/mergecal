@@ -414,6 +414,16 @@ STRIPE_PRICE_TABLE_ID = env("STRIPE_PRICE_TABLE_ID", default="")
 DYNAMIC_BREADCRUMBS_PATH_MAX_DEPTH = 8
 FORMS_URLFIELD_ASSUME_HTTPS = True
 
+# Calendar prefetch (background cache warming)
+# ------------------------------------------------------------------------------
+# IDs of users whose calendars are pre-warmed by the prefetch_calendars cron.
+CALENDAR_PREFETCH_USER_IDS = [
+    int(x) for x in env.list("CALENDAR_PREFETCH_USER_IDS", default=[])
+]
+# Per-source fetch timeout (seconds) used by the prefetch cron. It runs outside
+# the Gunicorn request budget, so it can afford a generous timeout.
+CALENDAR_PREFETCH_TIMEOUT = env.int("CALENDAR_PREFETCH_TIMEOUT", default=30)
+
 # django-health-check
 # ------------------------------------------------------------------------------
 # https://github.com/revsys/django-health-check
