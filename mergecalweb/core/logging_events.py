@@ -105,13 +105,10 @@ class LogEvent:
     SOURCE_CUSTOMIZATION = "source-customization"
 
     # Calendar Background Tasks (use with "status" parameter)
-    # Use with "task_type": "combine"/"bulk-combine"
-    # "status": "start"/"queued"/"loaded"/"success"/"not-found"/"error"
+    # Use with "task_type": "prefetch"
+    # "status": "start"/"success"/"error"
     CALENDAR_TASK = "calendar-task"
 
     # Cache Operations (use with "cache_reason" parameter)
     # Use with "cache_reason": "source-change"/"calendar-change"
     CACHE_INVALIDATED = "cache-invalidated"
-
-    # Deprecated - Old calendar utils (to be removed)
-    DEPRECATED_CALENDAR_OPERATION = "deprecated-calendar-operation"
