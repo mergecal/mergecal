@@ -1,4 +1,5 @@
 # Agent Handbook
+- Claude Code web session? Provision the container first: see `.claude/web-session-setup.md`.
 - MergeCal merges iCal feeds; Django 4+, Postgres, Redis, Celery.
 - Core app `mergecalweb/calendars/`: `models.py` enforces tier limits; `services/` orchestrate merging.
 - Calendars dedupe events by UID; cache duration varies per subscription tier.
