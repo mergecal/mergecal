@@ -18,6 +18,7 @@ from django.urls import reverse_lazy
 from django.views import View
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.http import require_POST
+from django.views.defaults import page_not_found
 from django.views.generic import CreateView
 from django.views.generic import DeleteView
 from django.views.generic import ListView
@@ -416,7 +417,10 @@ def calendar_refresh(request, uuid):
 
 
 def calendar_view(request: HttpRequest, uuid: str) -> HttpResponse:
-    calendar = get_object_or_404(Calendar, uuid=uuid)
+    try:
+        calendar = Calendar.objects.get(uuid=uuid)
+    except Calendar.DoesNotExist:
+        return page_not_found(request, Exception())
     user = request.user
 
     if user.is_authenticated:
