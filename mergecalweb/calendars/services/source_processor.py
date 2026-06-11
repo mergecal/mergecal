@@ -98,7 +98,7 @@ class SourceProcessor:
             )
         except CalendarValidationError as e:
             self.source_data.error = str(e)
-            logger.exception(
+            logger.warning(
                 "Source fetch failed due to validation error",
                 extra={
                     "event": LogEvent.SOURCE_FETCH,
