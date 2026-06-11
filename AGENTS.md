@@ -3,12 +3,14 @@
 - MergeCal merges iCal feeds; Django 4+, Postgres, Redis, Celery.
 - Core app `mergecalweb/calendars/`: `models.py` enforces tier limits; `services/` orchestrate merging.
 - Calendars dedupe events by UID; cache duration varies per subscription tier.
-- `calendar_merger_service.py` merges sources; `source_processor.py` validates feeds; `calendar_fetcher.py` pulls remote ICS.
+- `calendar_merger_service.py` merges sources; `source_processor.py` validates feeds; `fetching/fetcher.py` pulls remote ICS.
+- Cache pre-warming runs via `python manage.py prefetch_calendars` (cron), not Celery.
 - Meetup URLs handled in `meetup.py`; recursive MergeCal feeds are supported with existence checks.
 - `mergecalweb/users/` defines PERSONAL/BUSINESS/SUPPORTER tiers controlling calendar counts and feature access.
 - Branding opt-out and custom update cadence live behind Business/Supporter tiers.
 - Billing app integrates Stripe via dj-stripe; blog/core provide marketing content and shared utilities.
 - Settings live in `config/settings/`; Celery setup in `config/celery_app.py`; URLs in `config/urls.py`.
+- Periodic tasks are django-celery-beat rows in the DB (DatabaseScheduler), not defined in code.
 - Install deps: `pip install -r requirements/local.txt`.
 - Prep DB: `python manage.py migrate`; create admin via `python manage.py createsuperuser` when needed.
 - Run dev server: `python manage.py runserver`.
@@ -19,7 +21,8 @@
 - Coverage: `pytest --cov=mergecalweb`.
 - Lint: `ruff check .`; auto-fix `ruff check --fix`; format via `ruff format .`.
 - Templates: `djlint --reformat mergecalweb/templates/` then `djlint`.
-- Typing: `mypy --config-file pyproject.toml`; favor explicit annotations and `from __future__ import annotations`.
+- Typing: `mypy --config-file pyproject.toml mergecalweb config` (targets required); favor explicit annotations and `from __future__ import annotations`.
+- Lint/typing baseline is not clean on `main` (see `.claude/web-session-setup.md`); compare against `main` before fixing "your" errors.
 - Style: 4-space Python, 2-space templates, double quotes, avoid bare excepts; no Cursor/Copilot rule files.
 - Logging: Structured logging for filtering user journeys, billing flows, calendar operations:
   - ALWAYS: `extra={"event": LogEvent.CONSTANT, ...}` (import from `mergecalweb.core.logging_events`)
