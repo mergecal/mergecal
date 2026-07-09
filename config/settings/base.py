@@ -382,6 +382,11 @@ SOCIALACCOUNT_ADAPTER = "mergecalweb.users.adapters.SocialAccountAdapter"
 SOCIALACCOUNT_FORMS = {"signup": "mergecalweb.users.forms.UserSocialSignupForm"}
 # https://docs.allauth.org/en/latest/socialaccount/configuration.html
 ACCOUNT_LOGIN_BY_CODE_ENABLED = True
+# Suppress "Unknown Account" emails on login-by-code / password reset for
+# non-existent accounts. Enumeration prevention (fake code page) stays intact;
+# this only stops the outbound email that bots/typos were triggering in bulk.
+# https://docs.allauth.org/en/latest/account/configuration.html
+ACCOUNT_EMAIL_UNKNOWN_ACCOUNTS = False
 # https://docs.allauth.org/en/latest/socialaccount/configuration.html
 ACCOUNT_SIGNUP_FORM_HONEYPOT_FIELD = "phone_number"
 # django-compressor
