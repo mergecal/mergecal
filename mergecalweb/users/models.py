@@ -1,11 +1,11 @@
 from django.contrib.auth.models import AbstractUser
 from django.db.models import CharField
-from django.db.models import TextChoices
 from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
-from mergecalweb.core.constants import CalendarLimits
+from mergecalweb.core import tiers
+from mergecalweb.core.tiers import SubscriptionTier
 
 
 class User(AbstractUser):
@@ -20,11 +20,7 @@ class User(AbstractUser):
     first_name = None  # type: ignore[assignment]
     last_name = None  # type: ignore[assignment]
 
-    class SubscriptionTier(TextChoices):
-        FREE = "free_tier", "Free Tier"
-        PERSONAL = "personal_tier", "Personal Tier"
-        BUSINESS = "business_tier", "Business Tier"
-        SUPPORTER = "supporter_tier", "Supporter Tier"
+    SubscriptionTier = SubscriptionTier
 
     subscription_tier = CharField(
         max_length=14,
@@ -48,46 +44,22 @@ class User(AbstractUser):
 
     @property
     def show_branding(self) -> bool:
-        """
-        User on Tier BUISNESS or SUPPORTER will not show branding.
-        """
-        return self.subscription_tier not in [
-            self.SubscriptionTier.BUSINESS,
-            self.SubscriptionTier.SUPPORTER,
-        ]
+        """Branding is shown unless the tier includes branding removal."""
+        return not tiers.has_premium_features(self.subscription_tier)
 
     @cached_property
     def can_set_update_frequency(self) -> bool:
-        return self.subscription_tier in [
-            self.SubscriptionTier.BUSINESS,
-            self.SubscriptionTier.SUPPORTER,
-        ]
+        return tiers.has_premium_features(self.subscription_tier)
 
     @cached_property
     def can_remove_branding(self) -> bool:
-        return self.subscription_tier in [
-            self.SubscriptionTier.BUSINESS,
-            self.SubscriptionTier.SUPPORTER,
-        ]
+        return tiers.has_premium_features(self.subscription_tier)
 
     @cached_property
-    def can_customize_sources(self):
-        return self.subscription_tier in [
-            self.SubscriptionTier.BUSINESS,
-            self.SubscriptionTier.SUPPORTER,
-        ]
+    def can_customize_sources(self) -> bool:
+        return tiers.has_premium_features(self.subscription_tier)
 
     @property
-    def can_add_calendar(self):
-        user_calendar_count = self.calendar_set.count()
-        match self.subscription_tier:
-            case self.SubscriptionTier.FREE:
-                return user_calendar_count < CalendarLimits.FREE
-            case self.SubscriptionTier.PERSONAL:
-                return user_calendar_count < CalendarLimits.PERSONAL
-            case self.SubscriptionTier.BUSINESS:
-                return user_calendar_count < CalendarLimits.BUSINESS
-            case self.SubscriptionTier.SUPPORTER:
-                return True  # Unlimited calendars
-            case _:
-                return False  # Unknown tier, restrict calendar creation
+    def can_add_calendar(self) -> bool:
+        limit = tiers.calendar_limit(self.subscription_tier)
+        return self.calendar_set.count() < limit

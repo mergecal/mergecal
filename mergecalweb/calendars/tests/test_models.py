@@ -8,6 +8,7 @@ from django.core.exceptions import ValidationError
 from mergecalweb.calendars.models import Calendar
 from mergecalweb.calendars.models import Source
 from mergecalweb.users.models import User
+from mergecalweb.users.tests.factories import UserFactory
 
 TWELVE_HOURS_IN_SECONDS = 43200
 
@@ -151,6 +152,57 @@ class TestCalendarModel:
             update_frequency_seconds=expected_ttl,
         )
         assert calendar.effective_cache_ttl == expected_ttl
+
+
+@pytest.mark.django_db
+class TestSourceTierLimits:
+    """Characterization tests pinning per-tier source limits.
+
+    The tier rules are being consolidated into a single module; these tests
+    document the current behavior so the refactor provably preserves it.
+    Sources are created via ``objects.create`` to bypass URL validation.
+    """
+
+    @pytest.mark.parametrize(
+        ("tier", "limit"),
+        [
+            (User.SubscriptionTier.FREE, 0),
+            (User.SubscriptionTier.PERSONAL, 3),
+            (User.SubscriptionTier.BUSINESS, 5),
+        ],
+    )
+    def test_can_add_source_enforces_tier_limit(self, tier: str, limit: int) -> None:
+        user = UserFactory(subscription_tier=tier)
+        calendar = Calendar.objects.create(name="Limit Test", owner=user)
+        for i in range(limit):
+            assert calendar.can_add_source
+            Source.objects.create(
+                name=f"Source {i + 1}",
+                url=f"https://example.com/feed-{i}.ics",
+                calendar=calendar,
+            )
+        assert not calendar.can_add_source
+
+    def test_supporter_source_count_is_unlimited(self) -> None:
+        user = UserFactory(subscription_tier=User.SubscriptionTier.SUPPORTER)
+        calendar = Calendar.objects.create(name="Supporter Calendar", owner=user)
+        for i in range(6):  # one past the largest finite tier limit
+            Source.objects.create(
+                name=f"Source {i + 1}",
+                url=f"https://example.com/feed-{i}.ics",
+                calendar=calendar,
+            )
+        assert calendar.can_add_source
+
+    def test_unknown_tier_cannot_add_source(self) -> None:
+        """Unknown tiers are treated as most restrictive.
+
+        Asserts falsiness rather than identity with ``False`` because the
+        current implementation returns ``None`` for unrecognized tiers.
+        """
+        user = UserFactory(subscription_tier="legacy_tier")
+        calendar = Calendar.objects.create(name="Legacy Calendar", owner=user)
+        assert not calendar.can_add_source
 
 
 @pytest.mark.django_db

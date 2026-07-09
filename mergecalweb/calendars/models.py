@@ -14,7 +14,7 @@ from icalendar import Calendar as Ical
 from requests.exceptions import RequestException
 
 from mergecalweb.calendars.fetching import CalendarFetcher
-from mergecalweb.core.constants import SourceLimits
+from mergecalweb.core import tiers
 from mergecalweb.core.logging_events import LogEvent
 from mergecalweb.core.models import TimeStampedModel
 from mergecalweb.core.utils import get_site_url
@@ -320,17 +320,9 @@ class Calendar(TimeStampedModel):
         return f'<iframe src="{domain_name}{iframe_url}" width="100%" height="600" style="border: 1px solid #ccc;" title="MergeCal Embedded Calendar"></iframe>'
 
     @property
-    def can_add_source(self):
-        user_event_count = self.calendarOf.count()
-        match self.owner.subscription_tier:
-            case self.owner.SubscriptionTier.FREE:
-                return user_event_count < SourceLimits.FREE
-            case self.owner.SubscriptionTier.PERSONAL:
-                return user_event_count < SourceLimits.PERSONAL
-            case self.owner.SubscriptionTier.BUSINESS:
-                return user_event_count < SourceLimits.BUSINESS
-            case self.owner.SubscriptionTier.SUPPORTER:
-                return True
+    def can_add_source(self) -> bool:
+        limit = tiers.source_limit(self.owner.subscription_tier)
+        return self.calendarOf.count() < limit
 
 
 class Source(TimeStampedModel):
