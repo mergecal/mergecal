@@ -14,6 +14,9 @@ from icalendar import Calendar as Ical
 from requests.exceptions import RequestException
 
 from mergecalweb.calendars.fetching import CalendarFetcher
+from mergecalweb.core.analytics import AnalyticsEvent
+from mergecalweb.core.analytics import capture
+from mergecalweb.core.analytics import source_domain
 from mergecalweb.core.constants import SourceLimits
 from mergecalweb.core.logging_events import LogEvent
 from mergecalweb.core.models import TimeStampedModel
@@ -49,6 +52,13 @@ def validate_ical_url(url):
                         "url": url,
                     },
                 )
+                # Runs inside the request, so the PostHog context already
+                # knows whose source this is.
+                capture(
+                    AnalyticsEvent.SOURCE_VALIDATION_FAILED,
+                    error_type="local-not-found",
+                    source_domain=source_domain(url),
+                )
                 raise ValidationError(msg)
             logger.debug(
                 "Local calendar URL validated successfully: uuid=%s",
@@ -83,6 +93,11 @@ def validate_ical_url(url):
                     "response_preview": response[:MAX_ERROR_MESSAGE_LENGTH],
                 },
             )
+            capture(
+                AnalyticsEvent.SOURCE_VALIDATION_FAILED,
+                error_type="html-detected",
+                source_domain=source_domain(url),
+            )
             raise ValidationError(msg)
 
         cal = Ical.from_ical(response)  # noqa: F841
@@ -107,19 +122,25 @@ def validate_ical_url(url):
                 "url": url,
             },
         )
+        capture(
+            AnalyticsEvent.SOURCE_VALIDATION_FAILED,
+            error_type="network",
+            source_domain=source_domain(url),
+        )
         raise ValidationError(msg) from err
     except ValueError as err:
         # Check if the error is about HTML content
         err_str = str(err)
         if "<!DOCTYPE" in err_str or "<html" in err_str:
             msg = "The URL returned an HTML page instead of an iCalendar feed. Please check the URL and ensure it points to a calendar feed, not a web page."
+            error_type = "html-detected"
             logger.warning(
                 "iCal URL validation failed (HTML in error)",
                 extra={
                     "event": LogEvent.VALIDATION,
                     "validation_type": "ical-url",
                     "status": "failed",
-                    "error_type": "html-detected",
+                    "error_type": error_type,
                     "url": url,
                     "error_preview": err_str[:MAX_ERROR_MESSAGE_LENGTH],
                 },
@@ -130,16 +151,22 @@ def validate_ical_url(url):
                 msg = f"Enter a valid iCalendar feed. Details: {err_str[:MAX_ERROR_MESSAGE_LENGTH]}..."
             else:
                 msg = f"Enter a valid iCalendar feed. Details: {err}"
+            error_type = "parse"
             logger.exception(
                 "iCal URL validation failed (invalid format)",
                 extra={
                     "event": LogEvent.VALIDATION,
                     "validation_type": "ical-url",
                     "status": "failed",
-                    "error_type": "parse",
+                    "error_type": error_type,
                     "url": url,
                 },
             )
+        capture(
+            AnalyticsEvent.SOURCE_VALIDATION_FAILED,
+            error_type=error_type,
+            source_domain=source_domain(url),
+        )
         raise ValidationError(msg) from err
 
 
@@ -221,6 +248,12 @@ class Calendar(TimeStampedModel):
                     "calendar_name": self.name,
                 },
             )
+            capture(
+                AnalyticsEvent.TIER_FEATURE_DENIED,
+                user=self.owner,
+                feature="custom-frequency",
+                user_tier=self.owner.subscription_tier,
+            )
             raise ValidationError(
                 {
                     "update_frequency_seconds": _(
@@ -244,6 +277,12 @@ class Calendar(TimeStampedModel):
                     "calendar_name": self.name,
                 },
             )
+            capture(
+                AnalyticsEvent.TIER_FEATURE_DENIED,
+                user=self.owner,
+                feature="remove-branding",
+                user_tier=self.owner.subscription_tier,
+            )
             raise ValidationError(
                 {"remove_branding": _("You don't have permission to remove branding.")},
             )
@@ -262,6 +301,13 @@ class Calendar(TimeStampedModel):
                         "user_tier": self.owner.subscription_tier,
                         "current_count": current_count,
                     },
+                )
+                capture(
+                    AnalyticsEvent.TIER_LIMIT_HIT,
+                    user=self.owner,
+                    limit_type="calendar",
+                    user_tier=self.owner.subscription_tier,
+                    current_count=current_count,
                 )
                 msg = "Upgrade to create more calendars."
                 raise ValidationError(msg)
@@ -413,6 +459,14 @@ class Source(TimeStampedModel):
                         "current_count": current_count,
                     },
                 )
+                capture(
+                    AnalyticsEvent.TIER_LIMIT_HIT,
+                    user=self.calendar.owner,
+                    limit_type="source",
+                    user_tier=self.calendar.owner.subscription_tier,
+                    current_count=current_count,
+                    calendar_uuid=str(self.calendar.uuid),
+                )
                 msg = "upgrade to add more sources"
                 raise ValidationError(msg)
 
@@ -438,6 +492,12 @@ class Source(TimeStampedModel):
                         "source_id": self.pk if self.pk else None,
                         "source_name": self.name,
                     },
+                )
+                capture(
+                    AnalyticsEvent.TIER_FEATURE_DENIED,
+                    user=self.calendar.owner,
+                    feature="source-customization",
+                    user_tier=self.calendar.owner.subscription_tier,
                 )
                 msg = "Customization features are only available for Business and Supporter plans"
                 raise ValidationError(msg)
