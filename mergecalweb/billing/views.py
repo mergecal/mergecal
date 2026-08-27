@@ -15,6 +15,8 @@ from django.views.generic import TemplateView
 from djstripe.models import Session
 
 from mergecalweb.billing.signals import update_user_subscription_tier
+from mergecalweb.core.analytics import AnalyticsEvent
+from mergecalweb.core.analytics import capture
 
 logger = logging.getLogger(__name__)
 
@@ -48,6 +50,13 @@ class PricingTableView(TemplateView):
                     "email": user.email,
                     "current_tier": user.subscription_tier,
                 },
+            )
+            # Only for signed-in visitors: an anonymous pricing view is
+            # already an autocaptured pageview in the browser, and has no
+            # person for the server to attach to.
+            capture(
+                AnalyticsEvent.PRICING_VIEWED,
+                user_tier=user.subscription_tier,
             )
         else:
             logger.info(

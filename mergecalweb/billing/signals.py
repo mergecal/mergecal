@@ -18,6 +18,9 @@ from djstripe.models import Subscription
 
 from mergecalweb.billing.emails import send_trial_ending_email
 from mergecalweb.billing.emails import upgrade_subscription_email
+from mergecalweb.core.analytics import AnalyticsEvent
+from mergecalweb.core.analytics import capture
+from mergecalweb.core.analytics import set_person_properties
 from mergecalweb.core.logging_events import LogEvent
 from mergecalweb.users.models import User
 
@@ -56,6 +59,17 @@ def update_user_subscription_tier(user: User, subscription: Subscription) -> Non
                 "plan_name": subscription.plan.product.name,
             },
         )
+        # Webhook-driven, so there is no request context to identify from.
+        capture(
+            AnalyticsEvent.SUBSCRIPTION_TIER_CHANGED,
+            user=user,
+            old_tier=old_tier,
+            new_tier=new_tier,
+            subscription_status=subscription.status,
+            plan_name=subscription.plan.product.name,
+        )
+        set_person_properties(user, subscription_tier=new_tier)
+
         if new_tier != User.SubscriptionTier.FREE:
             upgrade_subscription_email(user, new_tier)
             # elif old_tier != User.SubscriptionTier.FREE:
@@ -164,6 +178,8 @@ def handle_checkout_session_completed(
             "email": user.email if user else None,
         },
     )
+    if user:
+        capture(AnalyticsEvent.CHECKOUT_COMPLETED, user=user)
     # Send email to customer
 
 
@@ -302,6 +318,13 @@ def handle_subscription_end(
             "webhook_type": event.type,
         },
     )
+    capture(
+        AnalyticsEvent.SUBSCRIPTION_ENDED,
+        user=user,
+        old_tier=old_tier,
+        webhook_type=event.type,
+    )
+    set_person_properties(user, subscription_tier=User.SubscriptionTier.FREE)
 
 
 @djstripe_receiver("invoice.created")
