@@ -419,6 +419,40 @@ STRIPE_PRICE_TABLE_ID = env("STRIPE_PRICE_TABLE_ID", default="")
 DYNAMIC_BREADCRUMBS_PATH_MAX_DEPTH = 8
 FORMS_URLFIELD_ASSUME_HTTPS = True
 
+# PostHog
+# ------------------------------------------------------------------------------
+# https://posthog.com/docs/libraries/django
+# An empty key disables capture entirely, which is what local and test runs get
+# unless a scratch project is configured.
+POSTHOG_API_KEY = env("POSTHOG_API_KEY", default="")
+# Events go through the managed reverse proxy, same as the browser SDK.
+POSTHOG_HOST = env("POSTHOG_HOST", default="https://m.mergecal.org")
+
+if POSTHOG_API_KEY:
+    # Must come after AuthenticationMiddleware so it can read request.user;
+    # appending satisfies that. It wraps each request in a PostHog context,
+    # giving every capture inside the request the right person and session.
+    MIDDLEWARE += ["posthog.integrations.django.PosthogContextMiddleware"]
+
+
+def add_request_context(request):
+    # type: (HttpRequest) -> Dict[str, Any]
+    tags = {}
+    if hasattr(request, "user") and request.user.is_authenticated:
+        tags["user_type"] = "authenticated"
+        tags["user_id"] = str(request.user.id)
+    else:
+        tags["user_type"] = "anonymous"
+
+    # Add request info
+    tags["user_agent"] = request.headers.get("user-agent", "")
+    return tags
+
+
+POSTHOG_MW_EXTRA_TAGS = add_request_context
+POSTHOG_MW_CAPTURE_EXCEPTIONS = True
+
+
 # Calendar prefetch (background cache warming)
 # ------------------------------------------------------------------------------
 # IDs of users whose calendars are pre-warmed by the prefetch_calendars cron.

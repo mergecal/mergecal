@@ -1,5 +1,3 @@
-import os
-
 from django.apps import AppConfig
 from django.conf import settings
 
@@ -9,8 +7,10 @@ class CoreConfig(AppConfig):
     name = "mergecalweb.core"
 
     def ready(self):
-        if os.environ.get("DJANGO_SETTINGS_MODULE") == "config.settings.production":
+        # A blank key means no project to send to, which is the normal state
+        # for local and test runs. Capture calls no-op in that case.
+        if settings.POSTHOG_API_KEY:
             import posthog  # noqa: PLC0415
 
             posthog.api_key = settings.POSTHOG_API_KEY
-            posthog.host = "https://m.mergecal.org"
+            posthog.host = settings.POSTHOG_HOST

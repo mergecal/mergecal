@@ -177,6 +177,7 @@
           ui_host: 'https://us.i.posthog.com', // necessary because you're using a proxy, this way links will point back to PostHog properly
           defaults: '2025-11-30',
           person_profiles: 'identified_only', // or 'always' to create profiles for anonymous users as well
+          tracing_headers: ['mergecal.org', 'www.mergecal.org'], // htmx requests carry the session, so backend events join this session and its replay
       })
 </script>
   {% if request.user.is_authenticated %}
