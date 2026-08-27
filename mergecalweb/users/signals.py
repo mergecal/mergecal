@@ -7,6 +7,8 @@ from django.dispatch import receiver
 
 from mergecalweb.billing.emails import send_welcome_email
 from mergecalweb.billing.tasks import schedule_follow_up_email
+from mergecalweb.core.analytics import AnalyticsEvent
+from mergecalweb.core.analytics import capture
 from mergecalweb.users.models import User
 
 logger = logging.getLogger(__name__)
@@ -26,6 +28,15 @@ def handle_new_user_signup(sender, request, user, **kwargs):
             "username": user.username,
             "email": user.email,
         },
+    )
+
+    # The user isn't logged in yet at this point, so name the person
+    # explicitly rather than relying on the request context.
+    sociallogin = kwargs.get("sociallogin")
+    capture(
+        AnalyticsEvent.USER_SIGNED_UP,
+        user=user,
+        signup_method=sociallogin.account.provider if sociallogin else "email",
     )
 
     # Send welcome email immediately

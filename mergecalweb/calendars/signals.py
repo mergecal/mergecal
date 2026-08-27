@@ -7,9 +7,23 @@ from django.dispatch import receiver
 from mergecalweb.calendars.cache import invalidate_calendar_cache
 from mergecalweb.calendars.models import Calendar
 from mergecalweb.calendars.models import Source
+from mergecalweb.core.analytics import AnalyticsEvent
+from mergecalweb.core.analytics import capture
+from mergecalweb.core.analytics import set_person_properties
+from mergecalweb.core.analytics import source_domain
 from mergecalweb.core.logging_events import LogEvent
+from mergecalweb.core.utils import is_local_url
 
 logger = logging.getLogger(__name__)
+
+
+def _source_type(url: str) -> str:
+    """Classify a source by where it comes from."""
+    if "meetup.com" in url:
+        return "meetup"
+    if is_local_url(url):
+        return "mergecal"
+    return "remote"
 
 
 @receiver(post_save, sender=Source)
@@ -57,6 +71,24 @@ def clear_calendar_cache_on_source(sender, instance, **kwargs):
             "email": calendar.owner.email,
         },
     )
+
+    if action == "created":
+        owner = calendar.owner
+        capture(
+            AnalyticsEvent.SOURCE_ADDED,
+            # Named explicitly: sources are also created from the admin, where
+            # the request context would name whoever is doing the creating.
+            user=owner,
+            calendar_uuid=str(calendar.uuid),
+            source_domain=source_domain(instance.url),
+            source_type=_source_type(instance.url),
+            source_count=calendar.calendarOf.count(),
+            # A user's first source anywhere is the closest thing the server
+            # sees to activation.
+            is_first_source=Source.objects.filter(calendar__owner=owner).count() == 1,
+            user_tier=owner.subscription_tier,
+        )
+
     invalidate_calendar_cache(calendar)
 
 
@@ -81,4 +113,18 @@ def clear_calendar_cache_on_calendar(sender, instance, **kwargs):
             "email": instance.owner.email,
         },
     )
+
+    if action == "created":
+        owner = instance.owner
+        calendar_count = owner.calendar_set.count()
+        capture(
+            AnalyticsEvent.CALENDAR_CREATED,
+            user=owner,
+            calendar_uuid=str(instance.uuid),
+            calendar_count=calendar_count,
+            is_first_calendar=calendar_count == 1,
+            user_tier=owner.subscription_tier,
+        )
+        set_person_properties(owner, calendar_count=calendar_count)
+
     invalidate_calendar_cache(instance)
