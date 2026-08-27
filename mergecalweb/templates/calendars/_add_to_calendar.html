@@ -25,7 +25,7 @@
                      readonly />
               <button class="btn btn-outline-secondary"
                       type="button"
-                      onclick="copyToClipboard('calendar_file_url{{ calendar.uuid }}', 'iCal File Link')"
+                      onclick="copyToClipboard('calendar_file_url{{ calendar.uuid }}', 'iCal File Link', '{{ calendar.uuid }}')"
                       data-bs-toggle="tooltip"
                       data-bs-placement="top"
                       title="Copy iCal File Link">
@@ -74,7 +74,7 @@
                         {% if user.subscription_tier != 'supporter_tier' %} onselect="return false;" onmousedown="return false;" onselectstart="return false;" oncut="return false;" oncopy="return false;" onpaste="return false;" ondrag="return false;" ondrop="return false;" autocomplete="off" {% endif %}>{{ calendar.get_calendar_iframe }}</textarea>
               <button class="btn btn-outline-secondary"
                       type="button"
-                      {% if user.subscription_tier == 'supporter_tier' %} onclick="copyToClipboard('calendar_iframe_code{{ calendar.uuid }}', 'Iframe Code')" {% endif %}
+                      {% if user.subscription_tier == 'supporter_tier' %} onclick="copyToClipboard('calendar_iframe_code{{ calendar.uuid }}', 'Iframe Code', '{{ calendar.uuid }}')" {% endif %}
                       data-bs-toggle="tooltip"
                       data-bs-placement="top"
                       title="{% if user.subscription_tier == 'supporter_tier' %}Copy Iframe Code{% else %}Upgrade to copy{% endif %}"
@@ -103,18 +103,28 @@
 {% endblock add_to_calendar_modal %}
 {% block inline_javascript %}
   <script>
-    function copyToClipboard(elementId, contentType) {
+    function copyToClipboard(elementId, contentType, calendarUuid) {
       const copyText = document.getElementById(elementId);
       copyText.select();
       copyText.setSelectionRange(0, 99999); // For mobile devices
 
       navigator.clipboard.writeText(copyText.value).then(() => {
+        // Taking the feed URL away is the closest thing to subscribing that
+        // happens in the browser; the fetch that follows is a calendar client.
+        window.posthog?.capture('feed_url_copied', {
+          content_type: contentType,
+          calendar_uuid: calendarUuid,
+        });
         createToast({
           message: `${contentType} copied to clipboard`,
           tags: 'text-white bg-success',
         });
       }).catch(err => {
         console.error('Failed to copy: ', err);
+        window.posthog?.capture('feed_url_copy_failed', {
+          content_type: contentType,
+          calendar_uuid: calendarUuid,
+        });
         createToast({
           message: `Failed to copy ${contentType}`,
           tags: 'text-white bg-danger',
@@ -128,6 +138,12 @@
       if ('{{ user.subscription_tier }}' !== 'supporter_tier') {
         textarea.addEventListener('copy', function(e) {
           e.preventDefault();
+          // A paywall someone reached and lost to. Nothing reaches the server,
+          // so this event exists only here.
+          window.posthog?.capture('embed_copy_blocked', {
+            calendar_uuid: '{{ calendar.uuid }}',
+            user_tier: '{{ user.subscription_tier }}',
+          });
           createToast({
             message: 'Upgrade to Supporter tier to copy the embed code.',
             tags: 'text-white bg-warning',

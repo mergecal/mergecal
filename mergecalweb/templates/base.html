@@ -184,7 +184,8 @@
     <script>
     posthog.identify('{{ request.user.id|escapejs }}', {
       name: "{{ request.user.name|escapejs }}",
-      email: "{{ request.user.email|escapejs }}"
+      email: "{{ request.user.email|escapejs }}",
+      subscription_tier: "{{ request.user.subscription_tier|escapejs }}"
     })
 </script>
   {% endif %}
