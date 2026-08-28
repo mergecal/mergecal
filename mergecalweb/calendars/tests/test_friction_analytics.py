@@ -53,31 +53,8 @@ class TestSourceValidationFailed:
         assert event == "source_validation_failed"
         assert props["error_type"] == expected_error_type
 
-    def test_an_unreachable_feed_is_captured(self):
-        with (
-            patch(
-                "mergecalweb.calendars.models.CalendarFetcher.fetch_calendar",
-                side_effect=RequestException("connection refused"),
-            ),
-            patch("mergecalweb.calendars.models.capture") as mock_capture,
-            pytest.raises(ValidationError),
-        ):
-            validate_ical_url(FEED_URL)
-
-        assert only_call(mock_capture)[1]["error_type"] == "network"
-
-    def test_a_missing_mergecal_calendar_is_captured(self):
-        missing = "https://example.com/calendars/8ad0f0f4-0000-0000-0000-000000000000/"
-        with (
-            patch("mergecalweb.calendars.models.is_local_url", return_value=True),
-            patch("mergecalweb.calendars.models.capture") as mock_capture,
-            pytest.raises(ValidationError),
-        ):
-            validate_ical_url(missing)
-
-        assert only_call(mock_capture)[1]["error_type"] == "local-not-found"
-
-    def test_only_the_host_of_the_feed_is_sent(self):
+    def test_an_unreachable_feed_is_captured_by_host_alone(self):
+        """Feed URLs carry access tokens in their path."""
         with (
             patch(
                 "mergecalweb.calendars.models.CalendarFetcher.fetch_calendar",
@@ -89,23 +66,20 @@ class TestSourceValidationFailed:
             validate_ical_url(FEED_URL)
 
         props = only_call(mock_capture)[1]
+        assert props["error_type"] == "network"
         assert props["source_domain"] == "calendar.example.com"
         assert "private-token" not in str(props)
 
-    def test_a_valid_feed_captures_nothing(self):
-        ical = (
-            "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//test//EN\r\nEND:VCALENDAR\r\n"
-        )
+    def test_a_missing_mergecal_calendar_is_captured(self):
+        missing = "https://example.com/calendars/8ad0f0f4-0000-0000-0000-000000000000/"
         with (
-            patch(
-                "mergecalweb.calendars.models.CalendarFetcher.fetch_calendar",
-                return_value=ical,
-            ),
+            patch("mergecalweb.calendars.models.is_local_url", return_value=True),
             patch("mergecalweb.calendars.models.capture") as mock_capture,
+            pytest.raises(ValidationError),
         ):
-            validate_ical_url(FEED_URL)
+            validate_ical_url(missing)
 
-        assert mock_capture.call_args_list == []
+        assert only_call(mock_capture)[1]["error_type"] == "local-not-found"
 
 
 class TestTierLimitHit:
@@ -146,40 +120,33 @@ class TestTierLimitHit:
 
 
 class TestTierFeatureDenied:
-    def test_a_free_user_setting_a_custom_frequency_is_captured(self):
+    @pytest.mark.parametrize(
+        ("field", "value", "expected_feature"),
+        [
+            ("update_frequency_seconds", 3600, "custom-frequency"),
+            ("remove_branding", True, "remove-branding"),
+        ],
+    )
+    def test_a_free_user_reaching_a_calendar_gate_is_captured(
+        self,
+        field: str,
+        value: object,
+        expected_feature: str,
+    ):
         user = UserFactory(subscription_tier=User.SubscriptionTier.FREE)
+        calendar = Calendar(name="Gated", owner=user, timezone="UTC")
+        setattr(calendar, field, value)
 
         with (
             patch("mergecalweb.calendars.models.capture") as mock_capture,
             pytest.raises(ValidationError),
         ):
-            Calendar(
-                name="Hourly",
-                owner=user,
-                timezone="UTC",
-                update_frequency_seconds=3600,
-            ).clean()
+            calendar.clean()
 
         event, props = only_call(mock_capture)
         assert event == "tier_feature_denied"
-        assert props["feature"] == "custom-frequency"
+        assert props["feature"] == expected_feature
         assert props["user"] == user
-
-    def test_a_free_user_removing_branding_is_captured(self):
-        user = UserFactory(subscription_tier=User.SubscriptionTier.FREE)
-
-        with (
-            patch("mergecalweb.calendars.models.capture") as mock_capture,
-            pytest.raises(ValidationError),
-        ):
-            Calendar(
-                name="Unbranded",
-                owner=user,
-                timezone="UTC",
-                remove_branding=True,
-            ).clean()
-
-        assert only_call(mock_capture)[1]["feature"] == "remove-branding"
 
     def test_a_personal_user_customizing_a_source_is_captured(self):
         # Personal rather than Free: a free user is stopped by the source

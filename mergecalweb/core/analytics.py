@@ -1,30 +1,21 @@
 """
 Product analytics events for PostHog.
 
-These are the journey moments — signup, setup, friction, upgrade — that
-funnels and cohorts are built from. They are separate from structured logging
-(see `logging_events.py`): logs explain a request, events explain a user.
+These are the journey moments — signup, setup, friction, upgrade — that funnels
+and cohorts are built from. They are separate from structured logging (see
+`logging_events.py`): logs explain a request, events explain a user.
 
-Usage:
-    capture(
-        AnalyticsEvent.SOURCE_ADDED,
-        calendar_uuid=calendar.uuid,
-        source_domain=source_domain(source.url),
-        user_tier=user.subscription_tier,
-    )
-
-A person is identified by their Django user pk, matching `posthog.identify`
-in `base.html` and the Stripe warehouse properties keyed on the same value.
+A person is identified by their Django user pk, matching `posthog.identify` in
+`base.html` and the Stripe warehouse properties keyed on the same value.
 Anything else silently creates a second person. Inside a request
 `PosthogContextMiddleware` supplies it, so only webhooks and background tasks
 need to pass `user=`.
 
 Two conventions apply at every call site:
     - Never send `email`. The middleware already tags the request context
-      with it, and event properties are the wrong place for it besides.
-    - Never send a full source URL. Send `source_domain(url)`, which keeps
-      the useful part (which provider users connect) without the token some
-      calendar feeds carry in their path.
+      with it.
+    - Never send a full source URL. Send `source_domain(url)`: some calendar
+      feeds carry an access token in their path.
 """
 
 from __future__ import annotations
@@ -44,7 +35,12 @@ logger = logging.getLogger(__name__)
 
 
 class AnalyticsEvent:
-    """PostHog event names, in `object_verb` form."""
+    """PostHog event names, in `object_verb` form.
+
+    The browser sends three more of its own — feed_url_copied,
+    feed_url_copy_failed and embed_copy_blocked — from
+    templates/calendars/_add_to_calendar.html.
+    """
 
     # Signup and setup
     USER_SIGNED_UP = "user_signed_up"
@@ -61,13 +57,6 @@ class AnalyticsEvent:
     CHECKOUT_COMPLETED = "checkout_completed"
     SUBSCRIPTION_TIER_CHANGED = "subscription_tier_changed"
     SUBSCRIPTION_ENDED = "subscription_ended"
-
-    # Captured in the browser (see templates/calendars/_add_to_calendar.html).
-    # Listed here so the taxonomy has one home, even though nothing in Python
-    # sends them.
-    FEED_URL_COPIED = "feed_url_copied"
-    FEED_URL_COPY_FAILED = "feed_url_copy_failed"
-    EMBED_COPY_BLOCKED = "embed_copy_blocked"
 
 
 def source_domain(url: str) -> str | None:

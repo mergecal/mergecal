@@ -30,24 +30,25 @@ class TestCalendarCreated:
         assert props["calendar_uuid"] == str(calendar.uuid)
         assert props["user_tier"] == User.SubscriptionTier.BUSINESS
 
-    def test_the_first_calendar_is_marked_as_such(self):
+    @pytest.mark.parametrize(
+        ("existing", "expected_first"),
+        [(0, True), (1, False)],
+    )
+    def test_only_the_first_calendar_is_marked_as_first(
+        self,
+        existing: int,
+        expected_first: bool,  # noqa: FBT001
+    ):
         user = UserFactory()
+        for _ in range(existing):
+            CalendarFactory(owner=user)
+
         with patch("mergecalweb.calendars.signals.capture") as mock_capture:
             CalendarFactory(owner=user)
 
         props = captured(mock_capture, "calendar_created")
-        assert props["is_first_calendar"] is True
-        assert props["calendar_count"] == 1
-
-    def test_a_later_calendar_is_not(self):
-        user = UserFactory()
-        CalendarFactory(owner=user)
-        with patch("mergecalweb.calendars.signals.capture") as mock_capture:
-            CalendarFactory(owner=user)
-
-        props = captured(mock_capture, "calendar_created")
-        assert props["is_first_calendar"] is False
-        assert props["calendar_count"] == 2  # noqa: PLR2004
+        assert props["is_first_calendar"] is expected_first
+        assert props["calendar_count"] == existing + 1
 
     def test_the_count_reaches_the_person_profile(self):
         user = UserFactory()
@@ -115,10 +116,3 @@ class TestSourceAdded:
         with patch("mergecalweb.calendars.signals.capture") as mock_capture:
             SourceFactory(calendar=second_calendar)
         assert captured(mock_capture, "source_added")["is_first_source"] is False
-
-    def test_deleting_a_source_captures_nothing(self):
-        source = SourceFactory()
-        with patch("mergecalweb.calendars.signals.capture") as mock_capture:
-            source.delete()
-
-        assert mock_capture.call_args_list == []

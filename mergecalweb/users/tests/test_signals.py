@@ -32,13 +32,9 @@ class TestUserSignedUp:
         event, props = mock_capture.call_args[0][0], mock_capture.call_args[1]
         assert event == "user_signed_up"
         assert props["signup_method"] == "email"
-
-    def test_the_person_is_named_explicitly(self, user: User):
-        """The user isn't logged in yet, so there's no request context to use."""
-        with patch("mergecalweb.users.signals.capture") as mock_capture:
-            send_signup(user)
-
-        assert mock_capture.call_args[1]["user"] == user
+        # Named explicitly: the user isn't logged in yet, so there's no
+        # request context to identify from.
+        assert props["user"] == user
 
     def test_a_social_signup_records_its_provider(self, user: User):
         sociallogin = MagicMock()

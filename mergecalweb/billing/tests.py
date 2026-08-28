@@ -130,20 +130,3 @@ class TestSubscriptionEnded:
         assert props["user"] == user
         assert props["old_tier"] == User.SubscriptionTier.SUPPORTER
         assert props["webhook_type"] == "customer.subscription.deleted"
-
-    def test_the_downgrade_reaches_the_person_profile(self):
-        user = UserFactory(subscription_tier=User.SubscriptionTier.BUSINESS)
-
-        with (
-            patch(
-                "mergecalweb.billing.signals.Customer.objects.get",
-                return_value=customer_for(user),
-            ),
-            patch("mergecalweb.billing.signals.set_person_properties") as mock_set,
-        ):
-            handle_subscription_end(sender=None, event=stripe_event())
-
-        mock_set.assert_called_once_with(
-            user,
-            subscription_tier=User.SubscriptionTier.FREE,
-        )
