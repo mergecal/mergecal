@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import pytest
+from icalendar import Calendar as ICalendar
 
 from mergecalweb.calendars.services.calendar_merger_service import CalendarMergerService
 
@@ -63,3 +64,25 @@ def test_calendar_merger_with_test_files(
     expected_calendar = "\n".join(s.rstrip() for s in expected_calendar.splitlines())
 
     assert merged_calendar == expected_calendar
+
+
+@pytest.mark.django_db
+def test_teamsnap_feed_keeps_its_own_timezone(
+    business_user: "User",
+    mock_calendar_request: None,
+) -> None:
+    calendar: Calendar = CalendarFactory(owner=business_user)
+    SourceFactory(
+        url="http://example.com/teamsnap_x_wr_timezone.ics",
+        calendar=calendar,
+    )
+
+    merged = CalendarMergerService(calendar).merge()
+
+    timezones = ICalendar.from_ical(merged.encode()).timezones
+    assert [timezone.tz_name for timezone in timezones] == ["America/New_York"]
+    observances = [
+        (observance.name, "RRULE" in observance, "RDATE" in observance)
+        for observance in timezones[0].subcomponents
+    ]
+    assert observances == [("DAYLIGHT", True, False), ("STANDARD", True, False)]
