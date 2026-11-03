@@ -1,5 +1,5 @@
 # Agent Handbook
-- Claude Code web session? Provision the container first: see `.claude/web-session-setup.md`.
+- Claude Code web sessions are provisioned by `.claude/hooks/session-start.sh`. Redis/Celery aren't needed for tests. Run tools as `python -m pytest` and `python -m mypy` there, because the binaries on PATH may not see the project's dependencies.
 - MergeCal merges iCal feeds; Django 4+, Postgres, Redis, Celery.
 - Core app `mergecalweb/calendars/`: `models.py` enforces tier limits; `services/` orchestrate merging.
 - Calendars dedupe events by UID; cache duration varies per subscription tier.
@@ -22,7 +22,7 @@
 - Lint: `ruff check .`; auto-fix `ruff check --fix`; format via `ruff format .`.
 - Templates: `djlint --reformat mergecalweb/templates/` then `djlint`.
 - Typing: `mypy --config-file pyproject.toml mergecalweb config` (targets required); favor explicit annotations and `from __future__ import annotations`.
-- Lint/typing baseline is not clean on `main` (see `.claude/web-session-setup.md`); compare against `main` before fixing "your" errors.
+- Lint/typing baseline is not clean on `main`: mypy reports dozens of errors, and `ruff check .` flags unused `noqa` comments (RUF100) because the pinned ruff is older than pre-commit's. Compare against `main` before fixing "your" errors.
 - Style: 4-space Python, 2-space templates, double quotes, avoid bare excepts; no Cursor/Copilot rule files.
 - Logging: Structured logging for filtering user journeys, billing flows, calendar operations:
   - ALWAYS: `extra={"event": LogEvent.CONSTANT, ...}` (import from `mergecalweb.core.logging_events`)
