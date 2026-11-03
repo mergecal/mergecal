@@ -26,6 +26,10 @@ if typing.TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
+# A bad top-level header such as REFRESH-INTERVAL:P1H must not discard a feed's
+# events. We never copy these headers into merged output.
+Ical.ignore_exceptions = True
+
 TWELVE_HOURS_IN_SECONDS = 43200
 MAX_ERROR_MESSAGE_LENGTH = 200  # Maximum length for error messages shown to users
 

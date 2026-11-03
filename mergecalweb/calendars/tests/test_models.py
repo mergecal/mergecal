@@ -243,6 +243,24 @@ END:VCALENDAR"""
 
         assert "hunter2" not in str(excinfo.value)
 
+    def test_source_url_validation_accepts_invalid_calendar_header(
+        self,
+        calendar: Calendar,
+    ) -> None:
+        with patch("mergecalweb.calendars.models.CalendarFetcher") as mock_fetcher:
+            mock_instance = mock_fetcher.return_value
+            mock_instance.fetch_calendar.return_value = """BEGIN:VCALENDAR
+VERSION:2.0
+REFRESH-INTERVAL:P1H
+END:VCALENDAR"""
+
+            source = Source(
+                name="Source With Invalid Header",
+                url="https://example.com/feed.ics",
+                calendar=calendar,
+            )
+            source.full_clean()
+
     def test_source_customization_permissions(self) -> None:
         """Test source customization based on subscription tier."""
         # Create users and calendars
