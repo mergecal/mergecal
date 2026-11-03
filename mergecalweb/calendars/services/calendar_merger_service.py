@@ -181,7 +181,9 @@ class CalendarMergerService:
         the first STANDARD it finds, so that placeholder displaces the real
         one and the zone never leaves daylight saving time.
         """
-        for vtimezone in merged_calendar.timezones:
+        for vtimezone in merged_calendar.subcomponents:
+            if vtimezone.name != "VTIMEZONE":
+                continue
             observances = vtimezone.subcomponents
             placeholders = [
                 observance
