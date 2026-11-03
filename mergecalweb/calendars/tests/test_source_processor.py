@@ -50,3 +50,32 @@ def test_feed_body_naming_a_local_file_does_not_read_it(
     assert processor.source_data.ical is None
     assert processor.source_data.error is not None
     assert private_text not in processor.source_data.error
+
+
+@pytest.mark.django_db
+def test_invalid_calendar_header_keeps_the_events(calendar: "Calendar") -> None:
+    feed = LOCAL_CALENDAR.replace(
+        "PRODID:local\n",
+        "PRODID:local\nX-PUBLISHED-TTL:P1H\nREFRESH-INTERVAL:P1H\n",
+    )
+    source = SourceFactory(url="http://example.com/feed.ics", calendar=calendar)
+    processor = SourceProcessor(source)
+
+    with patch("requests.get", return_value=MockResponse(feed)):
+        processor.fetch_and_validate()
+
+    assert processor.source_data.error is None
+    assert processor.source_data.ical is not None
+    assert len(processor.source_data.ical.walk("VEVENT")) == 1
+
+
+@pytest.mark.django_db
+def test_body_that_is_not_a_calendar_is_still_an_error(calendar: "Calendar") -> None:
+    source = SourceFactory(url="http://example.com/feed.ics", calendar=calendar)
+    processor = SourceProcessor(source)
+
+    with patch("requests.get", return_value=MockResponse("false")):
+        processor.fetch_and_validate()
+
+    assert processor.source_data.ical is None
+    assert processor.source_data.error is not None

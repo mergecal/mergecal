@@ -125,6 +125,19 @@ class SourceProcessor:
             msg = "Calendar contains no components"
             raise CalendarValidationError(msg)
 
+        if ical.errors:
+            logger.warning(
+                "Source has invalid calendar-level lines, ignoring them",
+                extra={
+                    "event": LogEvent.SOURCE_FETCH,
+                    "status": "invalid-calendar-lines",
+                    "source_id": self.source.pk,
+                    "source_url": self.source.url[:200],
+                    "calendar_uuid": self.source.calendar.uuid,
+                    "error_count": len(ical.errors),
+                },
+            )
+
         # TODO: Explore other type of calendar validation
         return ical
 
