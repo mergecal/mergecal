@@ -176,6 +176,11 @@ LOG_FILE_LOCATION = env("LOG_FILE_LOCATION", default="/path/to/django/")
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": True,
+    "filters": {
+        "request_context": {
+            "()": "config.request_logging.RequestContextFilter",
+        },
+    },
     "formatters": {
         "json": {
             "()": "pythonjsonlogger.jsonlogger.JsonFormatter",
@@ -189,6 +194,7 @@ LOGGING = {
             "class": "logging.StreamHandler",
             "stream": "ext://sys.stdout",
             "formatter": "json",
+            "filters": ["request_context"],
         },
     },
     "root": {"level": "INFO", "handlers": ["console"]},
