@@ -23,7 +23,7 @@
 - Lint: `ruff check .`; auto-fix `ruff check --fix`; format via `ruff format .`.
 - Templates: `djlint --reformat mergecalweb/templates/` then `djlint`.
 - Typing: `mypy --config-file pyproject.toml mergecalweb config` (targets required); favor explicit annotations and `from __future__ import annotations`.
-- Lint/typing baseline is not clean on `main`: mypy reports dozens of errors, and `ruff check .` flags unused `noqa` comments (RUF100) because the pinned ruff is older than pre-commit's. Compare against `main` before fixing "your" errors.
+- Typing baseline is not clean on `main`: mypy reports dozens of errors. Compare against `main` before fixing "your" errors.
 - Style: 4-space Python, 2-space templates, double quotes, avoid bare excepts.
 - Logging: Structured logging for filtering user journeys, billing flows, calendar operations:
   - ALWAYS: `extra={"event": LogEvent.CONSTANT, ...}` (import from `mergecalweb.core.logging_events`)
