@@ -15,7 +15,7 @@ python-json-logger==3.2.1  # https://github.com/nhairs/python-json-logger
 
 # Django
 # ------------------------------------------------------------------------------
-django==5.0.11  # pyup: < 5.1  # https://www.djangoproject.com/
+django==5.2.19  # pyup: < 5.3  # https://www.djangoproject.com/
 django-environ==0.12.0  # https://github.com/joke2k/django-environ
 django-model-utils==5.0.0  # https://github.com/jazzband/django-model-utils
 django-allauth[mfa,socialaccount]==65.8.1  # https://github.com/pennersr/django-allauth
