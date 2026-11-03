@@ -35,10 +35,10 @@ def resolve_like_outlook(vtimezone: Timezone, instant: datetime) -> datetime:
     Outlook keeps at most one observance of each kind, which is what makes a
     leading placeholder STANDARD harmful.
     """
-    trimmed = Timezone.from_ical(vtimezone.to_ical())
-    seen: set[str] = set()
+    trimmed = Timezone(vtimezone)
+    seen: set[str | None] = set()
     kept = []
-    for observance in trimmed.subcomponents:
+    for observance in vtimezone.subcomponents:
         if observance.name in seen:
             continue
         seen.add(observance.name)

@@ -8,6 +8,8 @@ from django.utils import timezone
 from icalendar import Alarm
 from icalendar import Calendar as ICalendar
 from icalendar import Event
+from icalendar import Timezone
+from icalendar import TimezoneStandard
 from icalendar import vDuration
 from mergecal import CalendarMerger
 
@@ -182,13 +184,13 @@ class CalendarMergerService:
         one and the zone never leaves daylight saving time.
         """
         for vtimezone in merged_calendar.subcomponents:
-            if vtimezone.name != "VTIMEZONE":
+            if not isinstance(vtimezone, Timezone):
                 continue
             observances = vtimezone.subcomponents
             placeholders = [
                 observance
                 for observance in observances
-                if observance.name == "STANDARD"
+                if isinstance(observance, TimezoneStandard)
                 and "RRULE" not in observance
                 and "RDATE" not in observance
                 and observance.TZOFFSETFROM == observance.TZOFFSETTO
