@@ -1,4 +1,5 @@
 import uuid
+from pathlib import Path
 from unittest.mock import patch
 
 import pytest
@@ -219,6 +220,28 @@ END:VCALENDAR"""
             )
             with pytest.raises(ValidationError):
                 source.full_clean()
+
+    def test_source_url_validation_does_not_read_a_file_named_by_the_feed(
+        self,
+        calendar: Calendar,
+        tmp_path: Path,
+    ) -> None:
+        local_file = tmp_path / "secret.txt"
+        local_file.write_text("SECRET=hunter2\n")
+
+        with patch("mergecalweb.calendars.models.CalendarFetcher") as mock_fetcher:
+            mock_instance = mock_fetcher.return_value
+            mock_instance.fetch_calendar.return_value = str(local_file)
+
+            source = Source(
+                name="Malicious Source",
+                url="https://example.com/feed.ics",
+                calendar=calendar,
+            )
+            with pytest.raises(ValidationError) as excinfo:
+                source.full_clean()
+
+        assert "hunter2" not in str(excinfo.value)
 
     def test_source_customization_permissions(self) -> None:
         """Test source customization based on subscription tier."""

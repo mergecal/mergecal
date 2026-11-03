@@ -114,7 +114,9 @@ class SourceProcessor:
     def _validate_calendar_components(self, calendar_data: str) -> ICalendar:
         """Validate calendar components."""
         try:
-            ical = ICalendar.from_ical(calendar_data)
+            # Bytes on purpose: icalendar reads a str that names a file from disk,
+            # and this data comes from a remote server.
+            ical = ICalendar.from_ical(calendar_data.encode())
         except ValueError as e:
             msg = f'URL did not return valid ICalendar data.\nError Message: "{e}"'
             raise CalendarValidationError(msg) from e
