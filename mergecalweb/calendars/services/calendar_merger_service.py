@@ -165,9 +165,49 @@ class CalendarMergerService:
             version=version,
         )
         icalendar: ICalendar = merger.merge()
+        self._drop_placeholder_timezone_observances(icalendar)
         icalendar.add("x-wr-calname", self.calendar.name)
 
         return icalendar
+
+    def _drop_placeholder_timezone_observances(
+        self,
+        merged_calendar: ICalendar,
+    ) -> None:
+        """Remove no-op STANDARD observances from generated VTIMEZONEs.
+
+        icalendar prefixes each VTIMEZONE with a STANDARD observance whose
+        offsets are equal and which carries no transitions. Outlook keeps only
+        the first STANDARD it finds, so that placeholder displaces the real
+        one and the zone never leaves daylight saving time.
+        """
+        for vtimezone in merged_calendar.timezones:
+            observances = vtimezone.subcomponents
+            placeholders = [
+                observance
+                for observance in observances
+                if observance.name == "STANDARD"
+                and "RRULE" not in observance
+                and "RDATE" not in observance
+                and observance.TZOFFSETFROM == observance.TZOFFSETTO
+            ]
+            if not placeholders or len(placeholders) == len(observances):
+                continue
+
+            for placeholder in placeholders:
+                observances.remove(placeholder)
+
+            logger.debug(
+                "Dropped placeholder timezone observances",
+                extra={
+                    "event": LogEvent.CALENDAR_MERGE,
+                    "status": "timezone-normalized",
+                    "calendar_uuid": self.calendar.uuid,
+                    "calendar_name": self.calendar.name,
+                    "tzid": vtimezone.tz_name,
+                    "dropped_count": len(placeholders),
+                },
+            )
 
     def _add_error_events(
         self,
