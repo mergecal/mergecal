@@ -35,5 +35,50 @@
   - Debug logs may skip event constant if internal/verbose
   - Pre-commit hook (semgrep) enforces logging conventions automatically
 
+## General Coding Preferences
+- Always prefer simple solutions.
+- Avoid duplication: check whether the codebase already has similar code and functionality before writing more.
+- Only make changes that are requested, or that you are confident are well understood and related to the request.
+- When fixing a bug, exhaust the existing implementation before introducing a new pattern or technology. If you do introduce one, remove the old implementation so there is no duplicate logic.
+- Think about what other areas of code a change might affect.
+- Keep the codebase clean and organized. Avoid writing scripts to files, especially ones likely to run only once.
+- Never add mock data to functions. Mocks belong only in tests or utilities used only by tests.
+- Never overwrite the `.env` file without asking first.
+- Avoid code comments. Only add one when there is something important a reader can't learn from the code itself.
+- Write code that reads top to bottom. Prefer plain `if X: raise Y` / `return Z` over lookup dicts, context managers, or other indirection.
+- Keep code inline. Only extract a helper function once the same code has two callers.
+- Handle errors explicitly and avoid silent failures. Always validate user input server-side.
+- Use the Django ORM where possible, with lazy querysets and `select_related` / `prefetch_related` where needed.
+- Use signals sparingly and document them well.
 
-All work should be done with atomic commits which explain why and not what
+## Python Conventions
+- New plain data classes use `attrs` (`@attrs.frozen` / `@attrs.define`), not `dataclasses`. Leave existing dataclasses alone. `attrs` isn't a direct dependency yet, so add it to `requirements/base.txt` with its first use.
+- New models extend `mergecalweb.core.models.TimeStampedModel`.
+
+### Interfaces and services
+- An interface is anything a caller comes in through: an HTTP view, a webhook, a management command, a Celery task.
+- Interfaces stay thin. They call a service (or similar) to do the work and get data back.
+- Services return data (attrs classes, model instances) or raise exceptions. They never produce text meant for a particular audience.
+- Each interface translates the result for whoever uses it. A command prints facts for a developer, and a view renders for its user.
+- When several interfaces need the same translation, move it into its own shared module rather than into the service.
+
+### Exceptions
+- Wrap third-party errors in our own exception types, named so the caller knows how to act: `UnsupportedSourceError`, not a re-raised `requests` exception.
+- An exception's name should be enough for the caller to act on, so don't pass message strings.
+- If the caller needs data from the error, make the exception an attrs class with typed fields.
+
+### Testing
+- Unit tests call functions directly and avoid mocking, especially for a function that does one thing.
+- When a function calls an external API, fake it at the HTTP layer so the real client runs: `responses` for `requests`, `respx` for `httpx`. Neither is installed yet, so add the one you need to `requirements/local.txt` with its first use.
+- Integration tests exercise an interface (the test client for views and webhooks, `call_command` for commands). Mocking the service behind it is fine; the test checks wiring, status codes and output.
+
+## Planning Work
+- Keep it lean. Build only what the next milestone needs, and leave everything else out until real usage shows it's needed.
+- Work in small PRs, one step at a time. Each PR is reviewed and merged before the next one starts.
+- Allow for real-world cases in the design, even when the first version is basic. For example, the same user doing the same thing again later.
+
+## Git Workflow
+- All work is done on a new branch and merged through a pull request. Never commit directly to `main`.
+- Every commit must be atomic: one logical change that stands on its own.
+- History on a feature branch may be rewritten (rebase, squash, reorder, amend) to keep commits atomic before merging.
+- Commit messages and PR descriptions explain *why* the change was made, not *what* changed; the diff already shows what.
