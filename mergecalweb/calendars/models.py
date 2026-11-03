@@ -85,7 +85,9 @@ def validate_ical_url(url):
             )
             raise ValidationError(msg)
 
-        cal = Ical.from_ical(response)  # noqa: F841
+        # Bytes on purpose: icalendar reads a str that names a file from disk,
+        # and this data comes from a remote server.
+        cal = Ical.from_ical(response.encode())  # noqa: F841
         logger.info(
             "iCal URL validation successful",
             extra={

@@ -209,7 +209,7 @@ class CalendarMergerService:
 
         # Add both X-PUBLISHED-TTL and REFRESH-INTERVAL for broader client support
         merged_calendar.add("X-PUBLISHED-TTL", refresh_interval_iso)
-        merged_calendar.add("REFRESH-INTERVAL", refresh_interval_iso)
+        merged_calendar.add("REFRESH-INTERVAL", refresh_interval)
 
     def _add_tier_warnings(self) -> ICalendar:
         """Add warning events for free tier users"""

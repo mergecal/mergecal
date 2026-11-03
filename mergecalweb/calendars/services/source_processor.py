@@ -4,7 +4,7 @@ from typing import Final
 
 import requests
 from icalendar import Calendar as ICalendar
-from icalendar import Event
+from icalendar import Component
 from requests.exceptions import RequestException
 from urllib3.exceptions import HTTPError
 
@@ -114,7 +114,9 @@ class SourceProcessor:
     def _validate_calendar_components(self, calendar_data: str) -> ICalendar:
         """Validate calendar components."""
         try:
-            ical = ICalendar.from_ical(calendar_data)
+            # Bytes on purpose: icalendar reads a str that names a file from disk,
+            # and this data comes from a remote server.
+            ical = ICalendar.from_ical(calendar_data.encode())
         except ValueError as e:
             msg = f'URL did not return valid ICalendar data.\nError Message: "{e}"'
             raise CalendarValidationError(msg) from e
@@ -203,7 +205,7 @@ class SourceProcessor:
             },
         )
 
-    def _add_branding(self, event: Event) -> None:
+    def _add_branding(self, event: Component) -> None:
         """Add branding to event description and summary."""
         description: str = event.get("description", "")
         summary: str = event.get("summary", "")
@@ -213,7 +215,7 @@ class SourceProcessor:
         )
         event["summary"] = f"{summary} {self.BRANDING_SUFFIX}"
 
-    def _should_include_event(self, event: Event) -> bool:
+    def _should_include_event(self, event: Component) -> bool:
         source = self.source
         calendar = source.calendar
         if not calendar.owner.can_customize_sources or not source.exclude_keywords:

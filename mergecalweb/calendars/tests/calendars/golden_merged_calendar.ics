@@ -1,6 +1,7 @@
 BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//Test Calendar//mergecal.org//
+CALSCALE:GREGORIAN
 X-WR-CALNAME:Test Calendar
 REFRESH-INTERVAL:PT12H
 X-PUBLISHED-TTL:PT12H
@@ -54,20 +55,10 @@ DESCRIPTION:Description: Morning expect large. Western opportunity water.T
  reatment happy business student see.\n\nThis event is powered by MergeCal 
  \nhttps://mergecal.org
 END:VEVENT
-BEGIN:VTIMEZONE
-TZID:UTC
-COMMENT:This timezone only works from 1970-01-01 to 2038-01-01.
-BEGIN:STANDARD
-DTSTART:19700101T000000
-TZNAME:UTC
-TZOFFSETFROM:+0000
-TZOFFSETTO:+0000
-END:STANDARD
-END:VTIMEZONE
 BEGIN:VEVENT
 SUMMARY:Event: User-friendly uniform structure (via MergeCal.org)
-DTSTART;TZID=UTC:20250430T100000Z
-DTEND;TZID=UTC:20250430T113000Z
+DTSTART:20250430T100000Z
+DTEND:20250430T113000Z
 DESCRIPTION:Description: Third human according hope actually. Level couldg
  lass middle voice suggest the parent.\n\nThis event is powered by MergeCal
   \nhttps://mergecal.org
@@ -76,16 +67,16 @@ END:VEVENT
 BEGIN:VEVENT
 SUMMARY:Event: Open-architected client-server application (via MergeCal.or
  g)
-DTSTART;TZID=UTC:20250430T113000Z
-DTEND;TZID=UTC:20250430T124500Z
+DTSTART:20250430T113000Z
+DTEND:20250430T124500Z
 DESCRIPTION:Description: Ready long business ready.\n\nThis event is power
  ed by MergeCal \nhttps://mergecal.org
 LOCATION:27342 Jennifer Islands Apt. 281\nWest Michaelmouth\, PR 08338
 END:VEVENT
 BEGIN:VEVENT
 SUMMARY:Event: Reverse-engineered high-level algorithm (via MergeCal.org)
-DTSTART;TZID=UTC:20250430T124500Z
-DTEND;TZID=UTC:20250430T140000Z
+DTSTART:20250430T124500Z
+DTEND:20250430T140000Z
 DESCRIPTION:Description: Market despite under. Themselves during quickly c
  apital easy eat name. Station authority least wide. Answer student recentl
  y administration type individual perhaps.\n\nThis event is powered by Merg
@@ -94,8 +85,8 @@ LOCATION:PSC 2640\, Box 1082\nAPO AE 71636
 END:VEVENT
 BEGIN:VEVENT
 SUMMARY:Event: Horizontal client-server conglomeration (via MergeCal.org)
-DTSTART;TZID=UTC:20250430T140000Z
-DTEND;TZID=UTC:20250430T150000Z
+DTSTART:20250430T140000Z
+DTEND:20250430T150000Z
 DESCRIPTION:Description: With interest with amount describe fast deep. Why
   himself political none research customer.\n\nThis event is powered by Mer
  geCal \nhttps://mergecal.org
@@ -103,8 +94,8 @@ LOCATION:69176 Kelly Roads\nSouth Joseph\, CT 88856
 END:VEVENT
 BEGIN:VEVENT
 SUMMARY:Event: Configurable radical orchestration (via MergeCal.org)
-DTSTART;TZID=UTC:20250501T083000Z
-DTEND;TZID=UTC:20250501T100000Z
+DTSTART:20250501T083000Z
+DTEND:20250501T100000Z
 DESCRIPTION:Description: Energy test box health fast occur up. Country dau
  ghter kid quite seem how. Role candidate center under huge conference wher
  e.\n\nThis event is powered by MergeCal \nhttps://mergecal.org
