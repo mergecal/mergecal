@@ -4,6 +4,7 @@ import datetime
 
 import pytest
 from django.core import mail
+from django.urls import reverse
 from django.utils import timezone
 
 from mergecalweb.billing.emails import downgrade_subscription_email
@@ -170,3 +171,10 @@ class TestSiteUrl:
     def test_other_domains_are_not_local(self, settings):
         settings.DEBUG = False
         assert not is_local_url("https://mergecal.example.com/calendars/abc.ical")
+
+
+@pytest.mark.django_db
+def test_navbar_links_point_to_mergecal(client, settings):
+    settings.DEBUG = False
+    response = client.get(reverse("about"))
+    assert 'href="https://mergecal.org/pricing/"' in response.content.decode()
