@@ -72,7 +72,7 @@
           {% if blog_post.tags.all %}
             <div class="mb-3">
               {% for tag in blog_post.tags.all %}
-                <a href="{% url 'blog:tag' tag.slug %}"
+                <a href="{{ site_url }}{% url 'blog:tag' tag.slug %}"
                    class="badge bg-secondary text-decoration-none">{{ tag.name }}</a>
               {% endfor %}
             </div>
@@ -101,7 +101,8 @@
               </div>
             </div>
             <div class="col-md-6 text-md-end">
-              <a href="{% url 'blog:list' %}" class="btn btn-outline-primary">
+              <a href="{{ site_url }}{% url 'blog:list' %}"
+                 class="btn btn-outline-primary">
                 <i class="bi bi-arrow-left"></i> Back to Blog
               </a>
             </div>

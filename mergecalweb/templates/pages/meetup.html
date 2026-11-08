@@ -132,7 +132,7 @@
         <div class="col-lg-8 text-center">
           <h2>Try It Now</h2>
           <p class="lead mb-4">Add your favorite Meetup groups to a MergeCal calendar:</p>
-          <a href="{% url 'calendars:calendar_create' %}"
+          <a href="{{ site_url }}{% url 'calendars:calendar_create' %}"
              class="btn btn-primary btn-lg">
             Create Calendar
             <i class="bi bi-arrow-right ms-2"></i>

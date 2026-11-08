@@ -52,7 +52,8 @@
                 <span class="text-body-secondary ms-2 small">and any iCal/ICS feed</span>
               </div>
             </div>
-            <a href="{% url 'account_signup' %}" class="btn btn-primary btn-lg">✔ Get Started — It's Free</a>
+            <a href="{{ site_url }}{% url 'account_signup' %}"
+               class="btn btn-primary btn-lg">✔ Get Started — It's Free</a>
           </div>
           <div class="col-lg-6 d-none d-lg-block">
             <div class="position-relative p-4">
@@ -252,7 +253,7 @@
               <br />
               Start your free trial today!
             </p>
-            <a href="{% url 'account_signup' %}"
+            <a href="{{ site_url }}{% url 'account_signup' %}"
                class="btn btn-primary btn-lg px-5 py-3">✔14-day free trial</a>
             <p class="mt-3">
               <small>No credit card required</small>

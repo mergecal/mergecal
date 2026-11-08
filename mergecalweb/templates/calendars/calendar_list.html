@@ -97,9 +97,9 @@
             </div>
             <div class="card-footer">
               <div class="btn-group" role="group">
-                <a href="{% url 'calendars:calendar_update' calendar.uuid %}"
+                <a href="{{ site_url }}{% url 'calendars:calendar_update' calendar.uuid %}"
                    class="btn btn-primary">Edit</a>
-                <a href="{% url 'calendars:calendar_view' uuid=calendar.uuid %}"
+                <a href="{{ site_url }}{% url 'calendars:calendar_view' uuid=calendar.uuid %}"
                    class="btn btn-secondary">View Calendar</a>
                 <button type="button"
                         class="btn btn-success"
@@ -118,7 +118,8 @@
     </div>
     <div class="mt-4">
       {% if user.can_add_calendar %}
-        <a href="{% url 'calendars:calendar_create' %}" class="btn btn-success">Create New Merged Calendar</a>
+        <a href="{{ site_url }}{% url 'calendars:calendar_create' %}"
+           class="btn btn-success">Create New Merged Calendar</a>
       {% else %}
         <button class="btn btn-secondary" disabled title="Calendar limit reached">Create New Merged Calendar</button>
         <div class="mt-2">

@@ -22,16 +22,16 @@
               <!-- Action buttons -->
               <div class="mt-4">
                 <a class="btn btn-outline-primary me-2"
-                   href="{% url 'users:update' %}"
+                   href="{{ site_url }}{% url 'users:update' %}"
                    role="button">My Info</a>
                 <a class="btn btn-outline-primary me-2"
-                   href="{% url 'account_email' %}"
+                   href="{{ site_url }}{% url 'account_email' %}"
                    role="button">E-Mail</a>
                 <a class="btn btn-outline-primary me-2"
-                   href="{% url 'account_change_password' %}"
+                   href="{{ site_url }}{% url 'account_change_password' %}"
                    role="button">Change Password</a>
                 <a class="btn btn-outline-primary me-2"
-                   href="{% url 'mfa_index' %}"
+                   href="{{ site_url }}{% url 'mfa_index' %}"
                    role="button">MFA</a>
                 <!-- Manage Billing Form -->
                 <form method="post"

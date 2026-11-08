@@ -14,7 +14,7 @@
     <nav aria-label="breadcrumb">
       <ol class="breadcrumb">
         <li class="breadcrumb-item">
-          <a href="{% url 'calendars:calendar_list' %}">Calendars</a>
+          <a href="{{ site_url }}{% url 'calendars:calendar_list' %}">Calendars</a>
         </li>
         <li class="breadcrumb-item active" ara-current="page">
           {% if calendar.pk %}
@@ -43,7 +43,8 @@
               {% csrf_token %}
               {% crispy form %}
               <button type="submit" class="btn btn-primary">Save Calendar</button>
-              <a href="{% url 'calendars:calendar_list' %}" class="btn btn-secondary">Cancel</a>
+              <a href="{{ site_url }}{% url 'calendars:calendar_list' %}"
+                 class="btn btn-secondary">Cancel</a>
             </form>
           </div>
           {% if calendar.pk %}
@@ -62,7 +63,7 @@
           <div class="card h-100">
             <div class="card-header d-flex justify-content-between align-items-center">
               <h2 class="card-title mb-0">Calendar Preview</h2>
-              <a href="{% url 'calendars:calendar_view' uuid=calendar.uuid %}"
+              <a href="{{ site_url }}{% url 'calendars:calendar_view' uuid=calendar.uuid %}"
                  class="btn btn-outline-secondary btn-sm"
                  aria-label="View Calendar">
                 <i class="bi bi-arrows-angle-expand"></i>
@@ -89,7 +90,7 @@
         <div class="card-header d-flex justify-content-between align-items-center">
           <h3 class="card-title mb-0">Calendar Sources</h3>
           {% if calendar.can_add_source %}
-            <a href="{% url 'calendars:source_add' uuid=calendar.uuid %}"
+            <a href="{{ site_url }}{% url 'calendars:source_add' uuid=calendar.uuid %}"
                class="btn btn-success btn-sm">
               <i class="bi bi-plus-circle"></i> Add New Source
             </a>
@@ -170,7 +171,7 @@
                     </td>
                     <td>
                       <div class="btn-group" role="group">
-                        <a href="{% url 'calendars:source_edit' source.id %}"
+                        <a href="{{ site_url }}{% url 'calendars:source_edit' source.id %}"
                            class="btn btn-sm btn-primary">
                           <i class="bi bi-pencil"></i> Edit
                         </a>

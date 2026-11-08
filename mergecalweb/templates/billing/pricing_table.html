@@ -16,8 +16,10 @@
       <div class="container d-flex justify-content-between align-items-center">
         <span>{% translate "Please sign in to ensure a smooth checkout process." %}</span>
         <div>
-          <a href="{% url 'account_login' %}" class="btn btn-sm btn-primary me-2">{% translate "Sign In" %}</a>
-          <a href="{% url 'account_signup' %}" class="btn btn-sm btn-secondary">{% translate "Sign Up" %}</a>
+          <a href="{{ site_url }}{% url 'account_login' %}"
+             class="btn btn-sm btn-primary me-2">{% translate "Sign In" %}</a>
+          <a href="{{ site_url }}{% url 'account_signup' %}"
+             class="btn btn-sm btn-secondary">{% translate "Sign Up" %}</a>
           <button type="button"
                   class="btn-close"
                   data-bs-dismiss="alert"
