@@ -3,7 +3,6 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pytest
-from django.contrib.sites.models import Site
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
 
@@ -182,11 +181,9 @@ END:VCALENDAR"""
 
     def test_source_url_validation(self, calendar: Calendar) -> None:
         """Test URL validation for different types of URLs."""
-        site = Site.objects.get_current()
-
         # Test valid local calendar URL
         local_cal = Calendar.objects.create(name="Local Calendar", owner=calendar.owner)
-        local_url = f"https://{site.domain}/calendars/{local_cal.uuid}.ical"
+        local_url = f"https://mergecal.org/calendars/{local_cal.uuid}.ical"
         local_source = Source(
             name="Local Source",
             url=local_url,
