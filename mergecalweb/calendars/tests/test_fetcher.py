@@ -62,6 +62,7 @@ class TestCalendarFetcher:
         http.get(URL, body="NEW")
 
         fetcher.fetch_calendar(URL)
+        cache.touch(source_data_cache_key(URL), timeout=None)
         clock.shift(MAX_STALE_AGE + timedelta(seconds=100))
 
         assert fetcher.fetch_calendar(URL) == "NEW"
@@ -71,6 +72,7 @@ class TestCalendarFetcher:
         http.get(URL, body=requests.ConnectionError("down"))
 
         fetcher.fetch_calendar(URL)
+        cache.touch(source_data_cache_key(URL), timeout=None)
         clock.shift(MAX_STALE_AGE + timedelta(seconds=100))
 
         with pytest.raises(requests.RequestException):
