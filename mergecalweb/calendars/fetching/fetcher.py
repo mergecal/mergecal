@@ -1,4 +1,5 @@
 import logging
+import re
 import time
 from datetime import timedelta
 from urllib.parse import urlparse
@@ -16,6 +17,11 @@ CACHE_TIMEOUT = timedelta(minutes=2)  # Freshness threshold
 MAX_STALE_AGE = timedelta(hours=24)  # Maximum age to keep stale cache data
 DEFAULT_TIMEOUT = 30
 CACHE_TUPLE_LENGTH = 2  # Expected length of (content, timestamp) cache tuple
+
+# TeamSnap ONE mixes CRLF, LF and a lone CR in a single feed. icalendar breaks
+# content lines on \r?\n only, so a lone CR hides the END that closes a
+# component and the whole calendar parses to nothing.
+LINE_ENDING_RE = re.compile(r"\r\n|\r|\n")
 
 
 class CalendarFetcher:
@@ -186,7 +192,16 @@ class CalendarFetcher:
         )
         response.raise_for_status()
         response.encoding = "utf-8"
-        calendar_data = response.text
+        calendar_data = LINE_ENDING_RE.sub("\r\n", response.text)
+        if calendar_data != response.text:
+            logger.debug(
+                "Normalized non-standard calendar line endings",
+                extra={
+                    "event": LogEvent.CALENDAR_FETCH,
+                    "status": "line-endings-normalized",
+                    "url": url[:200],
+                },
+            )
 
         fetch_duration = time.time() - start_time
         logger.debug(

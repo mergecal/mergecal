@@ -1,9 +1,11 @@
 import time
+from datetime import timedelta
 from unittest.mock import Mock
 from unittest.mock import patch
 
 import pytest
 import requests
+from icalendar import Calendar
 
 from mergecalweb.calendars.fetching.fetcher import CACHE_TIMEOUT
 from mergecalweb.calendars.fetching.fetcher import MAX_STALE_AGE
@@ -185,3 +187,93 @@ class TestCalendarFetcher:
 
         with pytest.raises(requests.RequestException):
             fetcher._fetch_from_remote(url)  # noqa: SLF001
+
+
+# Mirrors the TeamSnap ONE feed shape, byte for byte in the ways that matter:
+# LF after every calendar-level line, CRLF inside every VEVENT, a lone CR
+# before the final END:VCALENDAR, no trailing terminator, and long values
+# folded with a tab. Events carry DURATION instead of DTEND. This cannot
+# live in a .ics fixture: .gitattributes forces *.ics to eol=lf, which would
+# rewrite the very terminators under test.
+TEAMSNAP_ONE_FEED = (
+    "BEGIN:VCALENDAR\n"
+    "VERSION:2.0\n"
+    "CALSCALE:GREGORIAN\n"
+    "PRODID:-//TeamSnap//TeamSnap Calendar//EN\n"
+    "METHOD:PUBLISH\n"
+    "NAME:Example Team Schedule\n"
+    "X-WR-CALNAME:Example Team Schedule\n"
+    "X-PUBLISHED-TTL:PT1H\n"
+    "X-WR-CALDESC:Calendar showing Example Team schedule for TeamSnap ONE\n"
+    "BEGIN:VEVENT\r\n"
+    "UID:event-1@example.com\r\n"
+    "SUMMARY:Practice: Example Team (Arrive 5 minutes early)\r\n"
+    "DTSTAMP:20300101T120000Z\r\n"
+    "DTSTART:20300107T220000Z\r\n"
+    "DESCRIPTION:Practice: Example Team\\nLocation: Exa\r\n"
+    "\tmple Middle School\\n100 Test Road\\, Springfield\\, IL 62701\\, USA\\nDur\r\n"
+    "\tation: 1 hour 30 minutes\r\n"
+    "GEO:39.7817000;-89.6501000\r\n"
+    "LOCATION:Example Middle School\\n100 Test Road\\, Springfield\\, IL 62701\r\n"
+    "\t\\, USA\r\n"
+    "STATUS:CONFIRMED\r\n"
+    "LAST-MODIFIED:20300101T110000Z\r\n"
+    "DURATION:PT1H30M\r\n"
+    "END:VEVENT\r\n"
+    "BEGIN:VEVENT\r\n"
+    "UID:event-2@example.com\r\n"
+    "SUMMARY:Practice: Example Team\r\n"
+    "DTSTAMP:20300101T120000Z\r\n"
+    "DTSTART:20300110T010000Z\r\n"
+    "STATUS:CONFIRMED\r\n"
+    "DURATION:PT1H\r\n"
+    "END:VEVENT\r\n"
+    "BEGIN:VEVENT\r\n"
+    "UID:event-3@example.com\r\n"
+    "SUMMARY:Practice: Example Team\r\n"
+    "DTSTAMP:20300101T120000Z\r\n"
+    "DTSTART:20300110T230000Z\r\n"
+    "STATUS:CONFIRMED\r\n"
+    "DURATION:PT1H30M\r\n"
+    # The lone CR that hides END:VCALENDAR from the parser.
+    "END:VEVENT\r"
+    "END:VCALENDAR"
+)
+
+
+class TestCalendarFetcherLineEndings:
+    def test_lone_cr_feed_parses_after_fetch(self, fetcher, mock_requests):
+        """A feed that separates lines with a lone CR must still parse."""
+        mock_response = Mock()
+        mock_response.status_code = 200
+        mock_response.text = TEAMSNAP_ONE_FEED
+        mock_requests.return_value = mock_response
+
+        result = fetcher._fetch_from_remote("http://example.com/cal.ics")  # noqa: SLF001
+
+        calendar = Calendar.from_ical(result.encode())
+        events = calendar.walk("VEVENT")
+        assert [event["UID"] for event in events] == [
+            "event-1@example.com",
+            "event-2@example.com",
+            "event-3@example.com",
+        ]
+        assert [event.decoded("DURATION") for event in events] == [
+            timedelta(hours=1, minutes=30),
+            timedelta(hours=1),
+            timedelta(hours=1, minutes=30),
+        ]
+
+    def test_line_endings_are_normalized_to_crlf(self, fetcher, mock_requests):
+        """Mixed terminators are rewritten so content lines are RFC 5545 folded."""
+        mock_response = Mock()
+        mock_response.status_code = 200
+        mock_response.text = TEAMSNAP_ONE_FEED
+        mock_requests.return_value = mock_response
+
+        result = fetcher._fetch_from_remote("http://example.com/cal.ics")  # noqa: SLF001
+
+        stripped = result.replace("\r\n", "")
+        assert "\r" not in stripped
+        assert "\n" not in stripped
+        assert result.count("\r\n") == TEAMSNAP_ONE_FEED.count("\n") + 1
