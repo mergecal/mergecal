@@ -126,7 +126,7 @@
     {
       "@context": "http://schema.org",
       "@type": "Blog",
-      "url": "{{ request.build_absolute_uri }}",
+      "url": "https://mergecal.org{{ request.path }}",
       "name": "MergeCal Blog",
       "description": "
       Expert insights,
@@ -140,7 +140,7 @@
         "name": "MergeCal",
         "logo": {
           "@type": "ImageObject",
-          "url": "{{ request.scheme }}://{{ request.get_host }}{% static 'images/favicon.png' %}"
+          "url": "https://mergecal.org{% static 'images/favicon.png' %}"
         }
       }
     }

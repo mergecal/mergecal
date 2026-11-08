@@ -192,7 +192,7 @@
       "@context": "https://schema.org",
       "@type": "BlogPosting",
       "headline": "{{ blog_post.title }}",
-      "image": "{% if blog_post.image %}{{ blog_post.image.url }}{% else %}{{ request.scheme }}://{{ request.get_host }}{% static 'images/default-blog-image.jpg' %}{% endif %}",
+      "image": "{% if blog_post.image %}{{ blog_post.image.url }}{% else %}https://mergecal.org{% static 'images/default-blog-image.jpg' %}{% endif %}",
       "datePublished": "{{ blog_post.pub_date|date:'c' }}",
       "dateModified": "{{ blog_post.modified|date:'c' }}",
       "author": {
@@ -204,13 +204,13 @@
         "name": "MergeCal",
         "logo": {
           "@type": "ImageObject",
-          "url": "{{ request.scheme }}://{{ request.get_host }}{% static 'images/mergecal-logo.png' %}"
+          "url": "https://mergecal.org{% static 'images/mergecal-logo.png' %}"
         }
       },
       "description": "{{ blog_post.description }}",
       "keywords": "{{ blog_post.keyword_list|join:', ' }}",
       "wordCount": "{{ blog_post.text|wordcount }}",
-      "url": "{{ request.build_absolute_uri }}"
+      "url": "https://mergecal.org{{ request.path }}"
     }
   </script>
 {% endblock structured_data %}
