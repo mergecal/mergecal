@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 import pytest
 import responses
@@ -7,9 +6,6 @@ import responses
 from mergecalweb.calendars.services.source_processor import SourceProcessor
 
 from .factories import SourceFactory
-
-if TYPE_CHECKING:
-    from mergecalweb.calendars.models import Calendar
 
 LOCAL_CALENDAR = """BEGIN:VCALENDAR
 VERSION:2.0
@@ -53,15 +49,12 @@ def test_feed_body_naming_a_local_file_does_not_read_it(
 
 
 @pytest.mark.django_db
-def test_invalid_calendar_header_keeps_the_events(
-    calendar: "Calendar",
-    http: responses.RequestsMock,
-) -> None:
+def test_invalid_calendar_header_keeps_the_events(http: responses.RequestsMock) -> None:
     feed = LOCAL_CALENDAR.replace(
         "PRODID:local\n",
         "PRODID:local\nX-PUBLISHED-TTL:P1H\nREFRESH-INTERVAL:P1H\n",
     )
-    source = SourceFactory(url="http://example.com/feed.ics", calendar=calendar)
+    source = SourceFactory(url="http://example.com/feed.ics")
     processor = SourceProcessor(source)
 
     http.get(source.url, body=feed)
@@ -75,10 +68,9 @@ def test_invalid_calendar_header_keeps_the_events(
 
 @pytest.mark.django_db
 def test_body_that_is_not_a_calendar_is_still_an_error(
-    calendar: "Calendar",
     http: responses.RequestsMock,
 ) -> None:
-    source = SourceFactory(url="http://example.com/feed.ics", calendar=calendar)
+    source = SourceFactory(url="http://example.com/feed.ics")
     processor = SourceProcessor(source)
 
     http.get(source.url, body="false")

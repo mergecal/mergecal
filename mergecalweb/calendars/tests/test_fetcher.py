@@ -1,3 +1,4 @@
+import re
 from datetime import timedelta
 
 import pytest
@@ -158,7 +159,7 @@ class TestCalendarFetcherLineEndings:
         stripped = result.replace("\r\n", "")
         assert "\r" not in stripped
         assert "\n" not in stripped
-        assert result.count("\r\n") == feed.count(b"\n") + 1
+        assert result.count("\r\n") == len(re.findall(rb"\r\n|\r|\n", feed))
 
     def test_crlf_feed_is_unchanged(self, fetcher, http, test_calendars_dir):
         """A standard RFC 5545 feed keeps its bytes and its folded lines parse."""
