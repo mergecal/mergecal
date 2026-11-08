@@ -1,0 +1,14 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Example//Example Calendar//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:crlf-1@example.com
+DTSTAMP:20300101T120000Z
+DTSTART:20300107T220000Z
+DTEND:20300107T233000Z
+SUMMARY:CRLF Test Event
+DESCRIPTION:A description long enough that the server folds it onto a sec
+ ond content line
+END:VEVENT
+END:VCALENDAR

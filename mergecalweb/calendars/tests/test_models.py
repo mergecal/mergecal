@@ -3,8 +3,8 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pytest
+import responses
 from django.contrib.sites.models import Site
-from django.core.cache import cache
 from django.core.exceptions import ValidationError
 
 from mergecalweb.calendars.models import Calendar
@@ -265,31 +265,19 @@ END:VCALENDAR"""
     def test_source_url_validation_accepts_lone_cr_line_endings(
         self,
         calendar: Calendar,
+        http: responses.RequestsMock,
+        test_calendars_dir: Path,
     ) -> None:
         """TeamSnap ONE separates the last line with a lone CR instead of CRLF."""
-        cache.clear()
-        with patch("requests.get") as mock_get:
-            mock_get.return_value.text = (
-                "BEGIN:VCALENDAR\n"
-                "VERSION:2.0\n"
-                "CALSCALE:GREGORIAN\n"
-                "PRODID:-//TeamSnap//TeamSnap Calendar//EN\n"
-                "BEGIN:VEVENT\r\n"
-                "UID:event-1@example.com\r\n"
-                "SUMMARY:Practice\r\n"
-                "DTSTAMP:20300101T120000Z\r\n"
-                "DTSTART:20300107T220000Z\r\n"
-                "DURATION:PT1H30M\r\n"
-                "END:VEVENT\r"
-                "END:VCALENDAR"
-            )
+        feed = (test_calendars_dir / "teamsnap_one.ics").read_bytes()
+        http.get("https://example.com/feed.ics", body=feed)
 
-            source = Source(
-                name="Team Practice",
-                url="https://example.com/feed.ics",
-                calendar=calendar,
-            )
-            source.full_clean()
+        source = Source(
+            name="Team Practice",
+            url="https://example.com/feed.ics",
+            calendar=calendar,
+        )
+        source.full_clean()
 
     def test_source_customization_permissions(self) -> None:
         """Test source customization based on subscription tier."""
