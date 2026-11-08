@@ -15,10 +15,10 @@
     <nav aria-label="breadcrumb">
       <ol class="breadcrumb">
         <li class="breadcrumb-item">
-          <a href="{% url 'calendars:calendar_list' %}">Calendars</a>
+          <a href="{{ site_url }}{% url 'calendars:calendar_list' %}">Calendars</a>
         </li>
         <li class="breadcrumb-item">
-          <a href="{% url 'calendars:calendar_update' uuid=calendar.uuid %}">{{ calendar.name }}</a>
+          <a href="{{ site_url }}{% url 'calendars:calendar_update' uuid=calendar.uuid %}">{{ calendar.name }}</a>
         </li>
         <li class="breadcrumb-item active" aria-current="page">
           {% if form.instance.pk %}

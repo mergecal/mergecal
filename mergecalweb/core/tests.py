@@ -4,12 +4,15 @@ import datetime
 
 import pytest
 from django.core import mail
+from django.urls import reverse
 from django.utils import timezone
 
 from mergecalweb.billing.emails import downgrade_subscription_email
 from mergecalweb.billing.emails import send_trial_ending_email
 from mergecalweb.billing.emails import upgrade_subscription_email
 from mergecalweb.core.emails import send_email
+from mergecalweb.core.utils import get_site_url
+from mergecalweb.core.utils import is_local_url
 from mergecalweb.users.models import User
 
 
@@ -149,3 +152,29 @@ class TestEmailSystem:
         # Check logo image is present
         assert "favicon-no-boarder.png" in html_content
         assert 'alt="MergeCal"' in html_content
+
+
+class TestSiteUrl:
+    def test_production_uses_mergecal_domain(self, settings):
+        settings.DEBUG = False
+        assert get_site_url() == "https://mergecal.org"
+
+    def test_debug_uses_localhost(self, settings):
+        settings.DEBUG = True
+        assert get_site_url() == "http://localhost:8000"
+
+    def test_mergecal_urls_are_local(self, settings):
+        settings.DEBUG = False
+        assert is_local_url("https://mergecal.org/calendars/abc.ical")
+        assert is_local_url("https://www.mergecal.org/calendars/abc.ical")
+
+    def test_other_domains_are_not_local(self, settings):
+        settings.DEBUG = False
+        assert not is_local_url("https://mergecal.example.com/calendars/abc.ical")
+
+
+@pytest.mark.django_db
+def test_navbar_links_point_to_mergecal(client, settings):
+    settings.DEBUG = False
+    response = client.get(reverse("about"))
+    assert 'href="https://mergecal.org/pricing/"' in response.content.decode()

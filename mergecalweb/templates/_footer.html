@@ -16,23 +16,25 @@
         </h5>
         <ul class="list-unstyled">
           <li class="mb-2">
-            <a href="{% url 'home' %}" class="link-secondary text-decoration-none">
+            <a href="{{ site_url }}{% url 'home' %}"
+               class="link-secondary text-decoration-none">
               <i class="bi bi-house me-2"></i>Home
             </a>
           </li>
           <li class="mb-2">
-            <a href="{% url 'about' %}" class="link-secondary text-decoration-none">
+            <a href="{{ site_url }}{% url 'about' %}"
+               class="link-secondary text-decoration-none">
               <i class="bi bi-info-circle me-2"></i>About
             </a>
           </li>
           <li class="mb-2">
-            <a href="{% url 'blog:list' %}"
+            <a href="{{ site_url }}{% url 'blog:list' %}"
                class="link-secondary text-decoration-none">
               <i class="bi bi-journal-text me-2"></i>Blog
             </a>
           </li>
           <li class="mb-2">
-            <a href="{% url 'pricing' %}"
+            <a href="{{ site_url }}{% url 'pricing' %}"
                class="link-secondary text-decoration-none">
               <i class="bi bi-tag me-2"></i>Pricing
             </a>
@@ -45,18 +47,20 @@
         </h5>
         <ul class="list-unstyled">
           <li class="mb-2">
-            <a href="{% url 'meetup' %}" class="link-secondary text-decoration-none">
+            <a href="{{ site_url }}{% url 'meetup' %}"
+               class="link-secondary text-decoration-none">
               <i class="bi bi-calendar-plus me-2"></i>Meetup.com
             </a>
           </li>
           <li class="mb-2">
-            <a href="{% url 'discord' %}"
+            <a href="{{ site_url }}{% url 'discord' %}"
                class="link-secondary text-decoration-none">
               <i class="bi bi-discord me-2"></i>Discord
             </a>
           </li>
           <li class="mb-2">
-            <a href="{% url 'twitch' %}" class="link-secondary text-decoration-none">
+            <a href="{{ site_url }}{% url 'twitch' %}"
+               class="link-secondary text-decoration-none">
               <i class="bi bi-twitch me-2"></i>Twitch
             </a>
           </li>
@@ -118,11 +122,12 @@
         </p>
       </div>
       <div class="col-md-6 text-center text-md-end">
-        <a href="{% url 'privacy' %}"
+        <a href="{{ site_url }}{% url 'privacy' %}"
            class="link-secondary text-decoration-none me-3">
           <i class="bi bi-shield-lock me-2"></i>Privacy Policy
         </a>
-        <a href="{% url 'terms' %}" class="link-secondary text-decoration-none">
+        <a href="{{ site_url }}{% url 'terms' %}"
+           class="link-secondary text-decoration-none">
           <i class="bi bi-file-text me-2"></i>Terms of Service
         </a>
       </div>

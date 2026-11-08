@@ -4,21 +4,17 @@ import uuid
 from urllib.parse import urlparse
 
 from django.conf import settings
-from django.contrib.sites.models import Site
 
 logger = logging.getLogger(__name__)
 CACHE_TIMEOUT = 3600  # 1 hour in seconds
+CANONICAL_SITE_URL = "https://mergecal.org"
+LOCAL_SITE_URL = "http://localhost:8000"
 
 
 def get_site_url() -> str:
-    """Generates the full URL of the current site based on DEBUG mode.
-
-    Returns:
-        str: The full URL of the site, including the scheme.
-    """
-    url_scheme = "http" if settings.DEBUG else "https"
-    current_site_domain = Site.objects.get_current().domain
-    return f"{url_scheme}://{current_site_domain}"
+    if settings.DEBUG:
+        return LOCAL_SITE_URL
+    return CANONICAL_SITE_URL
 
 
 def get_stripe_dashboard_url(account_id: str = "") -> str:
@@ -46,7 +42,7 @@ def is_local_url(url: str) -> bool:
     Returns:
     bool: True if the URL is from the current site, False otherwise.
     """
-    current_site_domain = Site.objects.get_current().domain
+    current_site_domain = urlparse(get_site_url()).netloc
 
     parsed_url = urlparse(url)
     url_domain = parsed_url.netloc

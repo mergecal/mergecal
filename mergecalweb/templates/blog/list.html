@@ -22,7 +22,7 @@
     <nav aria-label="breadcrumb">
       <ol class="breadcrumb">
         <li class="breadcrumb-item">
-          <a href="{% url 'home' %}">Home</a>
+          <a href="{{ site_url }}{% url 'home' %}">Home</a>
         </li>
         <li class="breadcrumb-item active" aria-current="page">Blog</li>
       </ol>
@@ -92,7 +92,7 @@
           {% if page_obj.has_previous %}
             <li class="page-item">
               <a class="page-link"
-                 href="{% url 'blog:list' %}?page={{ page_obj.previous_page_number }}"
+                 href="{{ site_url }}{% url 'blog:list' %}?page={{ page_obj.previous_page_number }}"
                  aria-label="{% trans "Previous" %}">
                 <span aria-hidden="true"><</span>
                 <span class="visually-hidden">{% trans "Previous" %}</span>
@@ -109,7 +109,7 @@
           {% if page_obj.has_next %}
             <li class="page-item">
               <a class="page-link"
-                 href="{% url 'blog:list' %}?page={{ page_obj.next_page_number }}"
+                 href="{{ site_url }}{% url 'blog:list' %}?page={{ page_obj.next_page_number }}"
                  aria-label="{% trans "Next" %}">
                 <span aria-hidden="true">></span>
                 <span class="visually-hidden">{% trans "Next" %}</span>
@@ -126,7 +126,7 @@
     {
       "@context": "http://schema.org",
       "@type": "Blog",
-      "url": "{{ request.build_absolute_uri }}",
+      "url": "https://mergecal.org{{ request.path }}",
       "name": "MergeCal Blog",
       "description": "
       Expert insights,
@@ -140,7 +140,7 @@
         "name": "MergeCal",
         "logo": {
           "@type": "ImageObject",
-          "url": "{{ request.scheme }}://{{ request.get_host }}{% static 'images/favicon.png' %}"
+          "url": "https://mergecal.org{% static 'images/favicon.png' %}"
         }
       }
     }

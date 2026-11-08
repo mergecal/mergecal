@@ -241,6 +241,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "mergecalweb.users.context_processors.allauth_settings",
                 "mergecalweb.billing.context_processors.trial_status",
+                "mergecalweb.core.context_processors.site_url",
             ],
         },
     },
