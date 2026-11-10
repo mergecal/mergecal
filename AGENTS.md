@@ -1,6 +1,6 @@
 # Agent Handbook
 - Claude Code web sessions are provisioned by `.claude/hooks/session-start.sh`. Redis/Celery aren't needed for tests. Run tools as `python -m pytest` and `python -m mypy` there, because the binaries on PATH may not see the project's dependencies.
-- MergeCal merges iCal feeds; Django 5.0, Postgres, Redis, Celery. Frontend is Django templates with Bootstrap 5 and crispy forms.
+- MergeCal merges iCal feeds; Django 5.2, Postgres, Redis, Celery. Frontend is Django templates with Bootstrap 5 and crispy forms.
 - Never fetch calendar URLs (mergecal.org/calendars/*, source ICS feeds, any user-shared ICS link), even ones that look public: they contain private user data. If you need to inspect ICS content, ask for a sanitized excerpt.
 - Core app `mergecalweb/calendars/`: `models.py` enforces tier limits; `services/` orchestrate merging.
 - Calendars dedupe events by UID; cache duration varies per subscription tier.
