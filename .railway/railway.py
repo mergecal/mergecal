@@ -70,7 +70,7 @@ def main(ctx=None):
     )
     web = service(
         "mergecal",
-        source=github("mergecal/mergecal", branch="main", checkSuites=False),
+        source=mergecal,
         build={
             "builder": "RAILPACK",
             "buildCommand": "python manage.py collectstatic --noinput && python manage.py compress --force",
