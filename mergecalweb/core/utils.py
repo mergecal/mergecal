@@ -42,10 +42,10 @@ def is_local_url(url: str) -> bool:
     Returns:
     bool: True if the URL is from the current site, False otherwise.
     """
-    current_site_domain = urlparse(get_site_url()).netloc
+    current_site_domain = urlparse(get_site_url()).netloc.lower()
 
     parsed_url = urlparse(url)
-    url_domain = parsed_url.netloc
+    url_domain = parsed_url.netloc.lower()
 
     # Remove 'www.' from both domains for comparison
     current_site_domain = current_site_domain.removeprefix("www.")
