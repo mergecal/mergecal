@@ -90,7 +90,6 @@ THIRD_PARTY_APPS = [
     "allauth.socialaccount.providers.google",  # for Google OAuth 2.0
     "django_celery_beat",
     "django_extensions",
-    "rest_framework",
     "djstripe",
     "django_htmx",
     "ckeditor",
