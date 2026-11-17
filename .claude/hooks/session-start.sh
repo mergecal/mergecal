@@ -16,13 +16,11 @@ sudo -u postgres psql -tAc "SELECT 1 FROM pg_roles WHERE rolname='$user'" | grep
 sudo -u postgres psql -tAc "SELECT 1 FROM pg_database WHERE datname='mergecalweb'" | grep -q 1 \
   || sudo -u postgres createdb mergecalweb -O "$user"
 
-# pip's resolver backtracks for tens of minutes on this requirement set; uv resolves it in
-# seconds and is what CI uses.
 command -v uv >/dev/null || python -m pip install --quiet uv
-uv pip install --system --quiet -r requirements/local.txt
+uv sync --frozen --quiet
 
 # Import the whole project, so a session never starts believing it can run the tests when
 # something the suite imports is broken.
-python manage.py check --settings=config.settings.test >/dev/null
+uv run python manage.py check --settings=config.settings.test >/dev/null
 
-echo "Ready: Postgres up, mergecalweb database present, $(python -V) and dependencies installed."
+echo "Ready: Postgres up, mergecalweb database present, $(uv run python -V) and dependencies installed."

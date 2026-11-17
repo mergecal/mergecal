@@ -59,34 +59,22 @@ Navigate to the project directory:
 cd mergecal
 ```
 
-Create a virtual environment:
+Install the dependencies with [uv](https://docs.astral.sh/uv/) (it creates `.venv` and installs the Python version from `.python-version`):
 
 ```
-virtualenv env
-```
-
-Activate the environment:
-
-```
-source env/bin/activate
-```
-
-Install the required dependencies:
-
-```
-pip install -r requirements/local.txt
+uv sync
 ```
 
 Run the Django migrations:
 
 ```
-python manage.py migrate
+uv run python manage.py migrate
 ```
 
 Start the development server:
 
 ```
-python manage.py runserver
+uv run python manage.py runserver
 ```
 
 The app should now be running at http://localhost:8000/.
