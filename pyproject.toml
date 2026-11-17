@@ -23,7 +23,7 @@ dependencies = [
     "django-crispy-forms==2.3",
     "crispy-bootstrap5==2025.6",
     "django-compressor==4.6.0",
-    "django-redis==5.4.0",
+    "django-redis==7.0.0",
     "django-extensions==3.2.3",
     "django-libsass==0.9",
     "django-htmx==1.21.0",
