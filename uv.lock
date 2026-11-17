@@ -772,14 +772,14 @@ wheels = [
 
 [[package]]
 name = "django-extensions"
-version = "3.2.3"
+version = "4.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "django" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/8a/f1/318684c9466968bf9a9c221663128206e460c1a67f595055be4b284cde8a/django-extensions-3.2.3.tar.gz", hash = "sha256:44d27919d04e23b3f40231c4ab7af4e61ce832ef46d610cc650d53e68328410a", size = 277216, upload-time = "2023-06-05T17:09:01.447Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/6d/b3/ed0f54ed706ec0b54fd251cc0364a249c6cd6c6ec97f04dc34be5e929eac/django_extensions-4.1.tar.gz", hash = "sha256:7b70a4d28e9b840f44694e3f7feb54f55d495f8b3fa6c5c0e5e12bcb2aa3cdeb", size = 283078, upload-time = "2025-04-11T01:15:39.617Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/a7/7e/ba12b9660642663f5273141018d2bec0a1cae1711f4f6d1093920e157946/django_extensions-3.2.3-py3-none-any.whl", hash = "sha256:9600b7562f79a92cbf1fde6403c04fee314608fefbb595502e34383ae8203401", size = 229868, upload-time = "2023-06-05T17:08:58.197Z" },
+    { url = "https://files.pythonhosted.org/packages/64/96/d967ca440d6a8e3861120f51985d8e5aec79b9a8bdda16041206adfe7adc/django_extensions-4.1-py3-none-any.whl", hash = "sha256:0699a7af28f2523bf8db309a80278519362cd4b6e1fd0a8cd4bf063e1e023336", size = 232980, upload-time = "2025-04-11T01:15:37.701Z" },
 ]
 
 [[package]]
@@ -873,15 +873,15 @@ wheels = [
 
 [[package]]
 name = "django-redis"
-version = "5.4.0"
+version = "7.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "django" },
     { name = "redis" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/83/9d/2272742fdd9d0a9f0b28cd995b0539430c9467a2192e4de2cea9ea6ad38c/django-redis-5.4.0.tar.gz", hash = "sha256:6a02abaa34b0fea8bf9b707d2c363ab6adc7409950b2db93602e6cb292818c42", size = 52567, upload-time = "2023-10-01T20:22:01.221Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/fb/78/203a0cdc0f1c083a5407d01f77b58099a120bb8a5a04562f56a9bb341314/django_redis-7.0.0.tar.gz", hash = "sha256:e48491c862f4350b0747ceb1016700686fb93c4f4e0fb9c490fe6c6658ffd933", size = 64601, upload-time = "2026-06-02T14:17:48.819Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b7/f1/63caad7c9222c26a62082f4f777de26389233b7574629996098bf6d25a4d/django_redis-5.4.0-py3-none-any.whl", hash = "sha256:ebc88df7da810732e2af9987f7f426c96204bf89319df4c6da6ca9a2942edd5b", size = 31119, upload-time = "2023-10-01T20:21:33.009Z" },
+    { url = "https://files.pythonhosted.org/packages/7e/9f/09cdb9a1eebe8533b02a7694ca787acfc1e4d93b5b6175ff99366d4e6d64/django_redis-7.0.0-py3-none-any.whl", hash = "sha256:4b23aa6e0cd0937bb1242e9a463809e6004de3ca2150f34e986306bb6220d688", size = 38932, upload-time = "2026-06-02T14:17:47.281Z" },
 ]
 
 [[package]]
@@ -945,14 +945,14 @@ wheels = [
 
 [[package]]
 name = "django-taggit"
-version = "6.0.0"
+version = "7.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "django" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/a3/c6/c89a38a956ca189a01c510ecdb1c96811565e20dd8450d3b471b8fa99fd6/django_taggit-6.0.0.tar.gz", hash = "sha256:723d98bd5c536daa3c0e1bdae0965f7005a9b15269816bb4053fafec4ebad57e", size = 67403, upload-time = "2024-07-29T21:52:08.11Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/e5/a9/40c57c5fb8fe20f9982f07d0fd85b5da9fd852324be79307f560362fea56/django_taggit-7.0.0.tar.gz", hash = "sha256:338b7af0f3417f079a2a4346da1677a1e0d4ca0aba1b04a4e12c9e3a85450a7a", size = 39112, upload-time = "2026-11-02T11:26:33.173Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/d1/50/4c1a860be57f0150caee2578eac154093aa27d42dcef41c991e20cfc8b3f/django_taggit-6.0.0-py3-none-any.whl", hash = "sha256:7094f797b7e5e3727525a0af7bc550860000ddc2248266529d568eca61b39fb1", size = 68528, upload-time = "2024-07-29T21:53:05.522Z" },
+    { url = "https://files.pythonhosted.org/packages/eb/5d/ba6dbb7dd576db6eee402bc74d1ff263812b19b06af48414dc8ca8d39c81/django_taggit-7.0.0-py3-none-any.whl", hash = "sha256:191dd89528f40a6109d1922f197885f25db3cd05b4280b6ec2a1e8e790c295b8", size = 66479, upload-time = "2026-11-02T11:26:31.849Z" },
 ]
 
 [[package]]
@@ -982,14 +982,14 @@ wheels = [
 
 [[package]]
 name = "djangorestframework"
-version = "3.18.2"
+version = "3.18.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "django" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/3f/8b/2f048189610d58b29ae947f46d9c7d19c20ba427568eac906d6a2277d391/djangorestframework-3.18.2.tar.gz", hash = "sha256:8249bad7715eb37274ce5820fc5d9fd786b7579806589565f52a71c02b35f54b", size = 923551, upload-time = "2026-10-06T20:42:15.116Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/8d/b2/1cee76b188301f7d03169ca77fab2b3d3ec5d01b3469189f944af2d7f11a/djangorestframework-3.18.3.tar.gz", hash = "sha256:446a9b352e7eff630421ab3f2328bd2401b109a9470afa4a31189994911ed030", size = 923563, upload-time = "2026-10-06T21:33:51.521Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/fa/9e/81e5bfbba54f7396233df979befde49e6e13c94c2df21b94555684dddd3e/djangorestframework-3.18.2-py3-none-any.whl", hash = "sha256:a92d6a4e128a2550bd2fe2e02008a9e47fe52c180e130bb438f5ba70ee933a3f", size = 903990, upload-time = "2026-10-06T20:42:13.411Z" },
+    { url = "https://files.pythonhosted.org/packages/c4/dd/de5f4543765bec94e036a5e9593a42f8fa7efec8de78eb56b9ca834385f3/djangorestframework-3.18.3-py3-none-any.whl", hash = "sha256:8544bb674846731b1e3c9b309236ee1dc412905a0aa725be2ec193ca950a7d12", size = 903986, upload-time = "2026-10-06T21:33:49.917Z" },
 ]
 
 [[package]]
@@ -1445,6 +1445,19 @@ wheels = [
 ]
 
 [[package]]
+name = "jupyter-builder"
+version = "1.3.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "jupyter-core" },
+    { name = "traitlets" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/96/a4/9c21aace0287bcc19000e7b73088bfeb60a4536daeef49f51902344c25a5/jupyter_builder-1.3.0.tar.gz", hash = "sha256:dc0a3cdc27be674f29de2b4aecfdd55190fffa65199846bbdf4ceaf31a56b7d1", size = 1032676, upload-time = "2026-11-11T17:48:29.844Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/9f/b0/d5e9a3634400461388590e672ff0df07b856150ce9231d1446e0adfe42b6/jupyter_builder-1.3.0-py3-none-any.whl", hash = "sha256:87148399852377bea07ca77660e497b387c365558d187673eeacd583cfd6cf95", size = 950335, upload-time = "2026-11-11T17:48:25.603Z" },
+]
+
+[[package]]
 name = "jupyter-client"
 version = "8.10.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1568,26 +1581,26 @@ wheels = [
 
 [[package]]
 name = "jupyterlab"
-version = "4.5.11"
+version = "4.6.6"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "async-lru" },
     { name = "httpx" },
     { name = "ipykernel" },
     { name = "jinja2" },
+    { name = "jupyter-builder" },
     { name = "jupyter-core" },
     { name = "jupyter-lsp" },
     { name = "jupyter-server" },
     { name = "jupyterlab-server" },
     { name = "notebook-shim" },
     { name = "packaging" },
-    { name = "setuptools" },
     { name = "tornado" },
     { name = "traitlets" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ec/c5/2bf995b906cd83581dbb3435ac1dc5d1cb1fab9de233735a99b3f5be8d51/jupyterlab-4.5.11.tar.gz", hash = "sha256:6534bb389d31f5ceb4357b15d2c002206063b51ef9c1911a079f537749215ddc", size = 24000794, upload-time = "2026-09-21T16:19:46.398Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/51/43/490a500e421a46900c8afb0c912c1bf3c9977c85831a3815e2c2139309a9/jupyterlab-4.6.6.tar.gz", hash = "sha256:5f6fbb409158167aeefb5781d6f0b228e24b493cb6e6f1320fb5bc8897acc223", size = 28406802, upload-time = "2026-11-06T14:02:39.228Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/0f/f2/a2f50a928fed0b8529dd80c4eb7d3aebe92f9658bfb3b63dce77fb5f1b95/jupyterlab-4.5.11-py3-none-any.whl", hash = "sha256:e23e3d76b92ad172b529fb6faf91e3edd264ffdff65b543949eb85daf7f8b113", size = 12455673, upload-time = "2026-09-21T16:19:41.937Z" },
+    { url = "https://files.pythonhosted.org/packages/69/f0/842ff0c6ed2e9a4d027d32576813ef92c014f72743a3e745e0a9ce9df24b/jupyterlab-4.6.6-py3-none-any.whl", hash = "sha256:4261910ccf1ecad6e0b3ca0debe96d4fde9735bfc9707509c125aab850e06b81", size = 17334944, upload-time = "2026-11-06T14:02:30.924Z" },
 ]
 
 [[package]]
@@ -1844,19 +1857,19 @@ requires-dist = [
     { name = "django-compressor", specifier = "==4.6.0" },
     { name = "django-crispy-forms", specifier = "==2.3" },
     { name = "django-environ", specifier = "==0.12.0" },
-    { name = "django-extensions", specifier = "==3.2.3" },
+    { name = "django-extensions", specifier = "==4.1" },
     { name = "django-health-check", specifier = "==3.20.0" },
     { name = "django-htmx", specifier = "==1.21.0" },
     { name = "django-htmx-messages", specifier = "==0.1.1" },
     { name = "django-htmx-modal-forms", specifier = "==0.3.1" },
     { name = "django-libsass", specifier = "==0.9" },
     { name = "django-model-utils", specifier = "==5.0.0" },
-    { name = "django-redis", specifier = "==5.4.0" },
+    { name = "django-redis", specifier = "==7.0.0" },
     { name = "django-social-share", specifier = "==2.3.0" },
     { name = "django-storages", extras = ["s3"], specifier = "==1.14.4" },
-    { name = "django-taggit", specifier = "==6.0.0" },
+    { name = "django-taggit", specifier = "==7.0.0" },
     { name = "django-tz-detect", specifier = "==0.5.0" },
-    { name = "djangorestframework", specifier = "==3.18.2" },
+    { name = "djangorestframework", specifier = "==3.18.3" },
     { name = "gunicorn", specifier = "==23.0.0" },
     { name = "hiredis", specifier = "==3.1.0" },
     { name = "httpx", specifier = "==0.28.1" },
@@ -1884,11 +1897,11 @@ dev = [
     { name = "factory-boy", specifier = "==3.3.1" },
     { name = "ipdb", specifier = "==0.13.13" },
     { name = "jupyter", specifier = "==1.1.1" },
-    { name = "jupyterlab", specifier = "==4.5.11" },
+    { name = "jupyterlab", specifier = "==4.6.6" },
     { name = "jupyterlab-vim", specifier = "==4.1.4" },
     { name = "mypy", specifier = "==1.13.0" },
-    { name = "pre-commit", specifier = "==4.3.0" },
-    { name = "pytest", specifier = "==9.0.3" },
+    { name = "pre-commit", specifier = "==4.7.0" },
+    { name = "pytest", specifier = "==9.2.0" },
     { name = "pytest-django", specifier = "==4.9.0" },
     { name = "pytest-sugar", specifier = "==1.0.0" },
     { name = "railway-sdk", specifier = "==0.7.0" },
@@ -2013,18 +2026,19 @@ wheels = [
 
 [[package]]
 name = "notebook"
-version = "7.5.8"
+version = "7.6.5"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
+    { name = "jupyter-builder" },
     { name = "jupyter-server" },
     { name = "jupyterlab" },
     { name = "jupyterlab-server" },
     { name = "notebook-shim" },
     { name = "tornado" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/72/19/d71e2883bbe8e238a2290b15e8adc3fc223bc1b5bc5d4584c20918ff94d3/notebook-7.5.8.tar.gz", hash = "sha256:3a32579666d1c3f9725dd94c95d8d07b9cae88124c9516cc9262fa798e411e90", size = 14174934, upload-time = "2026-10-05T06:23:49.14Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/39/88/737faf4a8700326a3ee12802f79041471764699cd40b4770a6c66497738f/notebook-7.6.5.tar.gz", hash = "sha256:5e3445616fb2c590015434045f5b297566c2e09c636d1837efc62bef85892c9f", size = 5581297, upload-time = "2026-11-06T15:15:12.121Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/26/c7/45602f74bba9d3b102fe2652c0eacdd9ad288248e37fdc9b0884d24087dd/notebook-7.5.8-py3-none-any.whl", hash = "sha256:71e815b89f3f241d72407497362a851b1e0931b3505adddabdd10f0ff6840217", size = 14586628, upload-time = "2026-10-05T06:23:45.135Z" },
+    { url = "https://files.pythonhosted.org/packages/db/fe/3388224bbb7d9e68ad0325af0164d05c3ae20a8cc78d5d91c218581911d9/notebook-7.6.5-py3-none-any.whl", hash = "sha256:b27b4af6e410e7456cfffc6fb5a764dcfb7a331408907d483024d6ddb5ec05f2", size = 5629845, upload-time = "2026-11-06T15:15:09.229Z" },
 ]
 
 [[package]]
@@ -2153,7 +2167,7 @@ wheels = [
 
 [[package]]
 name = "pre-commit"
-version = "4.3.0"
+version = "4.7.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "cfgv" },
@@ -2162,9 +2176,9 @@ dependencies = [
     { name = "pyyaml" },
     { name = "virtualenv" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ff/29/7cf5bbc236333876e4b41f56e06857a87937ce4bf91e117a6991a2dbb02a/pre_commit-4.3.0.tar.gz", hash = "sha256:499fe450cc9d42e9d58e606262795ecb64dd05438943c62b66f6a8673da30b16", size = 193792, upload-time = "2025-08-09T18:56:14.651Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/3a/c3/6965c2690ddce885ec75121572d065a5b94c5a5d8d3e657927ecda9fd715/pre_commit-4.7.0.tar.gz", hash = "sha256:1f3deee12b914c8fa184bd2b5953391c2e4f36763e403d4a23dc9983fa7c6e86", size = 198120, upload-time = "2026-10-12T20:45:40.32Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/5b/a5/987a405322d78a73b66e39e4a90e4ef156fd7141bf71df987e50717c321b/pre_commit-4.3.0-py2.py3-none-any.whl", hash = "sha256:2b0747ad7e6e967169136edffee14c16e148a778a54e4f967921aa1ebf2308d8", size = 220965, upload-time = "2025-08-09T18:56:13.192Z" },
+    { url = "https://files.pythonhosted.org/packages/eb/83/ce0a196e4f7b20b11ce3aa1fc72fb973f64b7628d51c1b8aebad37fb7f81/pre_commit-4.7.0-py2.py3-none-any.whl", hash = "sha256:2e229038ad3656081b70c27913157e4b636ef306f643f024a8a8e3f0f7b2f877", size = 226261, upload-time = "2026-10-12T20:45:38.858Z" },
 ]
 
 [[package]]
@@ -2295,7 +2309,7 @@ crypto = [
 
 [[package]]
 name = "pytest"
-version = "9.0.3"
+version = "9.2.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "colorama", marker = "sys_platform == 'win32'" },
@@ -2304,9 +2318,9 @@ dependencies = [
     { name = "pluggy" },
     { name = "pygments" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/7d/0d/549bd94f1a0a402dc8cf64563a117c0f3765662e2e668477624baeec44d5/pytest-9.0.3.tar.gz", hash = "sha256:b86ada508af81d19edeb213c681b1d48246c1a91d304c6c81a427674c17eb91c", size = 1572165, upload-time = "2026-04-07T17:16:18.027Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/79/42/bb4641652e58dedeac2ec51abc1f8cae4fee4ec63899a0999016229a0f2a/pytest-9.2.0.tar.gz", hash = "sha256:97c4f3b1f3c7414aa36465e09b8220f1d03627993bd51b1282e193753c80557b", size = 1797555, upload-time = "2026-10-27T21:30:20.728Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/d4/24/a372aaf5c9b7208e7112038812994107bc65a84cd00e0354a88c2c77a617/pytest-9.0.3-py3-none-any.whl", hash = "sha256:2c5efc453d45394fdd706ade797c0a81091eccd1d6e4bccfcd476e2b8e0ab5d9", size = 375249, upload-time = "2026-04-07T17:16:16.13Z" },
+    { url = "https://files.pythonhosted.org/packages/51/39/1f5d8c8877a0fa327db959c19341d4be61660de1ab6b7391f9eb805bcd67/pytest-9.2.0-py3-none-any.whl", hash = "sha256:07acdcf88ec174f907dc01af70bf52d49b014bbab03faeeade31c96b18c2e588", size = 411776, upload-time = "2026-10-27T21:30:19.131Z" },
 ]
 
 [[package]]
@@ -2712,15 +2726,6 @@ wheels = [
 [package.optional-dependencies]
 django = [
     { name = "django" },
-]
-
-[[package]]
-name = "setuptools"
-version = "84.2.1"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/70/b3/c19426f783614d625699a4b247faf628ea9ab1db228674491767b417f9e1/setuptools-84.2.1.tar.gz", hash = "sha256:3ff8b3b5492a0aa66960f4419365a86b84e013070d4313e4d4a6894f5d64d6bc", size = 1230289, upload-time = "2026-10-20T19:01:37.742Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/ef/55/6dc6d6bb953bdfc52519a0059592c52b6e3b8ad51cf8256dffceb55b0610/setuptools-84.2.1-py3-none-any.whl", hash = "sha256:ca140b45d5325a9478f880e351484f62fef15f336462e449ca0c03c873d589c2", size = 876263, upload-time = "2026-10-20T19:01:35.678Z" },
 ]
 
 [[package]]
