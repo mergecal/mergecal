@@ -6,6 +6,7 @@
 - Calendars dedupe events by UID; cache duration varies per subscription tier.
 - `calendar_merger_service.py` merges sources; `source_processor.py` validates feeds; `fetching/fetcher.py` pulls remote ICS.
 - Cache pre-warming runs via `python manage.py prefetch_calendars` (cron), not Celery.
+- Railway settings for every service live in `.railway/railway.py`. Railway does not read it on deploy: preview with `uv run railway config plan` and apply with `uv run railway config apply` (`uv run` puts the `railway-sdk` dev dependency on the path). Static files are collected at build time because WhiteNoise serves them from the image; the pre-deploy container's filesystem is thrown away.
 - Meetup URLs handled in `meetup.py`; recursive MergeCal feeds are supported with existence checks.
 - `mergecalweb/users/` defines PERSONAL/BUSINESS/SUPPORTER tiers controlling calendar counts and feature access.
 - Branding opt-out and custom update cadence live behind Business/Supporter tiers.
