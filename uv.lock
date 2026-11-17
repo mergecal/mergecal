@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = "==3.13.*"
 
 [[package]]
@@ -945,14 +945,14 @@ wheels = [
 
 [[package]]
 name = "django-taggit"
-version = "6.0.0"
+version = "7.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "django" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/a3/c6/c89a38a956ca189a01c510ecdb1c96811565e20dd8450d3b471b8fa99fd6/django_taggit-6.0.0.tar.gz", hash = "sha256:723d98bd5c536daa3c0e1bdae0965f7005a9b15269816bb4053fafec4ebad57e", size = 67403, upload-time = "2024-07-29T21:52:08.11Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/e5/a9/40c57c5fb8fe20f9982f07d0fd85b5da9fd852324be79307f560362fea56/django_taggit-7.0.0.tar.gz", hash = "sha256:338b7af0f3417f079a2a4346da1677a1e0d4ca0aba1b04a4e12c9e3a85450a7a", size = 39112, upload-time = "2026-11-02T11:26:33.173Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/d1/50/4c1a860be57f0150caee2578eac154093aa27d42dcef41c991e20cfc8b3f/django_taggit-6.0.0-py3-none-any.whl", hash = "sha256:7094f797b7e5e3727525a0af7bc550860000ddc2248266529d568eca61b39fb1", size = 68528, upload-time = "2024-07-29T21:53:05.522Z" },
+    { url = "https://files.pythonhosted.org/packages/eb/5d/ba6dbb7dd576db6eee402bc74d1ff263812b19b06af48414dc8ca8d39c81/django_taggit-7.0.0-py3-none-any.whl", hash = "sha256:191dd89528f40a6109d1922f197885f25db3cd05b4280b6ec2a1e8e790c295b8", size = 66479, upload-time = "2026-11-02T11:26:31.849Z" },
 ]
 
 [[package]]
@@ -1853,7 +1853,7 @@ requires-dist = [
     { name = "django-redis", specifier = "==5.4.0" },
     { name = "django-social-share", specifier = "==2.3.0" },
     { name = "django-storages", extras = ["s3"], specifier = "==1.14.4" },
-    { name = "django-taggit", specifier = "==6.0.0" },
+    { name = "django-taggit", specifier = "==7.0.0" },
     { name = "django-tz-detect", specifier = "==0.5.0" },
     { name = "djangorestframework", specifier = "==3.18.2" },
     { name = "gunicorn", specifier = "==23.0.0" },

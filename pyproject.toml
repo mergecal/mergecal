@@ -30,7 +30,7 @@ dependencies = [
     "django-autoslug==1.9.9",
     "django-ckeditor==6.7.1",
     "django-tz-detect==0.5.0",
-    "django-taggit==6.0.0",
+    "django-taggit==7.0.0",
     "django-social-share==2.3.0",
     "django-htmx-modal-forms==0.3.1",
     "django-htmx-messages==0.1.1",
