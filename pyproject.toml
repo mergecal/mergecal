@@ -35,7 +35,7 @@ dependencies = [
     "django-htmx-modal-forms==0.3.1",
     "django-htmx-messages==0.1.1",
     "django-health-check==3.20.0",
-    "djangorestframework==3.18.2",
+    "djangorestframework==3.18.3",
     "stripe==10.4.0",
     "dj-stripe==2.9",
     "gunicorn==23.0.0",
@@ -54,7 +54,7 @@ dev = [
     "rich==13.5.2",
     "mypy==1.13.0",
     "django-stubs[compatible-mypy]==5.2.9",
-    "pytest==9.0.3",
+    "pytest==9.2.0",
     "pytest-sugar==1.0.0",
     "time-machine==2.16.0",
     "responses==0.26.3",
@@ -70,7 +70,7 @@ dev = [
     "pytest-django==4.9.0",
     "django-browser-reload==1.15.0",
     "jupyter==1.1.1",
-    "jupyterlab==4.5.11",
+    "jupyterlab==4.6.6",
     "jupyterlab_vim==4.1.4",
 ]
 
