@@ -5,6 +5,7 @@
   },
   "deploy": {
     "startCommand": "python manage.py migrate && python manage.py collectstatic --noinput --clear && python manage.py compress --force && gunicorn config.wsgi:application --timeout 60",
+    "healthcheckPath": "/ht/",
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10
   }
