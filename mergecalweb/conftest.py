@@ -1,10 +1,11 @@
 from collections.abc import Iterator
-from http import client as http_client
 from pathlib import Path
 from unittest.mock import MagicMock
 from unittest.mock import patch
 
 import pytest
+import responses
+from django.core.cache import cache
 from django.http import HttpRequest
 from django.test import Client
 
@@ -16,20 +17,6 @@ from mergecalweb.users.models import User
 from mergecalweb.users.tests.factories import UserFactory
 
 
-class MockResponse:
-    """Mock response for calendar requests"""
-
-    def __init__(self, text: str, status_code: int = 200) -> None:
-        self.text = text
-        self.status_code = status_code
-        self.encoding = "utf-8"
-
-    def raise_for_status(self) -> None:
-        if self.status_code >= http_client.BAD_REQUEST:  # 400
-            msg = f"HTTP Error: {self.status_code}"
-            raise ValueError(msg)
-
-
 @pytest.fixture
 def test_calendars_dir() -> Path:
     """Get the directory containing test calendar files."""
@@ -37,18 +24,28 @@ def test_calendars_dir() -> Path:
 
 
 @pytest.fixture
-def mock_calendar_request() -> Iterator[None]:
-    """Mock calendar fetch requests to use local test files."""
+def http() -> Iterator[responses.RequestsMock]:
+    """Fake HTTP server for `requests`; each registered URL must be fetched."""
+    with responses.RequestsMock() as rsps:
+        yield rsps
 
-    def mock_get(url: str, **kwargs) -> MockResponse:
-        filename = Path(url).name
-        calendar_path = (
-            Path(__file__).parent / "calendars" / "tests" / "calendars" / filename
-        )
-        return MockResponse(calendar_path.read_text(encoding="utf-8"))
 
-    with patch("requests.get", side_effect=mock_get) as _:
+@pytest.fixture
+def mock_calendar_request(test_calendars_dir: Path) -> Iterator[None]:
+    """Serve each test calendar file at http://example.com/<filename>."""
+    with responses.RequestsMock(assert_all_requests_are_fired=False) as rsps:
+        for path in test_calendars_dir.glob("*.ics"):
+            rsps.get(
+                f"http://example.com/{path.name}",
+                body=path.read_bytes(),
+                content_type="text/calendar",
+            )
         yield
+
+
+@pytest.fixture(autouse=True)
+def _clear_cache() -> None:
+    cache.clear()
 
 
 @pytest.fixture

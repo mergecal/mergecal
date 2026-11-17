@@ -1,10 +1,9 @@
 import uuid
 from pathlib import Path
-from unittest.mock import patch
 
 import pytest
+import responses
 from django.contrib.sites.models import Site
-from django.core.cache import cache
 from django.core.exceptions import ValidationError
 
 from mergecalweb.calendars.models import Calendar
@@ -157,30 +156,39 @@ class TestCalendarModel:
 
 @pytest.mark.django_db
 class TestSourceModel:
-    def test_source_creation_basic(self, calendar: Calendar) -> None:
+    def test_source_creation_basic(
+        self,
+        calendar: Calendar,
+        http: responses.RequestsMock,
+    ) -> None:
         """Test basic source creation with default values."""
-        with patch("mergecalweb.calendars.models.CalendarFetcher") as mock_fetcher:
-            mock_instance = mock_fetcher.return_value
-            mock_instance.fetch_calendar.return_value = """BEGIN:VCALENDAR
+        http.get(
+            "https://example.com/feed.ics",
+            body="""BEGIN:VCALENDAR
 VERSION:2.0
-END:VCALENDAR"""
+END:VCALENDAR""",
+        )
 
-            source = Source(
-                name="Test Source",
-                url="https://example.com/feed.ics",
-                calendar=calendar,
-            )
-            source.full_clean()
-            source.save()
+        source = Source(
+            name="Test Source",
+            url="https://example.com/feed.ics",
+            calendar=calendar,
+        )
+        source.full_clean()
+        source.save()
 
-            assert source.name == "Test Source"
-            assert source.include_title is True
-            assert source.include_description is True
-            assert source.include_location is True
-            assert source.custom_prefix == ""
-            assert source.exclude_keywords == ""
+        assert source.name == "Test Source"
+        assert source.include_title is True
+        assert source.include_description is True
+        assert source.include_location is True
+        assert source.custom_prefix == ""
+        assert source.exclude_keywords == ""
 
-    def test_source_url_validation(self, calendar: Calendar) -> None:
+    def test_source_url_validation(
+        self,
+        calendar: Calendar,
+        http: responses.RequestsMock,
+    ) -> None:
         """Test URL validation for different types of URLs."""
         site = Site.objects.get_current()
 
@@ -195,103 +203,98 @@ END:VCALENDAR"""
         local_source.full_clean()
 
         # Test valid external URL
-        with patch("mergecalweb.calendars.models.CalendarFetcher") as mock_fetcher:
-            mock_instance = mock_fetcher.return_value
-            mock_instance.fetch_calendar.return_value = """BEGIN:VCALENDAR
+        http.get(
+            "https://example.com/feed.ics",
+            body="""BEGIN:VCALENDAR
 VERSION:2.0
-END:VCALENDAR"""
+END:VCALENDAR""",
+        )
 
-            external_source = Source(
-                name="External Source",
-                url="https://example.com/feed.ics",
-                calendar=calendar,
-            )
-            external_source.full_clean()
+        external_source = Source(
+            name="External Source",
+            url="https://example.com/feed.ics",
+            calendar=calendar,
+        )
+        external_source.full_clean()
 
-    def test_source_invalid_urls(self, calendar: Calendar) -> None:
+    def test_source_invalid_urls(
+        self,
+        calendar: Calendar,
+        http: responses.RequestsMock,
+    ) -> None:
         """Test validation fails for invalid URLs."""
-        with patch("mergecalweb.calendars.models.CalendarFetcher") as mock_fetcher:
-            mock_instance = mock_fetcher.return_value
-            mock_instance.fetch_calendar.side_effect = ValueError("Invalid iCal")
+        http.get("https://example.com/not-ical.ics", body="not a calendar")
 
-            source = Source(
-                name="Invalid Source",
-                url="https://example.com/not-ical.ics",
-                calendar=calendar,
-            )
-            with pytest.raises(ValidationError):
-                source.full_clean()
+        source = Source(
+            name="Invalid Source",
+            url="https://example.com/not-ical.ics",
+            calendar=calendar,
+        )
+        with pytest.raises(ValidationError):
+            source.full_clean()
 
     def test_source_url_validation_does_not_read_a_file_named_by_the_feed(
         self,
         calendar: Calendar,
+        http: responses.RequestsMock,
         tmp_path: Path,
     ) -> None:
         local_file = tmp_path / "secret.txt"
         local_file.write_text("SECRET=hunter2\n")
 
-        with patch("mergecalweb.calendars.models.CalendarFetcher") as mock_fetcher:
-            mock_instance = mock_fetcher.return_value
-            mock_instance.fetch_calendar.return_value = str(local_file)
+        http.get("https://example.com/feed.ics", body=str(local_file))
 
-            source = Source(
-                name="Malicious Source",
-                url="https://example.com/feed.ics",
-                calendar=calendar,
-            )
-            with pytest.raises(ValidationError) as excinfo:
-                source.full_clean()
+        source = Source(
+            name="Malicious Source",
+            url="https://example.com/feed.ics",
+            calendar=calendar,
+        )
+        with pytest.raises(ValidationError) as excinfo:
+            source.full_clean()
 
         assert "hunter2" not in str(excinfo.value)
 
     def test_source_url_validation_accepts_invalid_calendar_header(
         self,
         calendar: Calendar,
+        http: responses.RequestsMock,
     ) -> None:
-        with patch("mergecalweb.calendars.models.CalendarFetcher") as mock_fetcher:
-            mock_instance = mock_fetcher.return_value
-            mock_instance.fetch_calendar.return_value = """BEGIN:VCALENDAR
+        http.get(
+            "https://example.com/feed.ics",
+            body="""BEGIN:VCALENDAR
 VERSION:2.0
 REFRESH-INTERVAL:P1H
-END:VCALENDAR"""
+END:VCALENDAR""",
+        )
 
-            source = Source(
-                name="Source With Invalid Header",
-                url="https://example.com/feed.ics",
-                calendar=calendar,
-            )
-            source.full_clean()
+        source = Source(
+            name="Source With Invalid Header",
+            url="https://example.com/feed.ics",
+            calendar=calendar,
+        )
+        source.full_clean()
 
     def test_source_url_validation_accepts_lone_cr_line_endings(
         self,
         calendar: Calendar,
+        http: responses.RequestsMock,
+        test_calendars_dir: Path,
     ) -> None:
         """TeamSnap ONE separates the last line with a lone CR instead of CRLF."""
-        cache.clear()
-        with patch("requests.get") as mock_get:
-            mock_get.return_value.text = (
-                "BEGIN:VCALENDAR\n"
-                "VERSION:2.0\n"
-                "CALSCALE:GREGORIAN\n"
-                "PRODID:-//TeamSnap//TeamSnap Calendar//EN\n"
-                "BEGIN:VEVENT\r\n"
-                "UID:event-1@example.com\r\n"
-                "SUMMARY:Practice\r\n"
-                "DTSTAMP:20300101T120000Z\r\n"
-                "DTSTART:20300107T220000Z\r\n"
-                "DURATION:PT1H30M\r\n"
-                "END:VEVENT\r"
-                "END:VCALENDAR"
-            )
+        feed = (test_calendars_dir / "teamsnap_one.ics").read_bytes()
+        http.get("https://example.com/feed.ics", body=feed)
 
-            source = Source(
-                name="Team Practice",
-                url="https://example.com/feed.ics",
-                calendar=calendar,
-            )
-            source.full_clean()
+        source = Source(
+            name="Team Practice",
+            url="https://example.com/feed.ics",
+            calendar=calendar,
+        )
+        source.full_clean()
 
-    def test_source_customization_permissions(self) -> None:
+    def test_source_customization_permissions(
+        self,
+        http: responses.RequestsMock,
+    ) -> None:
         """Test source customization based on subscription tier."""
         # Create users and calendars
         free_user = User.objects.create(
@@ -311,37 +314,38 @@ END:VCALENDAR"""
             owner=business_user,
         )
 
-        with patch("mergecalweb.calendars.models.CalendarFetcher") as mock_fetcher:
-            mock_instance = mock_fetcher.return_value
-            mock_instance.fetch_calendar.return_value = """BEGIN:VCALENDAR
+        http.get(
+            "https://example.com/feed.ics",
+            body="""BEGIN:VCALENDAR
 VERSION:2.0
-END:VCALENDAR"""
+END:VCALENDAR""",
+        )
 
-            # Free tier cannot customize sources
-            free_source = Source(
-                name="Free Source",
-                url="https://example.com/feed.ics",
-                calendar=free_cal,
-                include_title=False,
-                custom_prefix="[Test]",
-            )
-            with pytest.raises(ValidationError):
-                free_source.full_clean()
+        # Free tier cannot customize sources
+        free_source = Source(
+            name="Free Source",
+            url="https://example.com/feed.ics",
+            calendar=free_cal,
+            include_title=False,
+            custom_prefix="[Test]",
+        )
+        with pytest.raises(ValidationError):
+            free_source.full_clean()
 
-            # Business tier can customize sources
-            business_source = Source(
-                name="Business Source",
-                url="https://example.com/feed.ics",
-                calendar=business_cal,
-                include_title=False,
-                include_description=False,
-                include_location=False,
-                custom_prefix="[Test]",
-                exclude_keywords="keyword1,keyword2",
-            )
-            business_source.full_clean()
-            business_source.save()
+        # Business tier can customize sources
+        business_source = Source(
+            name="Business Source",
+            url="https://example.com/feed.ics",
+            calendar=business_cal,
+            include_title=False,
+            include_description=False,
+            include_location=False,
+            custom_prefix="[Test]",
+            exclude_keywords="keyword1,keyword2",
+        )
+        business_source.full_clean()
+        business_source.save()
 
-            assert not business_source.include_title
-            assert not business_source.include_description
-            assert business_source.custom_prefix == "[Test]"
+        assert not business_source.include_title
+        assert not business_source.include_description
+        assert business_source.custom_prefix == "[Test]"

@@ -69,7 +69,10 @@
 
 ### Testing
 - Unit tests call functions directly and avoid mocking, especially for a function that does one thing.
-- When a function calls an external API, fake it at the HTTP layer so the real client runs: `responses` for `requests`, `respx` for `httpx`. Neither is installed yet, so add the one you need to `requirements/local.txt` with its first use.
+- When a function calls an external API, fake it at the HTTP layer so the real client runs: `responses` for `requests`, `respx` for `httpx`. Use the `http` fixture in `mergecalweb/conftest.py`; it fails the test if a registered URL is never fetched. `respx` isn't installed yet, so add it to `requirements/local.txt` with its first use.
+- Use cheap real collaborators instead of patching them: the test cache (cleared before every test) and `time_machine` for the clock.
+- Assert on outcomes (return values, stored state, requests sent), not on which internal methods were called.
+- Feed fixtures in `mergecalweb/calendars/tests/calendars/` are stored byte for byte because line endings are under test. Load them with `read_bytes()`, and don't save them with a tool that rewrites line endings or trailing newlines.
 - Integration tests exercise an interface (the test client for views and webhooks, `call_command` for commands). Mocking the service behind it is fine; the test checks wiring, status codes and output.
 
 ## Planning Work

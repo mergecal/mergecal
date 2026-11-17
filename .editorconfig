@@ -16,6 +16,11 @@ indent_size = 4
 indent_style = space
 indent_size = 2
 
+[*.ics]
+end_of_line = unset
+insert_final_newline = unset
+trim_trailing_whitespace = unset
+
 [*.md]
 trim_trailing_whitespace = false
 
