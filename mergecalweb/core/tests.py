@@ -4,6 +4,7 @@ import datetime
 
 import pytest
 from django.core import mail
+from django.urls import reverse
 from django.utils import timezone
 
 from mergecalweb.billing.emails import downgrade_subscription_email
@@ -149,3 +150,30 @@ class TestEmailSystem:
         # Check logo image is present
         assert "favicon-no-boarder.png" in html_content
         assert 'alt="MergeCal"' in html_content
+
+
+@pytest.mark.django_db
+class TestNavbarLinks:
+    def test_official_host_links_stay_relative(self, client, settings):
+        settings.DEBUG = False
+        settings.ALLOWED_HOSTS = ["mergecal.org"]
+
+        response = client.get(reverse("about"), HTTP_HOST="mergecal.org")
+
+        assert 'href="/pricing/"' in response.content.decode()
+
+    def test_other_host_links_to_mergecal(self, client, settings):
+        settings.DEBUG = False
+        settings.ALLOWED_HOSTS = ["calendars.example.com"]
+
+        response = client.get(reverse("about"), HTTP_HOST="calendars.example.com")
+
+        assert 'href="https://mergecal.org/pricing/"' in response.content.decode()
+
+    def test_debug_links_stay_relative(self, client, settings):
+        settings.DEBUG = True
+        settings.ALLOWED_HOSTS = ["localhost"]
+
+        response = client.get(reverse("about"), HTTP_HOST="localhost")
+
+        assert 'href="/pricing/"' in response.content.decode()
