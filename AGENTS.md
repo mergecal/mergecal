@@ -1,5 +1,5 @@
 # Agent Handbook
-- Claude Code web sessions are provisioned by `.claude/hooks/session-start.sh`. Redis/Celery aren't needed for tests. Run tools as `python -m pytest` and `python -m mypy` there, because the binaries on PATH may not see the project's dependencies.
+- Claude Code web sessions are provisioned by `.claude/hooks/session-start.sh`. Redis/Celery aren't needed for tests. Run tools through `uv run` there (`uv run pytest`, `uv run mypy ...`).
 - MergeCal merges iCal feeds; Django 5.2, Postgres, Redis, Celery. Frontend is Django templates with Bootstrap 5 and crispy forms.
 - Never fetch calendar URLs (mergecal.org/calendars/*, source ICS feeds, any user-shared ICS link), even ones that look public: they contain private user data. If you need to inspect ICS content, ask for a sanitized excerpt.
 - Core app `mergecalweb/calendars/`: `models.py` enforces tier limits; `services/` orchestrate merging.
@@ -12,7 +12,7 @@
 - Billing app integrates Stripe via dj-stripe; blog/core provide marketing content and shared utilities.
 - Settings live in `config/settings/`; Celery setup in `config/celery_app.py`; URLs in `config/urls.py`.
 - Periodic tasks are django-celery-beat rows in the DB (DatabaseScheduler), not defined in code.
-- Install deps: `pip install -r requirements/local.txt`.
+- Dependencies are managed with uv: `pyproject.toml` lists them and `uv.lock` pins the full tree. Install with `uv sync`; add with `uv add <pkg>` (runtime) or `uv add --dev <pkg>` (dev only). Prefix commands with `uv run` or activate `.venv`.
 - Prep DB: `python manage.py migrate`; create admin via `python manage.py createsuperuser` when needed.
 - Run dev server: `python manage.py runserver`.
 - Celery worker: `celery -A config.celery_app worker -l info`.
@@ -52,7 +52,7 @@
 - Use signals sparingly and document them well.
 
 ## Python Conventions
-- New plain data classes use `attrs` (`@attrs.frozen` / `@attrs.define`), not `dataclasses`. Leave existing dataclasses alone. `attrs` isn't a direct dependency yet, so add it to `requirements/base.txt` with its first use.
+- New plain data classes use `attrs` (`@attrs.frozen` / `@attrs.define`), not `dataclasses`. Leave existing dataclasses alone. `attrs` isn't a direct dependency yet, so add it with `uv add attrs` with its first use.
 - New models extend `mergecalweb.core.models.TimeStampedModel`.
 
 ### Interfaces and services
@@ -69,7 +69,7 @@
 
 ### Testing
 - Unit tests call functions directly and avoid mocking, especially for a function that does one thing.
-- When a function calls an external API, fake it at the HTTP layer so the real client runs: `responses` for `requests`, `respx` for `httpx`. Use the `http` fixture in `mergecalweb/conftest.py`; it fails the test if a registered URL is never fetched. `respx` isn't installed yet, so add it to `requirements/local.txt` with its first use.
+- When a function calls an external API, fake it at the HTTP layer so the real client runs: `responses` for `requests`, `respx` for `httpx`. Use the `http` fixture in `mergecalweb/conftest.py`; it fails the test if a registered URL is never fetched. `respx` isn't installed yet, so add it with `uv add --dev respx` with its first use.
 - Use cheap real collaborators instead of patching them: the test cache (cleared before every test) and `time_machine` for the clock.
 - Assert on outcomes (return values, stored state, requests sent), not on which internal methods were called.
 - Feed fixtures in `mergecalweb/calendars/tests/calendars/` are stored byte for byte because line endings are under test. Load them with `read_bytes()`, and don't save them with a tool that rewrites line endings or trailing newlines.

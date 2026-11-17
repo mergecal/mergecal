@@ -58,28 +58,19 @@ jobs:
       - name: Checkout Code Repository
         uses: actions/checkout@v6
 
-      - uses: actions/cache@v5
-        id: cache-uv
-        with:
-          path: ~/.cache/uv
-          key: ${{ runner.os }}-python-${{ matrix.python-version }}-uv
-
-      - name: Set up Python
-        uses: actions/setup-python@v6
-        with:
-          python-version-file: '.python-version'
-
       - name: Set up uv
         uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
 
       - name: Install Dependencies
-        run: uv pip install --system -r requirements/local.txt
+        run: uv sync --frozen
 
       - name: Check DB Migrations
-        run: python manage.py makemigrations --check --settings=config.settings.test
+        run: uv run python manage.py makemigrations --check --settings=config.settings.test
 
       - name: Run DB Migrations
-        run: python manage.py migrate --settings=config.settings.test
+        run: uv run python manage.py migrate --settings=config.settings.test
 
       - name: Test with pytest
-        run: pytest
+        run: uv run pytest
