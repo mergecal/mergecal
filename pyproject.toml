@@ -66,9 +66,6 @@ dev = [
     "django-coverage-plugin==3.1.0",
     "pytest-django==4.9.0",
     "django-browser-reload==1.15.0",
-    "jupyter==1.1.1",
-    "jupyterlab==4.6.6",
-    "jupyterlab_vim==4.1.4",
     "railway-sdk==0.7.0",
 ]
 
