@@ -1817,6 +1817,7 @@ dev = [
     { name = "pytest" },
     { name = "pytest-django" },
     { name = "pytest-sugar" },
+    { name = "railway-sdk" },
     { name = "responses" },
     { name = "rich" },
     { name = "ruff" },
@@ -1890,6 +1891,7 @@ dev = [
     { name = "pytest", specifier = "==9.0.3" },
     { name = "pytest-django", specifier = "==4.9.0" },
     { name = "pytest-sugar", specifier = "==1.0.0" },
+    { name = "railway-sdk", specifier = "==0.7.0" },
     { name = "responses", specifier = "==0.26.3" },
     { name = "rich", specifier = "==13.5.2" },
     { name = "ruff", specifier = "==0.14.3" },
@@ -2458,6 +2460,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/8f/b2/7fc2931bfae0af02d5f53b174e9cf701adbb35f39d69c2af63d4a39f81a9/qrcode-8.2.tar.gz", hash = "sha256:35c3f2a4172b33136ab9f6b3ef1c00260dd2f66f858f24d88418a015f446506c", size = 43317, upload-time = "2025-05-01T15:44:24.726Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/dd/b8/d2d6d731733f51684bbf76bf34dab3b70a9148e8f2cef2bb544fccec681a/qrcode-8.2-py3-none-any.whl", hash = "sha256:16e64e0716c14960108e85d853062c9e8bba5ca8252c0b4d0231b9df4060ff4f", size = 45986, upload-time = "2025-05-01T15:44:22.781Z" },
+]
+
+[[package]]
+name = "railway-sdk"
+version = "0.7.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/93/a7/67013a27af3bdf33226ef15dad55dbd16561db9255b8238c59649ff0882e/railway_sdk-0.7.0.tar.gz", hash = "sha256:b5687d5936494e5a62ae7feaba20462fd261dd66cee07b4c234cdd6b2c78b5e0", size = 19961, upload-time = "2026-10-14T09:54:44.839Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/37/b7/dc3ba9c904d165e8b6c4bdfd8a4285b4f4711955030d4b893b1f051a4071/railway_sdk-0.7.0-py3-none-any.whl", hash = "sha256:2cabab22864dd36ea4538a5d14bc6c41f871cbfd05344182ec1a8a98b836b06c", size = 13386, upload-time = "2026-10-14T09:54:43.642Z" },
 ]
 
 [[package]]

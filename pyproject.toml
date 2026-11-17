@@ -72,6 +72,7 @@ dev = [
     "jupyter==1.1.1",
     "jupyterlab==4.5.11",
     "jupyterlab_vim==4.1.4",
+    "railway-sdk==0.7.0",
 ]
 
 # ==== pytest ====
@@ -198,6 +199,9 @@ ignore = [
   "RUF012", # Mutable class attributes should be annotated with `typing.ClassVar`
   "SIM102", # sometimes it's better to nest
 ]
+
+[tool.ruff.lint.per-file-ignores]
+".railway/railway.py" = ["INP001", "E501"]
 
 [tool.ruff.lint.isort]
 force-single-line = true
