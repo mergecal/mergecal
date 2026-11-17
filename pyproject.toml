@@ -18,7 +18,7 @@ dependencies = [
     "django-environ==0.12.0",
     "django-allauth[mfa,socialaccount]==65.14.1",
     "django-crispy-forms==2.3",
-    "crispy-bootstrap5==2025.6",
+    "crispy-bootstrap5==2026.9",
     "django-compressor==4.6.0",
     "django-redis==7.0.0",
     "django-extensions==4.1",
