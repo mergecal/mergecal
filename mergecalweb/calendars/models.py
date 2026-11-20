@@ -11,9 +11,10 @@ from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from icalendar import Calendar as Ical
-from requests.exceptions import RequestException
 
+from mergecalweb.calendars.fetch_error_messages import describe_fetch_error
 from mergecalweb.calendars.fetching import CalendarFetcher
+from mergecalweb.calendars.fetching.fetcher import SourceFetchError
 from mergecalweb.core.constants import SourceLimits
 from mergecalweb.core.logging_events import LogEvent
 from mergecalweb.core.models import TimeStampedModel
@@ -101,8 +102,8 @@ def validate_ical_url(url):
                 "url": url,
             },
         )
-    except RequestException as err:
-        msg = f"Enter a valid URL. Details: {err}"
+    except SourceFetchError as err:
+        msg = f"Enter a valid URL. {describe_fetch_error(err)}"
         logger.exception(
             "iCal URL validation failed (network error)",
             extra={

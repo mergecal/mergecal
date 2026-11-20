@@ -2,9 +2,12 @@ import logging
 import re
 import time
 from datetime import timedelta
+from http import HTTPStatus
 from urllib.parse import urlparse
 
+import attrs
 import requests
+import urllib3
 from django.core.cache import cache
 
 from mergecalweb.calendars.cache import source_data_cache_key
@@ -22,6 +25,28 @@ CACHE_TUPLE_LENGTH = 2  # Expected length of (content, timestamp) cache tuple
 # content lines on \r?\n only, so a lone CR hides the END that closes a
 # component and the whole calendar parses to nothing.
 LINE_ENDING_RE = re.compile(r"\r\n|\r|\n")
+
+
+class SourceFetchError(Exception):
+    """Raised when a source's calendar URL could not be fetched."""
+
+
+class SourceTimeoutError(SourceFetchError):
+    """Raised when the calendar server did not answer in time."""
+
+
+@attrs.define
+class SourceUnavailableError(SourceFetchError):
+    """Raised when the calendar server failed on its side; a later retry may work."""
+
+    status_code: int | None = None
+
+
+@attrs.define
+class BrokenSourceUrlError(SourceFetchError):
+    """Raised when the URL can't work as given; it fails until the owner fixes it."""
+
+    status_code: int | None = None
 
 
 class CalendarFetcher:
@@ -43,7 +68,7 @@ class CalendarFetcher:
             Calendar data as string
 
         Raises:
-            requests.RequestException: If fetch fails and no stale cache available
+            SourceFetchError: If fetch fails and no stale cache available
         """
         cache_key = source_data_cache_key(url)
         cached_data = cache.get(cache_key)
@@ -90,16 +115,18 @@ class CalendarFetcher:
                 try:
                     fresh_content = self._fetch_from_remote(url, timeout)
                     self._cache_content(cache_key, fresh_content)
-                except requests.RequestException as e:
-                    # Network/timeout error - fall back to stale cached content
+                except SourceFetchError as e:
                     logger.info(
                         "Calendar fetch failed, using stale cache",
                         extra={
                             "event": LogEvent.CALENDAR_FETCH,
                             "status": "fetch-failed-using-stale",
                             "url": url[:200],
-                            "error": str(e),
                             "error_type": type(e).__name__,
+                            "cause_type": type(e.__cause__).__name__
+                            if e.__cause__
+                            else None,
+                            "status_code": getattr(e, "status_code", None),
                             "age_seconds": round(age_seconds, 2),
                             "size_bytes": len(content),
                         },
@@ -147,7 +174,9 @@ class CalendarFetcher:
             Calendar data as string
 
         Raises:
-            requests.RequestException: If fetch fails
+            SourceTimeoutError: If the server does not answer in time
+            SourceUnavailableError: If the server can't be reached or fails
+            BrokenSourceUrlError: If the URL is malformed or the server rejects it
         """
         start_time = time.time()
 
@@ -185,12 +214,7 @@ class CalendarFetcher:
 
         effective_timeout = timeout if timeout is not None else DEFAULT_TIMEOUT
 
-        response = requests.get(
-            url,
-            headers=headers,
-            timeout=effective_timeout,
-        )
-        response.raise_for_status()
+        response = _request_calendar(url, headers, effective_timeout)
         response.encoding = "utf-8"
         calendar_data = LINE_ENDING_RE.sub("\r\n", response.text)
         if calendar_data != response.text:
@@ -240,3 +264,38 @@ class CalendarFetcher:
                 "size_bytes": len(content),
             },
         )
+
+
+def _request_calendar(
+    url: str,
+    headers: dict[str, str],
+    timeout: int,
+) -> requests.Response:
+    try:
+        response = requests.get(
+            url,
+            headers=headers,
+            timeout=timeout,
+        )
+    except requests.Timeout as e:
+        raise SourceTimeoutError from e
+    except (
+        requests.exceptions.InvalidURL,
+        requests.exceptions.InvalidSchema,
+        requests.exceptions.MissingSchema,
+        requests.TooManyRedirects,
+    ) as e:
+        raise BrokenSourceUrlError from e
+    except (requests.RequestException, urllib3.exceptions.HTTPError) as e:
+        raise SourceUnavailableError from e
+
+    status = response.status_code
+    if status >= HTTPStatus.INTERNAL_SERVER_ERROR or status in (
+        HTTPStatus.REQUEST_TIMEOUT,
+        HTTPStatus.TOO_EARLY,
+        HTTPStatus.TOO_MANY_REQUESTS,
+    ):
+        raise SourceUnavailableError(status_code=status)
+    if status >= HTTPStatus.BAD_REQUEST:
+        raise BrokenSourceUrlError(status_code=status)
+    return response

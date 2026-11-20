@@ -79,3 +79,20 @@ def test_body_that_is_not_a_calendar_is_still_an_error(
 
     assert processor.source_data.ical is None
     assert processor.source_data.error is not None
+
+
+@pytest.mark.django_db
+def test_rejected_url_error_names_the_status_code(
+    http: responses.RequestsMock,
+) -> None:
+    source = SourceFactory(url="http://example.com/feed.ics")
+    processor = SourceProcessor(source)
+
+    http.get(source.url, status=404)
+
+    processor.fetch_and_validate()
+
+    assert processor.source_data.ical is None
+    assert processor.source_data.error == (
+        "The calendar URL returned HTTP 404. Check that it is correct and still shared."
+    )

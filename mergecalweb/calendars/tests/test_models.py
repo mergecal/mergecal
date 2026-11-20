@@ -254,6 +254,26 @@ END:VCALENDAR""",
 
         assert "hunter2" not in str(excinfo.value)
 
+    def test_source_url_validation_names_the_rejected_status(
+        self,
+        calendar: Calendar,
+        http: responses.RequestsMock,
+    ) -> None:
+        http.get("https://example.com/feed.ics", status=404)
+
+        source = Source(
+            name="Gone Source",
+            url="https://example.com/feed.ics",
+            calendar=calendar,
+        )
+        with pytest.raises(ValidationError) as excinfo:
+            source.full_clean()
+
+        assert excinfo.value.message_dict["url"] == [
+            "Enter a valid URL. The calendar URL returned HTTP 404. "
+            "Check that it is correct and still shared.",
+        ]
+
     def test_source_url_validation_accepts_invalid_calendar_header(
         self,
         calendar: Calendar,

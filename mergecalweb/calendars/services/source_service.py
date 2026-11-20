@@ -2,10 +2,9 @@
 import logging
 
 from icalendar import Calendar as ICalendar
-from requests.exceptions import RequestException
-from urllib3.exceptions import HTTPError
 
 from mergecalweb.calendars.exceptions import CalendarValidationError
+from mergecalweb.calendars.fetching.fetcher import SourceFetchError
 from mergecalweb.calendars.meetup import fetch_and_create_meetup_calendar
 from mergecalweb.calendars.meetup import is_meetup_url
 from mergecalweb.calendars.models import Calendar
@@ -125,8 +124,11 @@ class SourceService:
                     )
                     ical = processor._validate_calendar_components(calendar_data)
                     processor.source_data.ical = ical
-                except (RequestException, HTTPError, CalendarValidationError) as e:
-                    logger.debug("using api to fetch meetup calendar: %s", e)
+                except (SourceFetchError, CalendarValidationError) as e:
+                    logger.debug(
+                        "using api to fetch meetup calendar: %s",
+                        type(e.__cause__ or e).__name__,
+                    )
                     self._process_meetup_source(processor.source_data)
 
             else:
