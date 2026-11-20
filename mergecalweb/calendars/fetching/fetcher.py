@@ -43,6 +43,13 @@ class SourceUnavailableError(SourceFetchError):
 
 
 @attrs.define
+class SourceAccessDeniedError(SourceFetchError):
+    """Raised when the server refuses access, usually because it was unshared."""
+
+    status_code: int
+
+
+@attrs.define
 class BrokenSourceUrlError(SourceFetchError):
     """Raised when the URL can't work as given; it fails until the owner fixes it."""
 
@@ -176,6 +183,7 @@ class CalendarFetcher:
         Raises:
             SourceTimeoutError: If the server does not answer in time
             SourceUnavailableError: If the server can't be reached or fails
+            SourceAccessDeniedError: If the server refuses access
             BrokenSourceUrlError: If the URL is malformed or the server rejects it
         """
         start_time = time.time()
@@ -296,6 +304,8 @@ def _request_calendar(
         HTTPStatus.TOO_MANY_REQUESTS,
     ):
         raise SourceUnavailableError(status_code=status)
+    if status in (HTTPStatus.UNAUTHORIZED, HTTPStatus.FORBIDDEN):
+        raise SourceAccessDeniedError(status_code=status)
     if status >= HTTPStatus.BAD_REQUEST:
         raise BrokenSourceUrlError(status_code=status)
     return response

@@ -13,6 +13,7 @@ from mergecalweb.calendars.fetching.fetcher import CACHE_TIMEOUT
 from mergecalweb.calendars.fetching.fetcher import MAX_STALE_AGE
 from mergecalweb.calendars.fetching.fetcher import BrokenSourceUrlError
 from mergecalweb.calendars.fetching.fetcher import CalendarFetcher
+from mergecalweb.calendars.fetching.fetcher import SourceAccessDeniedError
 from mergecalweb.calendars.fetching.fetcher import SourceTimeoutError
 from mergecalweb.calendars.fetching.fetcher import SourceUnavailableError
 
@@ -136,11 +137,20 @@ class TestCalendarFetcher:
         with pytest.raises(SourceTimeoutError):
             fetcher.fetch_calendar(URL)
 
-    @pytest.mark.parametrize("status", [400, 401, 403, 404, 410])
+    @pytest.mark.parametrize("status", [400, 404, 410])
     def test_rejected_url_is_broken(self, fetcher, http, status):
         http.get(URL, status=status)
 
         with pytest.raises(BrokenSourceUrlError) as excinfo:
+            fetcher.fetch_calendar(URL)
+
+        assert excinfo.value.status_code == status
+
+    @pytest.mark.parametrize("status", [401, 403])
+    def test_refused_access_is_denied(self, fetcher, http, status):
+        http.get(URL, status=status)
+
+        with pytest.raises(SourceAccessDeniedError) as excinfo:
             fetcher.fetch_calendar(URL)
 
         assert excinfo.value.status_code == status

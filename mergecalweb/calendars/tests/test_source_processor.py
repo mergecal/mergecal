@@ -96,3 +96,20 @@ def test_rejected_url_error_names_the_status_code(
     assert processor.source_data.error == (
         "The calendar URL returned HTTP 404. Check that it is correct and still shared."
     )
+
+
+@pytest.mark.django_db
+def test_refused_access_error_does_not_blame_the_url(
+    http: responses.RequestsMock,
+) -> None:
+    source = SourceFactory(url="http://example.com/feed.ics")
+    processor = SourceProcessor(source)
+
+    http.get(source.url, status=403)
+
+    processor.fetch_and_validate()
+
+    assert processor.source_data.error == (
+        "The calendar server refused access (HTTP 403). The calendar may no "
+        "longer be shared, or the server may be blocking automated requests."
+    )
