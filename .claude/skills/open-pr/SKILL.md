@@ -11,10 +11,10 @@ MergeCal is open source. Every PR is public.
    `gh pr create --body` does not apply the template on its own.
 3. **Description:** tell a short story about why: the problem, who hit it,
    and why this fix. Don't list what changed; the diff shows that.
-4. **Privacy:** never include real data. No user names, emails, calendar
-   names, URLs or UUIDs, event contents, Sentry or log excerpts with user
-   details, or business details. Say "users", never "customers". If an
-   example is needed, make one up or anonymize it.
+4. **Privacy:** follow the public-history rule in AGENTS.md (no user data,
+   no production numbers, no providers users connect). Before creating the
+   PR, re-read the body and every commit message on the branch for numbers,
+   IDs and provider names, and rewrite them in words.
 5. **AI disclosure:** end the body with this, using your tool and model.
    Leave "Reviewed by:" blank; only the human reviewer fills it in.
 
