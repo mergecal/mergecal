@@ -67,6 +67,7 @@
 - Wrap third-party errors in our own exception types, named so the caller knows how to act: `UnsupportedSourceError`, not a re-raised `requests` exception.
 - An exception's name should be enough for the caller to act on, so don't pass message strings.
 - If the caller needs data from the error, make the exception an attrs class with typed fields.
+- Define an exception in the module that raises it, not in a shared `exceptions.py`. Callers import it from there.
 
 ### Testing
 - Unit tests call functions directly and avoid mocking, especially for a function that does one thing.
