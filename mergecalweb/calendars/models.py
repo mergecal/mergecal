@@ -103,7 +103,7 @@ def validate_ical_url(url):
             },
         )
     except SourceFetchError as err:
-        msg = f"Enter a valid URL. {describe_fetch_error(err)}"
+        msg = describe_fetch_error(err)
         logger.warning(
             "iCal URL validation failed (fetch error)",
             extra={

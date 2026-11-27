@@ -254,12 +254,25 @@ END:VCALENDAR""",
 
         assert "hunter2" not in str(excinfo.value)
 
-    def test_source_url_validation_names_the_rejected_status(
+    @pytest.mark.parametrize(
+        ("status", "message"),
+        [
+            (
+                404,
+                "The calendar URL returned HTTP 404. "
+                "Check that it is correct and still shared.",
+            ),
+            (503, "The calendar server returned HTTP 503. Try again soon."),
+        ],
+    )
+    def test_source_url_validation_names_the_fetch_failure(
         self,
         calendar: Calendar,
         http: responses.RequestsMock,
+        status: int,
+        message: str,
     ) -> None:
-        http.get("https://example.com/feed.ics", status=404)
+        http.get("https://example.com/feed.ics", status=status)
 
         source = Source(
             name="Gone Source",
@@ -269,10 +282,7 @@ END:VCALENDAR""",
         with pytest.raises(ValidationError) as excinfo:
             source.full_clean()
 
-        assert excinfo.value.message_dict["url"] == [
-            "Enter a valid URL. The calendar URL returned HTTP 404. "
-            "Check that it is correct and still shared.",
-        ]
+        assert excinfo.value.message_dict["url"] == [message]
 
     def test_source_url_validation_accepts_invalid_calendar_header(
         self,
