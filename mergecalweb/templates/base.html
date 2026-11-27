@@ -39,6 +39,10 @@
     <meta name="keywords"
           content="{% block meta_keywords %}calendar, ics, ical, ical merger, ical sync, calendar merger, combine calendars, Google Calendar integration, Apple Calendar sync, Microsoft Outlook calendar, iCal feeds, ICS combination, calendar synchronization, unified calendar feed, multiple calendar management, calendar consolidation, professional calendar tool{% endblock meta_keywords %}" />
     <link rel="icon" href="{% static 'images/favicons/favicon.ico' %}" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Space+Grotesk:wght@300..700&display=swap" />
     {% block css %}
       <link rel="stylesheet"
             href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css"
@@ -47,7 +51,6 @@
             referrerpolicy="no-referrer" />
       {% compress css %}
         <!-- This file stores project-specific CSS -->
-        <link href="{% static 'css/bootstrap.css' %}" rel="stylesheet" />
         <link href="{% static 'css/project.css' %}" rel="stylesheet" />
         <link rel="stylesheet"
               type="text/x-scss"
@@ -112,23 +115,13 @@
         <script defer src="{% static 'js/bootstrap.bundle.js' %}"></script>
         <script defer src="{% static 'js/htmx.min.js' %}"></script>
         {% django_htmx_script %}
-        <script defer src="{% static 'js/ical.es5.min.js' %}"></script>
-        <script defer src="{% static 'js/ical.timezones.js' %}"></script>
-        <script defer src="{% static 'js/purify.min.js' %}"></script>
-        <script defer src="{% static 'js/luxon.min.js' %}"></script>
-        <script defer
-                src="{% static 'js/fullcalendar-scheduler-6.1.15/dist/index.global.min.js' %}"></script>
-        <script defer
-                src="{% static 'js/fullcalendar-6.1.15/packages/icalendar/index.global.min.js' %}"></script>
-        <script defer
-                src="{% static 'js/fullcalendar-6.1.15/packages/bootstrap5/index.global.min.js' %}"></script>
-        <script defer
-                src="{% static 'js/fullcalendar-6.1.15/packages/luxon3/index.global.min.js' %}"></script>
         <script defer src="{% static 'js/project.js' %}"></script>
         <script defer src="{% static 'js/theme-toggler.js' %}"></script>
         <script defer src="{% static 'toasts.js' %}"></script>
         {% htmx_modal_script %}
       {% endcompress %}
+      {% block page_javascript %}
+      {% endblock page_javascript %}
     {% endblock javascript %}
   </head>
   <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
