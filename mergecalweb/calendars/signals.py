@@ -1,9 +1,11 @@
 import logging
 
+from django.core.cache import cache
 from django.db.models.signals import post_delete
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
+from mergecalweb.calendars.cache import calendar_output_cache_key
 from mergecalweb.calendars.cache import invalidate_calendar_cache
 from mergecalweb.calendars.models import Calendar
 from mergecalweb.calendars.models import Source
@@ -57,7 +59,9 @@ def clear_calendar_cache_on_source(sender, instance, **kwargs):
             "email": calendar.owner.email,
         },
     )
-    invalidate_calendar_cache(calendar)
+    # Only the merged output depends on a source's settings. The fetched feed
+    # is keyed by URL, and validating a new URL has just cached it.
+    cache.delete(calendar_output_cache_key(calendar.uuid))
 
 
 @receiver(post_save, sender=Calendar)
