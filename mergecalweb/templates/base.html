@@ -77,9 +77,9 @@
           // Set user context using Django template variables
           {% if request.user.is_authenticated %}
           Sentry.setUser({
-            id: "{{ request.user.id }}",
-            name: "{{ request.user.name }}",
-            email: "{{ request.user.email }}",
+            id: "{{ request.user.id|escapejs }}",
+            name: "{{ request.user.name|escapejs }}",
+            email: "{{ request.user.email|escapejs }}",
           });
           {% endif %}
         };
