@@ -89,6 +89,15 @@ class CalendarCreateView(LoginRequiredMixin, CreateView):
         kwargs["user"] = self.request.user
         return kwargs
 
+    def get_initial(self):
+        initial = super().get_initial()
+        # tz_detect stores an IANA name, or a bare UTC offset when the browser
+        # doesn't report one.
+        detected = self.request.session.get("detected_tz")
+        if detected in dict(Calendar.TIMEZONE_CHOICES):
+            initial["timezone"] = detected
+        return initial
+
     def form_valid(self, form):
         messages.success(self.request, "Calendar created successfully.")
         user = self.request.user

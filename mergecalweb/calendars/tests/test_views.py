@@ -105,6 +105,28 @@ class TestCalendarCreate:
         assert response.status_code == HTTPStatus.OK
         assert not user.calendar_set.exists()
 
+    @pytest.mark.parametrize(
+        ("detected", "expected"),
+        [
+            ("Europe/London", "Europe/London"),
+            (-300, "America/New_York"),
+        ],
+    )
+    def test_timezone_defaults_to_the_browsers_zone(
+        self,
+        client: Client,
+        detected: str | int,
+        expected: str,
+    ) -> None:
+        login(client, UserFactory(), User.SubscriptionTier.BUSINESS)
+        session = client.session
+        session["detected_tz"] = detected
+        session.save()
+
+        response = client.get(reverse("calendars:calendar_create"))
+
+        assert response.context["form"]["timezone"].value() == expected
+
 
 class TestCalendarUpdate:
     def test_owner_renames_calendar(self, client: Client) -> None:
