@@ -15,6 +15,7 @@ from icalendar import Calendar as Ical
 from mergecalweb.calendars.fetch_error_messages import describe_fetch_error
 from mergecalweb.calendars.fetching import CalendarFetcher
 from mergecalweb.calendars.fetching.fetcher import SourceFetchError
+from mergecalweb.calendars.meetup import is_meetup_url
 from mergecalweb.core.constants import SourceLimits
 from mergecalweb.core.logging_events import LogEvent
 from mergecalweb.core.models import TimeStampedModel
@@ -62,7 +63,7 @@ def validate_ical_url(url):
             return  # URL is valid, exit the function
 
     # if url is meetup.com, skip validation
-    if "meetup.com" in url:
+    if is_meetup_url(url):
         logger.debug("Skipping validation for Meetup URL: %s", url)
         return
 
