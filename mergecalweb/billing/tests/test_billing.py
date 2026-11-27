@@ -98,3 +98,62 @@ def test_checkout_without_known_customer_is_acknowledged(
 
     assert response.status_code == HTTPStatus.OK
     assert Event.objects.filter(id=event["id"]).exists()
+
+
+@pytest.mark.parametrize(
+    "event_type",
+    ["customer.subscription.deleted", "customer.subscription.paused"],
+)
+@pytest.mark.django_db
+def test_subscription_end_webhook_drops_user_to_free_tier(
+    event_type: str,
+    http: responses.RequestsMock,
+    send_stripe_webhook: Callable[[dict], HttpResponse],
+    stripe_event: Callable[[str], dict],
+    user: User,
+) -> None:
+    event = stripe_event(event_type)
+    subscription = event["data"]["object"]
+    # Objects this test doesn't need; dj-stripe would fetch each from the API.
+    subscription["latest_invoice"] = None
+    subscription["pending_setup_intent"] = None
+
+    user.subscription_tier = User.SubscriptionTier.BUSINESS
+    user.save()
+    Customer.objects.create(id=subscription["customer"], subscriber=user)
+    Product.objects.create(id=subscription["plan"]["product"], active=True)
+    # dj-stripe re-fetches the subscription before running MergeCal's handler.
+    http.get(
+        f"https://api.stripe.com/v1/subscriptions/{subscription['id']}",
+        json=subscription,
+    )
+
+    response = send_stripe_webhook(event)
+
+    assert response.status_code == HTTPStatus.OK
+    user.refresh_from_db()
+    assert user.subscription_tier == User.SubscriptionTier.FREE
+
+
+@pytest.mark.django_db
+def test_subscription_end_webhook_without_user_is_acknowledged(
+    http: responses.RequestsMock,
+    send_stripe_webhook: Callable[[dict], HttpResponse],
+    stripe_event: Callable[[str], dict],
+) -> None:
+    event = stripe_event("customer.subscription.deleted")
+    subscription = event["data"]["object"]
+    # Objects this test doesn't need; dj-stripe would fetch each from the API.
+    subscription["latest_invoice"] = None
+
+    Customer.objects.create(id=subscription["customer"])
+    Product.objects.create(id=subscription["plan"]["product"], active=True)
+    # dj-stripe re-fetches the subscription before running MergeCal's handler.
+    http.get(
+        f"https://api.stripe.com/v1/subscriptions/{subscription['id']}",
+        json=subscription,
+    )
+
+    response = send_stripe_webhook(event)
+
+    assert response.status_code == HTTPStatus.OK
