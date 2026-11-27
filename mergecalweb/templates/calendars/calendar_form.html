@@ -4,10 +4,11 @@
 
 {% block title %}
   {% if calendar.pk %}
-    Dashboard: {{ calendar.name }}
+    {{ calendar.name }} - Edit
   {% else %}
     Create New Calendar
   {% endif %}
+  | MergeCal
 {% endblock title %}
 {% block content %}
   <div class="container-fluid mt-4 mb-5">

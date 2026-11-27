@@ -387,3 +387,35 @@ class TestCalendarRefresh:
         )
 
         assert response.status_code == HTTPStatus.METHOD_NOT_ALLOWED
+
+
+def page_title(response) -> str:
+    html = response.content.decode()
+    title = html[html.index("<title>") + len("<title>") : html.index("</title>")]
+    return " ".join(title.split())
+
+
+class TestPageTitles:
+    def test_calendar_pages_lead_with_the_calendar_name(self, client: Client) -> None:
+        user = UserFactory()
+        login(client, user, User.SubscriptionTier.BUSINESS)
+        calendar = CalendarFactory(owner=user, name="Team")
+
+        response = client.get(
+            reverse("calendars:calendar_update", kwargs={"uuid": calendar.uuid}),
+        )
+
+        assert page_title(response) == "Team - Edit | MergeCal"
+
+        response = client.get(
+            reverse("calendars:source_add", kwargs={"uuid": calendar.uuid}),
+        )
+
+        assert page_title(response) == "Team - Add Source | MergeCal"
+
+    def test_account_pages_have_their_own_title(self, client: Client) -> None:
+        login(client, UserFactory(), User.SubscriptionTier.BUSINESS)
+
+        response = client.get(reverse("account_change_password"))
+
+        assert page_title(response) == "Change Password | MergeCal"
