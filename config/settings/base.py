@@ -299,7 +299,7 @@ LOGGING = {
     "disable_existing_loggers": False,
     "formatters": {
         "json": {
-            "()": "pythonjsonlogger.jsonlogger.JsonFormatter",
+            "()": "pythonjsonlogger.json.JsonFormatter",
             "format": "%(asctime)s %(name)s %(levelname)s %(funcName)s %(lineno)d %(message)s",
             "json_ensure_ascii": False,
         },
