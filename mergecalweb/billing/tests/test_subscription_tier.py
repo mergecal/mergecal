@@ -156,3 +156,22 @@ def test_subscription_webhook_without_tier_change_sends_no_email(
     send_stripe_webhook(event)
 
     assert mail.outbox == []
+
+
+@pytest.mark.django_db
+def test_subscription_webhook_for_unknown_product_keeps_tier(
+    http: responses.RequestsMock,
+    send_stripe_webhook: Callable[[dict], HttpResponse],
+    stripe_event: Callable[[str], dict],
+    user: User,
+) -> None:
+    user.subscription_tier = User.SubscriptionTier.PERSONAL
+    user.save()
+    event = stripe_event("customer.subscription.updated")
+    prepare_subscription_event(http, event, user, "Some Other Product")
+
+    response = send_stripe_webhook(event)
+
+    assert response.status_code == HTTPStatus.OK
+    user.refresh_from_db()
+    assert user.subscription_tier == User.SubscriptionTier.PERSONAL

@@ -39,6 +39,21 @@ def update_user_subscription_tier(user: User, subscription: Subscription) -> Non
     else:
         new_tier = User.SubscriptionTier.FREE
 
+    if new_tier is None:
+        logger.warning(
+            "Subscription product does not match a tier",
+            extra={
+                "event": LogEvent.BILLING_ERROR,
+                "type": "unknown-product",
+                "user_id": user.pk,
+                "email": user.email,
+                "subscription_id": subscription.id,
+                "subscription_status": subscription.status,
+                "plan_name": subscription.plan.product.name,
+            },
+        )
+        return
+
     if user.subscription_tier != new_tier:
         old_tier = user.subscription_tier
         user.subscription_tier = new_tier
