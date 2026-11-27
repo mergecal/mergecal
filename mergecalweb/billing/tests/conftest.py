@@ -33,24 +33,32 @@ def stripe_event() -> Callable[[str], dict]:
 
 
 @pytest.fixture
-def send_stripe_webhook(client: Client, db) -> Callable[[dict], HttpResponse]:
-    """POST an event to the dj-stripe webhook endpoint with a valid signature."""
+def stripe_api_key(db) -> APIKey:
+    """A test-mode Stripe account and secret key that dj-stripe can sync against."""
     account = Account.objects.create(
         id="acct_mergecal_test",
         charges_enabled=True,
         details_submitted=True,
     )
-    APIKey.objects.create(
+    return APIKey.objects.create(
         secret="sk_test_mergecalPlaceholderKey123",  # noqa: S106
         type=APIKeyType.secret,
         livemode=False,
         djstripe_owner_account=account,
     )
+
+
+@pytest.fixture
+def send_stripe_webhook(
+    client: Client,
+    stripe_api_key: APIKey,
+) -> Callable[[dict], HttpResponse]:
+    """POST an event to the dj-stripe webhook endpoint with a valid signature."""
     endpoint = WebhookEndpoint.objects.create(
         id="we_mergecal_test",
         secret="whsec_mergecal_test",  # noqa: S106
         enabled_events=["*"],
-        djstripe_owner_account=account,
+        djstripe_owner_account=stripe_api_key.djstripe_owner_account,
     )
 
     def send(event: dict) -> HttpResponse:
