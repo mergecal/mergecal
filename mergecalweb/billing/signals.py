@@ -96,6 +96,10 @@ def create_stripe_customer(
                 payment_settings={"save_default_payment_method": "on_subscription"},
                 trial_settings={"end_behavior": {"missing_payment_method": "cancel"}},
             )
+            # The subscription webhook would set this too, but it can arrive
+            # after the user has already landed on a page gated by tier.
+            user.subscription_tier = User.SubscriptionTier.BUSINESS
+            user.save(update_fields=["subscription_tier"])
             # coupon = Coupon.objects.get(name="beta")
             # customer.add_coupon(coupon)
             logger.info(
