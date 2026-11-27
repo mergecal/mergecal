@@ -81,8 +81,9 @@ python_files = [
 
 # ==== Coverage ====
 [tool.coverage.run]
-include = ["mergecal/**"]
-omit = ["*/migrations/*", "*/tests/*"]
+source = ["mergecalweb"]
+branch = true
+omit = ["*/migrations/*", "*/tests/*", "*/tests.py", "*/conftest.py"]
 plugins = ["django_coverage_plugin"]
 
 # ==== mypy ====

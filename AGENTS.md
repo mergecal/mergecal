@@ -20,7 +20,7 @@
 - Optional beat: `celery -A config.celery_app beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler`.
 - Full tests: `pytest` (auto uses `config.settings.test`, reuses DB); reuse DB flag optional.
 - Scoped tests: `pytest mergecalweb/calendars/tests/`; single test `pytest path/to/test_file.py::TestCase::test_name`.
-- Coverage: `pytest --cov=mergecalweb`.
+- Coverage: `uv run coverage run -m pytest` followed by `uv run coverage report`.
 - Lint: `ruff check .`; auto-fix `ruff check --fix`; format via `ruff format .`.
 - Templates: `djlint --reformat mergecalweb/templates/` then `djlint`.
 - Typing: `mypy --config-file pyproject.toml mergecalweb config` (targets required); favor explicit annotations and `from __future__ import annotations`.
