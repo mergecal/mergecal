@@ -67,6 +67,7 @@
 - Wrap third-party errors in our own exception types, named so the caller knows how to act: `UnsupportedSourceError`, not a re-raised `requests` exception.
 - An exception's name should be enough for the caller to act on, so don't pass message strings.
 - If the caller needs data from the error, make the exception an attrs class with typed fields.
+- Define an exception in the module that raises it, not in a shared `exceptions.py`. Callers import it from there.
 
 ### Testing
 - Unit tests call functions directly and avoid mocking, especially for a function that does one thing.
@@ -86,3 +87,8 @@
 - Every commit must be atomic: one logical change that stands on its own.
 - History on a feature branch may be rewritten (rebase, squash, reorder, amend) to keep commits atomic before merging.
 - Commit messages and PR descriptions explain *why* the change was made, not *what* changed; the diff already shows what.
+- The repo is public, and so are commit messages and PR descriptions. A merged commit message can't be edited, and an edited PR keeps its old text in its history. Keep both free of:
+  - User data: names, emails, calendar or source names, URLs, UUIDs or IDs, event contents, and log or Sentry excerpts that contain any of these.
+  - Production numbers: counts of users, calendars, sources, requests, errors or failures; traffic, memory or revenue; per-deploy or per-incident figures.
+  - What users connect: which providers or services their feeds come from.
+  - Say "users", never "customers". Describe the problem in words ("some sources fail on every fetch"); if an example helps, make one up.

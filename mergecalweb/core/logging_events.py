@@ -89,7 +89,7 @@ class LogEvent:
     CALENDAR_MERGE = "calendar-merge"
 
     # Source Processing (use with "status" and optionally "source_type")
-    # Use with "status": "start"/"success"/"timeout"/"network-error"/
+    # Use with "status": "start"/"success"/"timeout"/"fetch-error"/
     # "validation-error"/"meetup-error"/"timeout-calculated"
     # Optionally "source_type": "remote"/"local"/"meetup"
     SOURCE_FETCH = "source-fetch"
