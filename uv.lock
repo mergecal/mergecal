@@ -1,5 +1,5 @@
 version = 1
-revision = 5
+revision = 3
 requires-python = "==3.13.*"
 
 [[package]]
@@ -400,15 +400,11 @@ wheels = [
 
 [[package]]
 name = "cron-descriptor"
-version = "2.3.1"
+version = "1.4.5"
 source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "babel" },
-    { name = "typing-extensions" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/b2/da/9adbf896058bc8b74533aedd628ab6e6cb2c573014f9622097f1e125b75c/cron_descriptor-2.3.1.tar.gz", hash = "sha256:edb8030b338c0be798c15e71906fe76eb7f1b135fd18d5e43a70351d93532387", size = 59480, upload-time = "2026-11-17T00:21:12.472Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/02/83/70bd410dc6965e33a5460b7da84cf0c5a7330a68d6d5d4c3dfdb72ca117e/cron_descriptor-1.4.5.tar.gz", hash = "sha256:f51ce4ffc1d1f2816939add8524f206c376a42c87a5fca3091ce26725b3b1bca", size = 30666, upload-time = "2024-08-24T18:16:48.654Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/0f/fc/c791468f5e7ba9ac690ebfd8b91d4fdf7d43826538e28de75eb816809a9a/cron_descriptor-2.3.1-py3-none-any.whl", hash = "sha256:7112f8f682c14e0fd17377c0e0e514764ac9b64eae8c1df7e1c52d702b39ea40", size = 78609, upload-time = "2026-11-17T00:21:11.018Z" },
+    { url = "https://files.pythonhosted.org/packages/88/20/2cfe598ead23a715a00beb716477cfddd3e5948cf203c372d02221e5b0c6/cron_descriptor-1.4.5-py3-none-any.whl", hash = "sha256:736b3ae9d1a99bc3dbfc5b55b5e6e7c12031e7ba5de716625772f8b02dcd6013", size = 50370, upload-time = "2024-08-24T18:16:46.783Z" },
 ]
 
 [[package]]
@@ -516,16 +512,16 @@ wheels = [
 
 [[package]]
 name = "django"
-version = "5.2.19"
+version = "6.0.10"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "asgiref" },
     { name = "sqlparse" },
     { name = "tzdata", marker = "sys_platform == 'win32'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/02/29/a487a108caa76430c8b616aa90a6d09cf431306112c14093e6f0a7454e17/django-5.2.19.tar.gz", hash = "sha256:ad03d8abc51dbff95ebf34b27123cf0c26a3b62db7ba0cd520783686362533d1", size = 10969285, upload-time = "2026-11-03T15:22:09.468Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/fb/6a/9dd67bd0d1e3c610faf3d1fab5b233adca77735397807c7e4f438201a140/django-6.0.10.tar.gz", hash = "sha256:6005d030df924f85088454c18bd35dcf082b058aa355ad3df520d8de9aef9f41", size = 11007536, upload-time = "2026-11-03T15:21:49.768Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/3c/fb/65b4e897d1268288a46457493d9aec6541be8be08e0093a93cc101c03ab2/django-5.2.19-py3-none-any.whl", hash = "sha256:5965d974a5218a2b68a11dd1276434707f23886525c23f0598eccedaf4f4ca00", size = 8319631, upload-time = "2026-11-03T15:22:03.67Z" },
+    { url = "https://files.pythonhosted.org/packages/fc/55/ee40b1865bd0ba5fc4e2d747a1a753c1122047137a17b852667287c057a6/django-6.0.10-py3-none-any.whl", hash = "sha256:2a6fe22f319d71fd0ea1e70cded76c6449225cb9903234f8992ee3d21eded5e8", size = 8380913, upload-time = "2026-11-03T15:21:43.691Z" },
 ]
 
 [[package]]
@@ -602,7 +598,7 @@ wheels = [
 
 [[package]]
 name = "django-celery-beat"
-version = "2.8.1"
+version = "2.9.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "celery" },
@@ -612,9 +608,9 @@ dependencies = [
     { name = "python-crontab" },
     { name = "tzdata" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/aa/11/0c8b412869b4fda72828572068312b10aafe7ccef7b41af3633af31f9d4b/django_celery_beat-2.8.1.tar.gz", hash = "sha256:dfad0201c0ac50c91a34700ef8fa0a10ee098cc7f3375fe5debed79f2204f80a", size = 175802, upload-time = "2025-05-13T06:58:29.246Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/05/45/fc97bc1d9af8e7dc07f1e37044d9551a30e6793249864cef802341e2e3a8/django_celery_beat-2.9.0.tar.gz", hash = "sha256:92404650f52fcb44cf08e2b09635cb1558327c54b1a5d570f0e2d3a22130934c", size = 177667, upload-time = "2026-02-28T16:45:34.749Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/61/e5/3a0167044773dee989b498e9a851fc1663bea9ab879f1179f7b8a827ac10/django_celery_beat-2.8.1-py3-none-any.whl", hash = "sha256:da2b1c6939495c05a551717509d6e3b79444e114a027f7b77bf3727c2a39d171", size = 104833, upload-time = "2025-05-13T06:58:27.309Z" },
+    { url = "https://files.pythonhosted.org/packages/71/ae/9befa7ae37f5e5c41be636a254fcf47ff30dd5c88bd115070e252f6b9162/django_celery_beat-2.9.0-py3-none-any.whl", hash = "sha256:4a9e5ebe26d6f8d7215e1fc5c46e466016279dc102435a28141108649bdf2157", size = 105013, upload-time = "2026-02-28T16:45:32.822Z" },
 ]
 
 [[package]]
@@ -1362,11 +1358,11 @@ requires-dist = [
     { name = "celery", specifier = "==5.5.3" },
     { name = "crispy-bootstrap5", specifier = "==2026.9" },
     { name = "dj-stripe", specifier = "==2.9" },
-    { name = "django", specifier = "==5.2.19" },
+    { name = "django", specifier = "==6.0.10" },
     { name = "django-allauth", extras = ["mfa", "socialaccount"], specifier = "==65.23.0" },
     { name = "django-anymail", extras = ["mailjet"], specifier = "==12.0" },
     { name = "django-autoslug", specifier = "==1.9.9" },
-    { name = "django-celery-beat", specifier = "==2.8.1" },
+    { name = "django-celery-beat", specifier = "==2.9.0" },
     { name = "django-ckeditor", specifier = "==6.7.1" },
     { name = "django-compressor", specifier = "==4.6.0" },
     { name = "django-crispy-forms", specifier = "==2.7" },
