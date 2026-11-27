@@ -3,12 +3,13 @@
 {% load crispy_forms_tags %}
 
 {% block title %}
+  {{ calendar.name }} -
   {% if form.instance.pk %}
     Edit
   {% else %}
     Add
   {% endif %}
-  Source
+  Source | MergeCal
 {% endblock title %}
 {% block content %}
   <div class="container-fluid mt-4 mb-5">
