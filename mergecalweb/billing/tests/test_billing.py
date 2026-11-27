@@ -4,6 +4,7 @@ from http import HTTPStatus
 from typing import TYPE_CHECKING
 
 import pytest
+from django.core import mail
 from django.template.loader import render_to_string
 from djstripe.models import Customer
 from djstripe.models import Event
@@ -160,3 +161,59 @@ def test_payment_method_attached_without_customer_is_acknowledged(
 
     assert response.status_code == HTTPStatus.OK
     assert PaymentMethod.objects.get(id=payment_method["id"]).customer is None
+
+
+def _trial_will_end_event(
+    http: responses.RequestsMock,
+    stripe_event: Callable[[str], dict],
+) -> dict:
+    event = stripe_event("customer.subscription.trial_will_end")
+    subscription = event["data"]["object"]
+    # Objects this test doesn't need; dj-stripe would fetch each from the API.
+    subscription["default_payment_method"] = None
+    subscription["latest_invoice"] = None
+    subscription["pending_setup_intent"] = None
+    Product.objects.create(
+        id=subscription["plan"]["product"],
+        name=User.SubscriptionTier.BUSINESS.label,
+        active=True,
+    )
+    # dj-stripe re-fetches the subscription before running MergeCal's handler.
+    http.get(
+        f"https://api.stripe.com/v1/subscriptions/{subscription['id']}",
+        json=subscription,
+    )
+    return event
+
+
+@pytest.mark.django_db
+def test_trial_will_end_webhook_emails_subscriber(
+    http: responses.RequestsMock,
+    send_stripe_webhook: Callable[[dict], HttpResponse],
+    stripe_event: Callable[[str], dict],
+    user: User,
+) -> None:
+    event = _trial_will_end_event(http, stripe_event)
+    Customer.objects.create(id=event["data"]["object"]["customer"], subscriber=user)
+
+    response = send_stripe_webhook(event)
+
+    assert response.status_code == HTTPStatus.OK
+    assert len(mail.outbox) == 1
+    assert mail.outbox[0].to == [user.email]
+    assert mail.outbox[0].subject == "Your MergeCal trial is ending soon"
+
+
+@pytest.mark.django_db
+def test_trial_will_end_webhook_for_customer_without_user_sends_nothing(
+    http: responses.RequestsMock,
+    send_stripe_webhook: Callable[[dict], HttpResponse],
+    stripe_event: Callable[[str], dict],
+) -> None:
+    event = _trial_will_end_event(http, stripe_event)
+    Customer.objects.create(id=event["data"]["object"]["customer"])
+
+    response = send_stripe_webhook(event)
+
+    assert response.status_code == HTTPStatus.OK
+    assert mail.outbox == []
