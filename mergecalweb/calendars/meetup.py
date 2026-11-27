@@ -53,11 +53,8 @@ def clean_meetup_description(description: str) -> str:
 
 
 def is_meetup_url(url: str) -> bool:
-    # Parse the URL
-    parsed_url = urlparse(url)
-
-    # Check if the domain is 'meetup.com'
-    return parsed_url.netloc.endswith("meetup.com")
+    hostname = urlparse(url).hostname or ""
+    return hostname == "meetup.com" or hostname.endswith(".meetup.com")
 
 
 def extract_meetup_group_name(url: str) -> str | None:
