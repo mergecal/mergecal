@@ -13,13 +13,14 @@ from djstripe.enums import APIKeyType
 from djstripe.models import Account
 from djstripe.models import APIKey
 from djstripe.models import Customer
-from djstripe.models import Plan
 from djstripe.models import Product
 from djstripe.models import WebhookEndpoint
 
 from mergecalweb.users.models import User
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     import responses
     from django.test import Client
 
@@ -28,6 +29,7 @@ if TYPE_CHECKING:
 def test_subscription_update_webhook_grants_business_tier(
     client: Client,
     http: responses.RequestsMock,
+    stripe_event: Callable[[str], dict],
     user: User,
 ) -> None:
     event_type = "customer.subscription.updated"
@@ -49,55 +51,26 @@ def test_subscription_update_webhook_grants_business_tier(
         djstripe_owner_account=account,
     )
 
-    customer = Customer.objects.create(id="cus_mergecal_test", subscriber=user)
-    product = Product.objects.create(
-        id="prod_mergecal_test",
+    event = stripe_event(event_type)
+    subscription = event["data"]["object"]
+    # Objects this test doesn't need; dj-stripe would fetch each from the API.
+    subscription["default_payment_method"] = None
+    subscription["latest_invoice"] = None
+    subscription["pending_setup_intent"] = None
+
+    Customer.objects.create(id=subscription["customer"], subscriber=user)
+    Product.objects.create(
+        id=subscription["plan"]["product"],
         name=User.SubscriptionTier.BUSINESS.label,
         active=True,
     )
-    plan = Plan.objects.create(
-        id="plan_mergecal_test",
-        product=product,
-        active=True,
-        currency="usd",
-        interval="month",
-    )
-
-    timestamp = int(time.time())
-    subscription_id = "sub_mergecal_test"
-    subscription_item = {
-        "id": "si_mergecal_test",
-        "object": "subscription_item",
-        "plan": plan.id,
-        "subscription": subscription_id,
-    }
-    subscription = {
-        "id": subscription_id,
-        "object": "subscription",
-        "livemode": False,
-        "customer": customer.id,
-        "plan": plan.id,
-        "status": "active",
-        "collection_method": "charge_automatically",
-        "cancel_at_period_end": False,
-        "current_period_start": timestamp,
-        "current_period_end": timestamp + 3600,
-        "items": {"object": "list", "data": [subscription_item], "has_more": False},
-    }
     # dj-stripe re-fetches the subscription before running MergeCal's handler.
     http.get(
-        f"https://api.stripe.com/v1/subscriptions/{subscription_id}",
+        f"https://api.stripe.com/v1/subscriptions/{subscription['id']}",
         json=subscription,
     )
+    timestamp = int(time.time())
 
-    event = {
-        "id": "evt_mergecal_test",
-        "object": "event",
-        "type": event_type,
-        "livemode": False,
-        "created": timestamp,
-        "data": {"object": subscription},
-    }
     payload = json.dumps(event)
     signature = hmac.digest(
         endpoint.secret.encode(),
