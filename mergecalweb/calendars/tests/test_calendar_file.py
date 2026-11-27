@@ -88,3 +88,25 @@ def test_adding_source_reuses_validation_fetch_for_merged_feed(
     client.get(reverse("calendars:calendar_file_ics", args=[calendar.uuid]))
 
     assert len(http.calls) == 1
+
+
+@pytest.mark.django_db
+def test_editing_calendar_rebuilds_merged_feed_without_refetching_sources(
+    business_user: User,
+    client: Client,
+    http: responses.RequestsMock,
+    test_calendars_dir: Path,
+) -> None:
+    calendar = CalendarFactory(owner=business_user, name="Before")
+    source_url = "https://feeds.example.test/basic.ics"
+    SourceFactory(url=source_url, calendar=calendar)
+    http.get(source_url, body=(test_calendars_dir / "basic.ics").read_bytes())
+    url = reverse("calendars:calendar_file_ics", args=[calendar.uuid])
+    client.get(url)
+
+    calendar.name = "After"
+    calendar.save()
+    response = client.get(url)
+
+    assert ICalendar.from_ical(response.content)["X-WR-CALNAME"] == "After"
+    assert len(http.calls) == 1

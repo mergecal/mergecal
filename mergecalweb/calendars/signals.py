@@ -6,7 +6,6 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from mergecalweb.calendars.cache import calendar_output_cache_key
-from mergecalweb.calendars.cache import invalidate_calendar_cache
 from mergecalweb.calendars.models import Calendar
 from mergecalweb.calendars.models import Source
 from mergecalweb.core.logging_events import LogEvent
@@ -85,4 +84,4 @@ def clear_calendar_cache_on_calendar(sender, instance, **kwargs):
             "email": instance.owner.email,
         },
     )
-    invalidate_calendar_cache(instance)
+    cache.delete(calendar_output_cache_key(instance.uuid))
