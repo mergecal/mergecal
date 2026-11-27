@@ -9,6 +9,7 @@ from mergecalweb.calendars.meetup import fetch_and_create_meetup_calendar
 from mergecalweb.calendars.meetup import is_meetup_url
 from mergecalweb.calendars.models import Calendar
 from mergecalweb.calendars.models import Source
+from mergecalweb.calendars.tz_normalize import normalize_tzids
 from mergecalweb.core.logging_events import LogEvent
 from mergecalweb.core.utils import is_local_url
 from mergecalweb.core.utils import parse_calendar_uuid
@@ -225,7 +226,7 @@ class SourceService:
             source_timeout=self.source_timeout,
         )
         calendar_str = merger.merge()
-        source_data.ical = ICalendar.from_ical(calendar_str)
+        source_data.ical = normalize_tzids(ICalendar.from_ical(calendar_str))
 
         logger.info(
             "Local source: Nested calendar merged successfully",
