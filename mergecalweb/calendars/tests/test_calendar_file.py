@@ -66,3 +66,25 @@ def test_calendar_file_serves_and_caches_merged_output(
     assert cached_response.status_code == HTTPStatus.OK
     assert cached_response.content == response.content
     assert len(http.calls) == len(source_urls)
+
+
+@pytest.mark.django_db
+def test_adding_source_reuses_validation_fetch_for_merged_feed(
+    business_user: User,
+    client: Client,
+    http: responses.RequestsMock,
+    test_calendars_dir: Path,
+) -> None:
+    calendar = CalendarFactory(owner=business_user)
+    source_url = "https://feeds.example.test/basic.ics"
+    http.get(source_url, body=(test_calendars_dir / "basic.ics").read_bytes())
+    client.force_login(business_user)
+
+    response = client.post(
+        reverse("calendars:source_add", args=[calendar.uuid]),
+        {"name": "Basic", "url": source_url},
+    )
+    assert response.status_code == HTTPStatus.FOUND
+    client.get(reverse("calendars:calendar_file_ics", args=[calendar.uuid]))
+
+    assert len(http.calls) == 1
