@@ -373,6 +373,8 @@ ACCOUNT_SIGNUP_FIELDS = ["email*", "username*", "password1*", "password2*"]
 # https://docs.allauth.org/en/latest/account/configuration.html
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 # https://docs.allauth.org/en/latest/account/configuration.html
+ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
+# https://docs.allauth.org/en/latest/account/configuration.html
 ACCOUNT_ADAPTER = "mergecalweb.users.adapters.AccountAdapter"
 # https://docs.allauth.org/en/latest/account/forms.html
 ACCOUNT_FORMS = {"signup": "mergecalweb.users.forms.UserSignupForm"}
