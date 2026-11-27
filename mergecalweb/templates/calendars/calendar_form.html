@@ -215,7 +215,17 @@
                   </div>
                 {% empty %}
                   <tr>
-                    <td colspan="4" class="text-center">No sources added yet.</td>
+                    <td colspan="4" class="text-center py-4">
+                      {% if calendar.can_add_source %}
+                        <p class="mb-3">Add the calendar feeds you want merged into this calendar.</p>
+                        <a href="{% url 'calendars:source_add' uuid=calendar.uuid %}"
+                           class="btn btn-success">
+                          <i class="bi bi-plus-circle"></i> Add your first source
+                        </a>
+                      {% else %}
+                        No sources added yet.
+                      {% endif %}
+                    </td>
                   </tr>
                 {% endfor %}
               </tbody>

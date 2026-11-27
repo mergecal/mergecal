@@ -129,6 +129,25 @@ class TestCalendarUpdate:
         calendar.refresh_from_db()
         assert calendar.name == "Original"
 
+    @pytest.mark.parametrize(
+        ("tier", "prompted"),
+        [(User.SubscriptionTier.BUSINESS, True), (User.SubscriptionTier.FREE, False)],
+    )
+    def test_empty_calendar_prompts_for_a_first_source(
+        self,
+        client: Client,
+        tier: str,
+        *,
+        prompted: bool,
+    ) -> None:
+        calendar = CalendarFactory()
+        login(client, calendar.owner, tier)
+        url = reverse("calendars:calendar_update", kwargs={"uuid": calendar.uuid})
+
+        response = client.get(url)
+
+        assert ("Add your first source" in response.content.decode()) is prompted
+
 
 class TestCalendarDelete:
     def test_owner_deletes_calendar(self, client: Client) -> None:
