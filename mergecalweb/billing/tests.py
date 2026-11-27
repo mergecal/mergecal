@@ -7,6 +7,7 @@ from http import HTTPStatus
 from typing import TYPE_CHECKING
 
 import pytest
+from django.template.loader import render_to_string
 from django.urls import reverse
 from djstripe.enums import APIKeyType
 from djstripe.models import Account
@@ -115,3 +116,16 @@ def test_subscription_update_webhook_grants_business_tier(
     assert response.status_code == HTTPStatus.OK
     user.refresh_from_db()
     assert user.subscription_tier == User.SubscriptionTier.BUSINESS
+
+
+@pytest.mark.parametrize(
+    ("days_left", "expected"),
+    [(1, "1 day left."), (13, "13 days left.")],
+)
+def test_trial_banner_pluralizes_days_left(days_left: int, expected: str) -> None:
+    html = render_to_string(
+        "trialing.html",
+        {"is_trial": True, "trial_days_left": days_left},
+    )
+
+    assert expected in html
