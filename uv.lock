@@ -742,7 +742,7 @@ wheels = [
 
 [[package]]
 name = "django-htmx-modal-forms"
-version = "0.3.1"
+version = "0.4.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "crispy-bootstrap5" },
@@ -750,9 +750,9 @@ dependencies = [
     { name = "django-crispy-forms" },
     { name = "django-htmx" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/fa/d8/6892672f68e8c38992cddf17d5111aa5ee5e2d03b8fb94c708ea10b40ddc/django_htmx_modal_forms-0.3.1.tar.gz", hash = "sha256:fe18c3c8cfd60c1a23153e9695260aa56ef8e0fd305b71f8690681146bb7a3de", size = 15817, upload-time = "2025-01-17T17:11:14.775Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/64/02/16c2fa1fe030a7f9a420c8951b21bc88d2531ebe87d051d0da93e6985144/django_htmx_modal_forms-0.4.0.tar.gz", hash = "sha256:5cedcd8eadd71abdb8eef743fd6b08d883402576b4b983aa30145b7db20efeb2", size = 15864, upload-time = "2025-04-11T15:41:01.626Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/3c/df/85640eba4ac5a8d6614546959d51b15065d09f9afc3ebe2374d1870de743/django_htmx_modal_forms-0.3.1-py3-none-any.whl", hash = "sha256:6baf3278fa9a3a3374c1799d454f6f2230cd1d8af831037abb55751c0eb77299", size = 12180, upload-time = "2025-01-17T17:11:13.387Z" },
+    { url = "https://files.pythonhosted.org/packages/ab/c9/a996acf36fe02e0c530a3a7c98731af035bd6347440ff5fb306924f42cdc/django_htmx_modal_forms-0.4.0-py3-none-any.whl", hash = "sha256:b2f2ccc6fd2b4004bcd59f07c3b0815ed468d109ecd5ec8709587134201bce67", size = 12235, upload-time = "2025-04-11T15:41:00.257Z" },
 ]
 
 [[package]]
@@ -1375,7 +1375,7 @@ requires-dist = [
     { name = "django-health-check", specifier = "==3.20.0" },
     { name = "django-htmx", specifier = "==1.21.0" },
     { name = "django-htmx-messages", specifier = "==0.1.1" },
-    { name = "django-htmx-modal-forms", specifier = "==0.3.1" },
+    { name = "django-htmx-modal-forms", specifier = "==0.4.0" },
     { name = "django-libsass", specifier = "==0.9" },
     { name = "django-redis", specifier = "==7.0.0" },
     { name = "django-social-share", specifier = "==2.3.0" },
