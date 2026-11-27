@@ -59,7 +59,7 @@ dev = [
     "sphinx==8.1.3",
     "sphinx-autobuild==2025.8.25",
     "ruff==0.14.3",
-    "coverage==7.10.7",
+    "coverage==7.17.5",
     "djlint==1.36.4",
     "pre-commit==4.7.0",
     "factory-boy==3.3.3",
