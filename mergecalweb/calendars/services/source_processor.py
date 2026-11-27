@@ -2,15 +2,15 @@ import contextlib
 import logging
 from typing import Final
 
-import requests
 from icalendar import Calendar as ICalendar
 from icalendar import Component
-from requests.exceptions import RequestException
-from urllib3.exceptions import HTTPError
 
 from mergecalweb.calendars.exceptions import CalendarValidationError
 from mergecalweb.calendars.exceptions import CustomizationWithoutCalendarError
+from mergecalweb.calendars.fetch_error_messages import describe_fetch_error
 from mergecalweb.calendars.fetching import CalendarFetcher
+from mergecalweb.calendars.fetching.fetcher import SourceFetchError
+from mergecalweb.calendars.fetching.fetcher import SourceTimeoutError
 from mergecalweb.calendars.models import Source
 from mergecalweb.core.logging_events import LogEvent
 
@@ -68,8 +68,8 @@ class SourceProcessor:
                 },
             )
 
-        except requests.Timeout as e:
-            self.source_data.error = str(e)
+        except SourceTimeoutError as e:
+            self.source_data.error = describe_fetch_error(e)
             logger.info(
                 "Source fetch timed out",
                 extra={
@@ -82,18 +82,20 @@ class SourceProcessor:
                     "timeout_seconds": self.timeout,
                 },
             )
-        except (RequestException, HTTPError) as e:
-            self.source_data.error = str(e)
+        except SourceFetchError as e:
+            self.source_data.error = describe_fetch_error(e)
             logger.warning(
-                "Source fetch failed due to network error",
+                "Source fetch failed",
                 extra={
                     "event": LogEvent.SOURCE_FETCH,
-                    "status": "network-error",
+                    "status": "fetch-error",
                     "source_id": self.source.pk,
                     "source_name": self.source.name,
                     "source_url": self.source.url[:200],
                     "calendar_uuid": self.source.calendar.uuid,
                     "error_type": type(e).__name__,
+                    "cause_type": type(e.__cause__).__name__ if e.__cause__ else None,
+                    "status_code": getattr(e, "status_code", None),
                 },
             )
         except CalendarValidationError as e:
