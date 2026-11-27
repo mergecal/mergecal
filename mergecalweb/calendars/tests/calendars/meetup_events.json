@@ -1,0 +1,36 @@
+[
+  {
+    "id": "300000001",
+    "name": "Monthly Board Game Night",
+    "time": 1767294000000,
+    "duration": 10800000,
+    "updated": 1764000000000,
+    "status": "upcoming",
+    "link": "https://www.meetup.com/example-board-gamers/events/300000001/",
+    "description": "<p>Bring a game!</p><p>**Snacks** provided. See [rules](https://example.com/rules)</p>",
+    "how_to_find_us": "Back room, look for the dice sign",
+    "venue": {
+      "name": "Example Cafe",
+      "address_1": "1 Main St",
+      "city": "Springfield",
+      "state": "XX",
+      "country": "us",
+      "lat": 40.5,
+      "lon": -74.25
+    },
+    "group": {"id": 12345, "name": "Example Board Gamers", "who": "Gamers"},
+    "rsvp_limit": 20,
+    "yes_rsvp_count": 7
+  },
+  {
+    "id": "300000002",
+    "name": "Online Rules Workshop",
+    "time": 1767898800000,
+    "duration": 3600000,
+    "updated": 1764000000000,
+    "status": "cancelled",
+    "link": "https://www.meetup.com/example-board-gamers/events/300000002/",
+    "description": "Learn a new game.",
+    "group": {"id": 12345, "name": "Example Board Gamers"}
+  }
+]
