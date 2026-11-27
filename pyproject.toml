@@ -37,7 +37,7 @@ dependencies = [
     "gunicorn==23.0.0",
     "psycopg[binary]==3.2.10",
     "sentry-sdk[django]==2.77.0",
-    "django-storages[s3]==1.14.4",
+    "django-storages[s3]==1.14.6",
     "django-anymail[mailjet]==12.0",
     "posthog==7.0.1",
     "requests==2.34.2",
