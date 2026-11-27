@@ -18,6 +18,14 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarContent">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        {% if request.user.is_authenticated %}
+          <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.namespace == 'calendars' %}active{% endif %}"
+               href="{{ nav_base_url }}{% url 'calendars:calendar_list' %}">
+              <i class="bi bi-calendar3 me-1"></i>Calendars
+            </a>
+          </li>
+        {% endif %}
         <li class="nav-item">
           <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}"
              href="{{ nav_base_url }}{% url 'home' %}">
@@ -69,14 +77,6 @@
             </li>
           </ul>
         </li>
-        {% if request.user.is_authenticated %}
-          <li class="nav-item">
-            <a class="nav-link {% if request.resolver_match.url_name == 'calendar_list' %}active{% endif %}"
-               href="{{ nav_base_url }}{% url 'calendars:calendar_list' %}">
-              <i class="bi bi-calendar3 me-1"></i>Calendars
-            </a>
-          </li>
-        {% endif %}
       </ul>
       <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
         {% if request.user.is_authenticated %}
@@ -136,7 +136,9 @@
              id="themeDropdown"
              role="button"
              data-bs-toggle="dropdown"
-             aria-expanded="false">
+             aria-expanded="false"
+             aria-label="Color theme"
+             title="Color theme">
             <i class="bi bi-palette"></i>
           </a>
           <ul class="dropdown-menu dropdown-menu-end"
