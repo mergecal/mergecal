@@ -129,3 +129,16 @@ def test_trial_banner_pluralizes_days_left(days_left: int, expected: str) -> Non
     )
 
     assert expected in html
+
+
+@pytest.mark.django_db
+def test_first_login_starts_business_trial_tier_immediately(
+    client: Client,
+    user: User,
+) -> None:
+    assert user.subscription_tier == User.SubscriptionTier.FREE
+
+    client.force_login(user)
+
+    user.refresh_from_db()
+    assert user.subscription_tier == User.SubscriptionTier.BUSINESS
