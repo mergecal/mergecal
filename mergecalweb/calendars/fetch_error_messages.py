@@ -22,8 +22,5 @@ def describe_fetch_error(error: SourceFetchError) -> str:
     if isinstance(error, BrokenSourceUrlError):
         return "The calendar URL can't be reached as written. Check that it is correct."
     if isinstance(error, SourceUnavailableError) and error.status_code is not None:
-        return (
-            f"The calendar server returned HTTP {error.status_code}. "
-            "It may be temporarily down."
-        )
+        return f"The calendar server returned HTTP {error.status_code}. Try again soon."
     return "Could not connect to the calendar server."

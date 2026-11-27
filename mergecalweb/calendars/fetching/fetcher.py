@@ -300,6 +300,8 @@ def _request_calendar(
     status = response.status_code
     if status >= HTTPStatus.INTERNAL_SERVER_ERROR or status in (
         HTTPStatus.REQUEST_TIMEOUT,
+        HTTPStatus.MISDIRECTED_REQUEST,
+        HTTPStatus.LOCKED,
         HTTPStatus.TOO_EARLY,
         HTTPStatus.TOO_MANY_REQUESTS,
     ):

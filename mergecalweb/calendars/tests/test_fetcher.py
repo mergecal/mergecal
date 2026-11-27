@@ -62,9 +62,10 @@ class TestCalendarFetcher:
         assert fetcher.fetch_calendar(URL) == "OLD"
         assert len(http.calls) == 2  # noqa: PLR2004
 
-    def test_stale_cache_is_served_when_url_breaks(self, fetcher, http, clock):
+    @pytest.mark.parametrize("status", [404, 421, 423])
+    def test_stale_cache_is_served_after_http_error(self, fetcher, http, clock, status):
         http.get(URL, body="OLD")
-        http.get(URL, status=404)
+        http.get(URL, status=status)
 
         fetcher.fetch_calendar(URL)
         clock.shift(CACHE_TIMEOUT + timedelta(seconds=10))
@@ -171,7 +172,7 @@ class TestCalendarFetcher:
         with pytest.raises(BrokenSourceUrlError):
             fetcher.fetch_calendar(URL)
 
-    @pytest.mark.parametrize("status", [408, 425, 429, 500, 502, 503])
+    @pytest.mark.parametrize("status", [408, 421, 423, 425, 429, 500, 502, 503])
     def test_server_side_failure_is_unavailable(self, fetcher, http, status):
         http.get(URL, status=status)
 
