@@ -1,11 +1,12 @@
 from mergecalweb.calendars.fetching.fetcher import BrokenSourceUrlError
 from mergecalweb.calendars.fetching.fetcher import SourceAccessDeniedError
+from mergecalweb.calendars.fetching.fetcher import SourceAddressNotAllowedError
 from mergecalweb.calendars.fetching.fetcher import SourceFetchError
 from mergecalweb.calendars.fetching.fetcher import SourceTimeoutError
 from mergecalweb.calendars.fetching.fetcher import SourceUnavailableError
 
 
-def describe_fetch_error(error: SourceFetchError) -> str:
+def describe_fetch_error(error: SourceFetchError) -> str:  # noqa: PLR0911
     if isinstance(error, SourceTimeoutError):
         return "The calendar server took too long to respond."
     if isinstance(error, SourceAccessDeniedError):
@@ -14,6 +15,8 @@ def describe_fetch_error(error: SourceFetchError) -> str:
             "The calendar may no longer be shared, or the server may be "
             "blocking automated requests."
         )
+    if isinstance(error, SourceAddressNotAllowedError):
+        return "The calendar URL points to a private network address."
     if isinstance(error, BrokenSourceUrlError) and error.status_code is not None:
         return (
             f"The calendar URL returned HTTP {error.status_code}. "

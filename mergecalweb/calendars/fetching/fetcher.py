@@ -1,5 +1,7 @@
+import ipaddress
 import logging
 import re
+import socket
 import time
 from datetime import timedelta
 from http import HTTPStatus
@@ -9,6 +11,11 @@ import attrs
 import requests
 import urllib3
 from django.core.cache import cache
+from requests.adapters import HTTPAdapter
+from urllib3.connection import HTTPConnection
+from urllib3.connection import HTTPSConnection
+from urllib3.connectionpool import HTTPConnectionPool
+from urllib3.connectionpool import HTTPSConnectionPool
 
 from mergecalweb.calendars.cache import source_data_cache_key
 from mergecalweb.calendars.fetching.domain_configs import get_domain_config
@@ -47,6 +54,10 @@ class SourceAccessDeniedError(SourceFetchError):
     """Raised when the server refuses access, usually because it was unshared."""
 
     status_code: int
+
+
+class SourceAddressNotAllowedError(SourceFetchError):
+    """Raised when the URL leads to a private, loopback or other non-public address."""
 
 
 @attrs.define
@@ -274,17 +285,58 @@ class CalendarFetcher:
         )
 
 
+def _require_public_peer(sock: socket.socket) -> None:
+    address = ipaddress.ip_address(sock.getpeername()[0])
+    if isinstance(address, ipaddress.IPv6Address) and address.ipv4_mapped:
+        address = address.ipv4_mapped
+    if not address.is_global:
+        sock.close()
+        raise SourceAddressNotAllowedError
+
+
+# Checking the connected socket rather than the URL's hostname also covers
+# redirects and hostnames that resolve to internal addresses.
+class _PublicHTTPConnection(HTTPConnection):
+    def _new_conn(self) -> socket.socket:
+        sock = super()._new_conn()
+        _require_public_peer(sock)
+        return sock
+
+
+class _PublicHTTPSConnection(HTTPSConnection):
+    def _new_conn(self) -> socket.socket:
+        sock = super()._new_conn()
+        _require_public_peer(sock)
+        return sock
+
+
+class _PublicHTTPConnectionPool(HTTPConnectionPool):
+    ConnectionCls = _PublicHTTPConnection
+
+
+class _PublicHTTPSConnectionPool(HTTPSConnectionPool):
+    ConnectionCls = _PublicHTTPSConnection
+
+
+class _PublicOnlyAdapter(HTTPAdapter):
+    def init_poolmanager(self, *args, **kwargs) -> None:
+        super().init_poolmanager(*args, **kwargs)
+        self.poolmanager.pool_classes_by_scheme = {
+            "http": _PublicHTTPConnectionPool,
+            "https": _PublicHTTPSConnectionPool,
+        }
+
+
 def _request_calendar(
     url: str,
     headers: dict[str, str],
     timeout: int,
 ) -> requests.Response:
     try:
-        response = requests.get(
-            url,
-            headers=headers,
-            timeout=timeout,
-        )
+        with requests.Session() as session:
+            session.mount("http://", _PublicOnlyAdapter())
+            session.mount("https://", _PublicOnlyAdapter())
+            response = session.get(url, headers=headers, timeout=timeout)
     except requests.Timeout as e:
         raise SourceTimeoutError from e
     except (

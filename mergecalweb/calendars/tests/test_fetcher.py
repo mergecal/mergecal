@@ -1,4 +1,5 @@
 import re
+import socket
 from datetime import timedelta
 
 import pytest
@@ -14,6 +15,7 @@ from mergecalweb.calendars.fetching.fetcher import MAX_STALE_AGE
 from mergecalweb.calendars.fetching.fetcher import BrokenSourceUrlError
 from mergecalweb.calendars.fetching.fetcher import CalendarFetcher
 from mergecalweb.calendars.fetching.fetcher import SourceAccessDeniedError
+from mergecalweb.calendars.fetching.fetcher import SourceAddressNotAllowedError
 from mergecalweb.calendars.fetching.fetcher import SourceTimeoutError
 from mergecalweb.calendars.fetching.fetcher import SourceUnavailableError
 
@@ -233,3 +235,18 @@ class TestCalendarFetcherLineEndings:
             "A description long enough that the server folds it onto a second "
             "content line"
         )
+
+
+class TestCalendarFetcherPrivateAddresses:
+    @pytest.mark.parametrize("host", ["127.0.0.1", "localhost"])
+    def test_loopback_server_is_never_sent_a_request(self, fetcher, host):
+        with socket.create_server(("127.0.0.1", 0)) as server:
+            port = server.getsockname()[1]
+            server.settimeout(2)
+
+            with pytest.raises(SourceAddressNotAllowedError):
+                fetcher.fetch_calendar(f"http://{host}:{port}/cal.ics")
+
+            conn, _ = server.accept()
+            with conn:
+                assert conn.recv(1024) == b""
