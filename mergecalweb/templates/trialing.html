@@ -2,9 +2,7 @@
   <div class="alert alert-warning alert-dismissible fade show rounded-0 mb-0"
        role="alert">
     <div class="container">
-      <strong>Trial ending:</strong> {{ trial_days_left }} day
-      {% if trial_days_left != 1 %}s{% endif %}
-      left.
+      <strong>Free trial:</strong> {{ trial_days_left }} day{{ trial_days_left|pluralize }} left.
       <form method="post"
             action="{% url 'billing:manage_billing' %}"
             class="d-inline">
