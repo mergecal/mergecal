@@ -17,7 +17,7 @@
 {% block javascript %}
   {{ block.super }}
   {% compress js %}
-    <script src="{% static 'js/fullpage.min.js' %}"></script>
+    <script defer src="{% static 'js/fullpage.min.js' %}"></script>
   {% endcompress %}
 {% endblock javascript %}
 {% block content %}
