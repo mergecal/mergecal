@@ -26,6 +26,8 @@ logger = logging.getLogger(__name__)
 CACHE_TIMEOUT = timedelta(minutes=2)  # Freshness threshold
 MAX_STALE_AGE = timedelta(hours=24)  # Maximum age to keep stale cache data
 DEFAULT_TIMEOUT = 30
+MAX_RESPONSE_BYTES = 20 * 1024 * 1024
+CHUNK_BYTES = 64 * 1024
 CACHE_TUPLE_LENGTH = 2  # Expected length of (content, timestamp) cache tuple
 
 # TeamSnap ONE mixes CRLF, LF and a lone CR in a single feed. icalendar breaks
@@ -54,6 +56,10 @@ class SourceAccessDeniedError(SourceFetchError):
     """Raised when the server refuses access, usually because it was unshared."""
 
     status_code: int
+
+
+class SourceTooLargeError(SourceFetchError):
+    """Raised when the response passes MAX_RESPONSE_BYTES; the feed must shrink."""
 
 
 class SourceAddressNotAllowedError(SourceFetchError):
@@ -195,6 +201,7 @@ class CalendarFetcher:
             SourceTimeoutError: If the server does not answer in time
             SourceUnavailableError: If the server can't be reached or fails
             SourceAccessDeniedError: If the server refuses access
+            SourceTooLargeError: If the response is larger than MAX_RESPONSE_BYTES
             BrokenSourceUrlError: If the URL is malformed or the server rejects it
         """
         start_time = time.time()
@@ -233,10 +240,12 @@ class CalendarFetcher:
 
         effective_timeout = timeout if timeout is not None else DEFAULT_TIMEOUT
 
-        response = _request_calendar(url, headers, effective_timeout)
-        response.encoding = "utf-8"
-        calendar_data = LINE_ENDING_RE.sub("\r\n", response.text)
-        if calendar_data != response.text:
+        text = _request_calendar(url, headers, effective_timeout).decode(
+            "utf-8",
+            errors="replace",
+        )
+        calendar_data = LINE_ENDING_RE.sub("\r\n", text)
+        if calendar_data != text:
             logger.debug(
                 "Normalized non-standard calendar line endings",
                 extra={
@@ -253,7 +262,6 @@ class CalendarFetcher:
                 "event": LogEvent.CALENDAR_FETCH,
                 "status": "success",
                 "url": url[:200],
-                "status_code": response.status_code,
                 "size_bytes": len(calendar_data),
                 "duration_seconds": round(fetch_duration, 2),
             },
@@ -331,12 +339,35 @@ def _request_calendar(
     url: str,
     headers: dict[str, str],
     timeout: int,
-) -> requests.Response:
+) -> bytes:
     try:
         with requests.Session() as session:
             session.mount("http://", _PublicOnlyAdapter())
             session.mount("https://", _PublicOnlyAdapter())
-            response = session.get(url, headers=headers, timeout=timeout)
+            with session.get(
+                url,
+                headers=headers,
+                timeout=timeout,
+                stream=True,
+            ) as response:
+                status = response.status_code
+                if status >= HTTPStatus.INTERNAL_SERVER_ERROR or status in (
+                    HTTPStatus.REQUEST_TIMEOUT,
+                    HTTPStatus.MISDIRECTED_REQUEST,
+                    HTTPStatus.LOCKED,
+                    HTTPStatus.TOO_EARLY,
+                    HTTPStatus.TOO_MANY_REQUESTS,
+                ):
+                    raise SourceUnavailableError(status_code=status)
+                if status in (HTTPStatus.UNAUTHORIZED, HTTPStatus.FORBIDDEN):
+                    raise SourceAccessDeniedError(status_code=status)
+                if status >= HTTPStatus.BAD_REQUEST:
+                    raise BrokenSourceUrlError(status_code=status)
+                body = bytearray()
+                for chunk in response.iter_content(CHUNK_BYTES):
+                    body.extend(chunk)
+                    if len(body) > MAX_RESPONSE_BYTES:
+                        raise SourceTooLargeError
     except requests.Timeout as e:
         raise SourceTimeoutError from e
     except (
@@ -348,18 +379,4 @@ def _request_calendar(
         raise BrokenSourceUrlError from e
     except (requests.RequestException, urllib3.exceptions.HTTPError) as e:
         raise SourceUnavailableError from e
-
-    status = response.status_code
-    if status >= HTTPStatus.INTERNAL_SERVER_ERROR or status in (
-        HTTPStatus.REQUEST_TIMEOUT,
-        HTTPStatus.MISDIRECTED_REQUEST,
-        HTTPStatus.LOCKED,
-        HTTPStatus.TOO_EARLY,
-        HTTPStatus.TOO_MANY_REQUESTS,
-    ):
-        raise SourceUnavailableError(status_code=status)
-    if status in (HTTPStatus.UNAUTHORIZED, HTTPStatus.FORBIDDEN):
-        raise SourceAccessDeniedError(status_code=status)
-    if status >= HTTPStatus.BAD_REQUEST:
-        raise BrokenSourceUrlError(status_code=status)
-    return response
+    return bytes(body)

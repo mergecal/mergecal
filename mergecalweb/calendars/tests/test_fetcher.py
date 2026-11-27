@@ -11,12 +11,14 @@ from responses import matchers
 
 from mergecalweb.calendars.cache import source_data_cache_key
 from mergecalweb.calendars.fetching.fetcher import CACHE_TIMEOUT
+from mergecalweb.calendars.fetching.fetcher import MAX_RESPONSE_BYTES
 from mergecalweb.calendars.fetching.fetcher import MAX_STALE_AGE
 from mergecalweb.calendars.fetching.fetcher import BrokenSourceUrlError
 from mergecalweb.calendars.fetching.fetcher import CalendarFetcher
 from mergecalweb.calendars.fetching.fetcher import SourceAccessDeniedError
 from mergecalweb.calendars.fetching.fetcher import SourceAddressNotAllowedError
 from mergecalweb.calendars.fetching.fetcher import SourceTimeoutError
+from mergecalweb.calendars.fetching.fetcher import SourceTooLargeError
 from mergecalweb.calendars.fetching.fetcher import SourceUnavailableError
 
 URL = "http://example.com/cal.ics"
@@ -182,6 +184,19 @@ class TestCalendarFetcher:
             fetcher.fetch_calendar(URL)
 
         assert excinfo.value.status_code == status
+
+    def test_body_at_the_limit_is_accepted(self, fetcher, http):
+        http.get(URL, body=b"x" * MAX_RESPONSE_BYTES)
+
+        assert len(fetcher.fetch_calendar(URL)) == MAX_RESPONSE_BYTES
+
+    def test_body_over_the_limit_is_too_large(self, fetcher, http):
+        http.get(URL, body=b"x" * (MAX_RESPONSE_BYTES + 1))
+
+        with pytest.raises(SourceTooLargeError):
+            fetcher.fetch_calendar(URL)
+
+        assert cache.get(source_data_cache_key(URL)) is None
 
 
 class TestCalendarFetcherLineEndings:

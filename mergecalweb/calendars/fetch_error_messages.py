@@ -3,6 +3,7 @@ from mergecalweb.calendars.fetching.fetcher import SourceAccessDeniedError
 from mergecalweb.calendars.fetching.fetcher import SourceAddressNotAllowedError
 from mergecalweb.calendars.fetching.fetcher import SourceFetchError
 from mergecalweb.calendars.fetching.fetcher import SourceTimeoutError
+from mergecalweb.calendars.fetching.fetcher import SourceTooLargeError
 from mergecalweb.calendars.fetching.fetcher import SourceUnavailableError
 
 
@@ -14,6 +15,11 @@ def describe_fetch_error(error: SourceFetchError) -> str:  # noqa: PLR0911
             f"The calendar server refused access (HTTP {error.status_code}). "
             "The calendar may no longer be shared, or the server may be "
             "blocking automated requests."
+        )
+    if isinstance(error, SourceTooLargeError):
+        return (
+            "The calendar is too large to merge. Try a feed that covers "
+            "fewer events or a shorter date range."
         )
     if isinstance(error, SourceAddressNotAllowedError):
         return "The calendar URL points to a private network address."
