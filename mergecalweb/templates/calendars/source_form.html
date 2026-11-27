@@ -47,26 +47,26 @@
           </div>
         </div>
       </div>
-      <div class="col-lg-6">
-        <div class="card shadow-sm mb-4">
-          <div class="card-body">
-            <h2 class="card-title h4 mb-4">Premium Features</h2>
-            <p class="card-text">Upgrade to Business or Supporter Tier for advanced options:</p>
-            <ul class="list-group list-group-flush mb-3">
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                <span>Real-time updates to merged calendar feeds</span>
-                <i class="bi bi-check-circle-fill text-success"></i>
-              </li>
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                <span>MergeCal branding removal option</span>
-                <i class="bi bi-check-circle-fill text-success"></i>
-              </li>
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                <span>Customizable event titles and descriptions</span>
-                <i class="bi bi-check-circle-fill text-success"></i>
-              </li>
-            </ul>
-            {% if user.subscription_tier == 'free_tier' or user.subscription_tier == 'personal_tier' %}
+      {% if not user.can_customize_sources %}
+        <div class="col-lg-6">
+          <div class="card shadow-sm mb-4">
+            <div class="card-body">
+              <h2 class="card-title h4 mb-4">Premium Features</h2>
+              <p class="card-text">Upgrade to Business or Supporter Tier for advanced options:</p>
+              <ul class="list-group list-group-flush mb-3">
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  <span>Real-time updates to merged calendar feeds</span>
+                  <i class="bi bi-check-circle-fill text-success"></i>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  <span>MergeCal branding removal option</span>
+                  <i class="bi bi-check-circle-fill text-success"></i>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  <span>Customizable event titles and descriptions</span>
+                  <i class="bi bi-check-circle-fill text-success"></i>
+                </li>
+              </ul>
               <div class="alert alert-info">
                 <strong>Upgrade to unlock premium features!</strong>
                 <p class="mb-0 mt-2">Start a trial now. No credit card required to get started.</p>
@@ -75,77 +75,77 @@
                 {% csrf_token %}
                 <button type="submit" class="btn btn-primary btn-lg w-100">Start Trial</button>
               </form>
-            {% endif %}
+            </div>
           </div>
-        </div>
-        <div class="card shadow-sm">
-          <div class="card-body">
-            <h2 class="card-title h4 mb-4">Feature Comparison</h2>
-            <div class="table-responsive">
-              <table class="table table-hover">
-                <thead>
-                  <tr>
-                    <th>Feature</th>
-                    <th>Personal</th>
-                    <th>Business</th>
-                    <th>Supporter</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>Update frequency</td>
-                    <td>Every 12 hours</td>
-                    <td>Real-time</td>
-                    <td>Real-time</td>
-                  </tr>
-                  <tr>
-                    <td>Calendars limit</td>
-                    <td>2</td>
-                    <td>5</td>
-                    <td>Unlimited</td>
-                  </tr>
-                  <tr>
-                    <td>Feeds per calendar</td>
-                    <td>3</td>
-                    <td>5</td>
-                    <td>Unlimited</td>
-                  </tr>
-                  <tr>
-                    <td>MergeCal branding</td>
-                    <td>Included</td>
-                    <td>Removable</td>
-                    <td>Removable</td>
-                  </tr>
-                  <tr>
-                    <td>Customizable events</td>
-                    <td>
-                      <i class="bi bi-x-circle text-danger"></i>
-                    </td>
-                    <td>
-                      <i class="bi bi-check-circle text-success"></i>
-                    </td>
-                    <td>
-                      <i class="bi bi-check-circle text-success"></i>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>Embed calendar</td>
-                    <td>
-                      <i class="bi bi-x-circle text-danger"></i>
-                    </td>
-                    <td>
-                      <i class="bi bi-x-circle text-danger"></i>
-                    </td>
-                    <td>
-                      <i class="bi bi-check-circle text-success"></i>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <h2 class="card-title h4 mb-4">Feature Comparison</h2>
+              <div class="table-responsive">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th>Feature</th>
+                      <th>Personal</th>
+                      <th>Business</th>
+                      <th>Supporter</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Update frequency</td>
+                      <td>Every 12 hours</td>
+                      <td>Real-time</td>
+                      <td>Real-time</td>
+                    </tr>
+                    <tr>
+                      <td>Calendars limit</td>
+                      <td>2</td>
+                      <td>5</td>
+                      <td>Unlimited</td>
+                    </tr>
+                    <tr>
+                      <td>Feeds per calendar</td>
+                      <td>3</td>
+                      <td>5</td>
+                      <td>Unlimited</td>
+                    </tr>
+                    <tr>
+                      <td>MergeCal branding</td>
+                      <td>Included</td>
+                      <td>Removable</td>
+                      <td>Removable</td>
+                    </tr>
+                    <tr>
+                      <td>Customizable events</td>
+                      <td>
+                        <i class="bi bi-x-circle text-danger"></i>
+                      </td>
+                      <td>
+                        <i class="bi bi-check-circle text-success"></i>
+                      </td>
+                      <td>
+                        <i class="bi bi-check-circle text-success"></i>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Embed calendar</td>
+                      <td>
+                        <i class="bi bi-x-circle text-danger"></i>
+                      </td>
+                      <td>
+                        <i class="bi bi-x-circle text-danger"></i>
+                      </td>
+                      <td>
+                        <i class="bi bi-check-circle text-success"></i>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      {% endif %}
     </div>
   </div>
 {% endblock content %}
