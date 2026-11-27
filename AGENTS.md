@@ -78,6 +78,7 @@
 - Integration tests exercise an interface (the test client for views and webhooks, `call_command` for commands). Mocking the service behind it is fine; the test checks wiring, status codes and output.
 
 ## Planning Work
+- Start with the behavior the user wants to change or protect. Choose the simplest approach that covers it. Put each independent reason for changing the code in its own commit.
 - Keep it lean. Build only what the next milestone needs, and leave everything else out until real usage shows it's needed.
 - Work in small PRs, one step at a time. Each PR is reviewed and merged before the next one starts.
 - Allow for real-world cases in the design, even when the first version is basic. For example, the same user doing the same thing again later.
@@ -87,6 +88,7 @@
 - Every commit must be atomic: one logical change that stands on its own.
 - History on a feature branch may be rewritten (rebase, squash, reorder, amend) to keep commits atomic before merging.
 - Commit messages and PR descriptions explain *why* the change was made, not *what* changed; the diff already shows what.
+- Before writing the PR description, review the full branch against its base. Explain the problem, who is affected, and why this approach fits.
 - The repo is public, and so are commit messages and PR descriptions. A merged commit message can't be edited, and an edited PR keeps its old text in its history. Keep both free of:
   - User data: names, emails, calendar or source names, URLs, UUIDs or IDs, event contents, and log or Sentry excerpts that contain any of these.
   - Production numbers: counts of users, calendars, sources, requests, errors or failures; traffic, memory or revenue; per-deploy or per-incident figures.
