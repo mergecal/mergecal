@@ -659,14 +659,14 @@ wheels = [
 
 [[package]]
 name = "django-crispy-forms"
-version = "2.3"
+version = "2.7"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "django" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/04/f6/5bce7ae3512171c7c0ca3de31689e2a1ced8b030f156fcf13d2870e5468e/django_crispy_forms-2.3.tar.gz", hash = "sha256:2db17ae08527201be1273f0df789e5f92819e23dd28fec69cffba7f3762e1a38", size = 278849, upload-time = "2024-07-19T13:08:16.264Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/bc/f5/b79e3ed7cae871d5d71bf3448d627e1fabab769358bb90808bec056556fe/django_crispy_forms-2.7.tar.gz", hash = "sha256:4c59bed60417375cba26cebb2c67ab350b655934670270b1c89dbcd7e60f1b4c", size = 1097842, upload-time = "2026-07-29T11:12:12.081Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/4c/3b/5dc3faf8739d1ce7a73cedaff508b4af8f6aa1684120ded6185ca0c92734/django_crispy_forms-2.3-py3-none-any.whl", hash = "sha256:efc4c31e5202bbec6af70d383a35e12fc80ea769d464fb0e7fe21768bb138a20", size = 31411, upload-time = "2024-07-19T13:08:14.498Z" },
+    { url = "https://files.pythonhosted.org/packages/1f/44/50335d09c4deb70affee0c54feef07ba458df015e32e45490615d9dc5b6b/django_crispy_forms-2.7-py3-none-any.whl", hash = "sha256:42a7ecb05ac3fd050d006dfe7aeceb7f318c30e5b5124ff619e2be252f36f096", size = 31478, upload-time = "2026-07-29T11:12:11.052Z" },
 ]
 
 [[package]]
@@ -742,7 +742,7 @@ wheels = [
 
 [[package]]
 name = "django-htmx-modal-forms"
-version = "0.3.1"
+version = "0.4.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "crispy-bootstrap5" },
@@ -750,9 +750,9 @@ dependencies = [
     { name = "django-crispy-forms" },
     { name = "django-htmx" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/fa/d8/6892672f68e8c38992cddf17d5111aa5ee5e2d03b8fb94c708ea10b40ddc/django_htmx_modal_forms-0.3.1.tar.gz", hash = "sha256:fe18c3c8cfd60c1a23153e9695260aa56ef8e0fd305b71f8690681146bb7a3de", size = 15817, upload-time = "2025-01-17T17:11:14.775Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/64/02/16c2fa1fe030a7f9a420c8951b21bc88d2531ebe87d051d0da93e6985144/django_htmx_modal_forms-0.4.0.tar.gz", hash = "sha256:5cedcd8eadd71abdb8eef743fd6b08d883402576b4b983aa30145b7db20efeb2", size = 15864, upload-time = "2025-04-11T15:41:01.626Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/3c/df/85640eba4ac5a8d6614546959d51b15065d09f9afc3ebe2374d1870de743/django_htmx_modal_forms-0.3.1-py3-none-any.whl", hash = "sha256:6baf3278fa9a3a3374c1799d454f6f2230cd1d8af831037abb55751c0eb77299", size = 12180, upload-time = "2025-01-17T17:11:13.387Z" },
+    { url = "https://files.pythonhosted.org/packages/ab/c9/a996acf36fe02e0c530a3a7c98731af035bd6347440ff5fb306924f42cdc/django_htmx_modal_forms-0.4.0-py3-none-any.whl", hash = "sha256:b2f2ccc6fd2b4004bcd59f07c3b0815ed468d109ecd5ec8709587134201bce67", size = 12235, upload-time = "2025-04-11T15:41:00.257Z" },
 ]
 
 [[package]]
@@ -942,14 +942,14 @@ wheels = [
 
 [[package]]
 name = "factory-boy"
-version = "3.3.1"
+version = "3.3.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "faker" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/99/3d/8070dde623341401b1c80156583d4c793058fe250450178218bb6e45526c/factory_boy-3.3.1.tar.gz", hash = "sha256:8317aa5289cdfc45f9cae570feb07a6177316c82e34d14df3c2e1f22f26abef0", size = 163924, upload-time = "2024-08-18T19:41:00.212Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/ba/98/75cacae9945f67cfe323829fc2ac451f64517a8a330b572a06a323997065/factory_boy-3.3.3.tar.gz", hash = "sha256:866862d226128dfac7f2b4160287e899daf54f2612778327dd03d0e2cb1e3d03", size = 164146, upload-time = "2025-02-03T09:49:04.433Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/33/cf/44ec67152f3129d0114c1499dd34f0a0a0faf43d9c2af05bc535746ca482/factory_boy-3.3.1-py2.py3-none-any.whl", hash = "sha256:7b1113c49736e1e9995bc2a18f4dbf2c52cf0f841103517010b1d825712ce3ca", size = 36878, upload-time = "2024-08-18T19:40:58.067Z" },
+    { url = "https://files.pythonhosted.org/packages/27/8d/2bc5f5546ff2ccb3f7de06742853483ab75bf74f36a92254702f8baecc79/factory_boy-3.3.3-py2.py3-none-any.whl", hash = "sha256:1c39e3289f7e667c4285433f305f8d506efc2fe9c73aaea4151ebd5cdea394fc", size = 37036, upload-time = "2025-02-03T09:49:01.659Z" },
 ]
 
 [[package]]
@@ -1369,13 +1369,13 @@ requires-dist = [
     { name = "django-celery-beat", specifier = "==2.8.1" },
     { name = "django-ckeditor", specifier = "==6.7.1" },
     { name = "django-compressor", specifier = "==4.6.0" },
-    { name = "django-crispy-forms", specifier = "==2.3" },
+    { name = "django-crispy-forms", specifier = "==2.7" },
     { name = "django-environ", specifier = "==0.12.0" },
     { name = "django-extensions", specifier = "==4.1" },
     { name = "django-health-check", specifier = "==3.20.0" },
     { name = "django-htmx", specifier = "==1.21.0" },
     { name = "django-htmx-messages", specifier = "==0.1.1" },
-    { name = "django-htmx-modal-forms", specifier = "==0.3.1" },
+    { name = "django-htmx-modal-forms", specifier = "==0.4.0" },
     { name = "django-libsass", specifier = "==0.9" },
     { name = "django-redis", specifier = "==7.0.0" },
     { name = "django-social-share", specifier = "==2.3.0" },
@@ -1405,7 +1405,7 @@ dev = [
     { name = "django-debug-toolbar", specifier = "==5.2.0" },
     { name = "django-stubs", extras = ["compatible-mypy"], specifier = "==5.2.9" },
     { name = "djlint", specifier = "==1.36.4" },
-    { name = "factory-boy", specifier = "==3.3.1" },
+    { name = "factory-boy", specifier = "==3.3.3" },
     { name = "ipdb", specifier = "==0.13.13" },
     { name = "mypy", specifier = "==1.13.0" },
     { name = "pre-commit", specifier = "==4.7.0" },
