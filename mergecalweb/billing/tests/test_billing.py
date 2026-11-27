@@ -7,6 +7,7 @@ import pytest
 from django.template.loader import render_to_string
 from djstripe.models import Customer
 from djstripe.models import Event
+from djstripe.models import PaymentMethod
 from djstripe.models import Product
 
 from mergecalweb.users.models import User
@@ -98,6 +99,67 @@ def test_checkout_without_known_customer_is_acknowledged(
 
     assert response.status_code == HTTPStatus.OK
     assert Event.objects.filter(id=event["id"]).exists()
+
+
+@pytest.mark.django_db
+def test_payment_method_attached_to_known_user_is_stored(
+    http: responses.RequestsMock,
+    send_stripe_webhook: Callable[[dict], HttpResponse],
+    stripe_event: Callable[[str], dict],
+    user: User,
+) -> None:
+    event = stripe_event("payment_method.attached")
+    payment_method = event["data"]["object"]
+    customer = Customer.objects.create(id=payment_method["customer"], subscriber=user)
+    http.get(
+        f"https://api.stripe.com/v1/payment_methods/{payment_method['id']}",
+        json=payment_method,
+    )
+
+    response = send_stripe_webhook(event)
+
+    assert response.status_code == HTTPStatus.OK
+    assert PaymentMethod.objects.get(id=payment_method["id"]).customer == customer
+
+
+@pytest.mark.django_db
+def test_payment_method_attached_to_customer_without_user_is_acknowledged(
+    http: responses.RequestsMock,
+    send_stripe_webhook: Callable[[dict], HttpResponse],
+    stripe_event: Callable[[str], dict],
+) -> None:
+    event = stripe_event("payment_method.attached")
+    payment_method = event["data"]["object"]
+    customer = Customer.objects.create(id=payment_method["customer"])
+    http.get(
+        f"https://api.stripe.com/v1/payment_methods/{payment_method['id']}",
+        json=payment_method,
+    )
+
+    response = send_stripe_webhook(event)
+
+    assert response.status_code == HTTPStatus.OK
+    assert PaymentMethod.objects.get(id=payment_method["id"]).customer == customer
+
+
+@pytest.mark.django_db
+def test_payment_method_attached_without_customer_is_acknowledged(
+    http: responses.RequestsMock,
+    send_stripe_webhook: Callable[[dict], HttpResponse],
+    stripe_event: Callable[[str], dict],
+) -> None:
+    event = stripe_event("payment_method.attached")
+    payment_method = event["data"]["object"]
+    payment_method["customer"] = None
+    http.get(
+        f"https://api.stripe.com/v1/payment_methods/{payment_method['id']}",
+        json=payment_method,
+    )
+
+    response = send_stripe_webhook(event)
+
+    assert response.status_code == HTTPStatus.OK
+    assert PaymentMethod.objects.get(id=payment_method["id"]).customer is None
 
 
 @pytest.mark.parametrize(

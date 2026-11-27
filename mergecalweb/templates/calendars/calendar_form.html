@@ -4,10 +4,11 @@
 
 {% block title %}
   {% if calendar.pk %}
-    Dashboard: {{ calendar.name }}
+    {{ calendar.name }} - Edit
   {% else %}
     Create New Calendar
   {% endif %}
+  | MergeCal
 {% endblock title %}
 {% block content %}
   <div class="container-fluid mt-4 mb-5">
@@ -64,7 +65,8 @@
               <h2 class="card-title mb-0">Calendar Preview</h2>
               <a href="{% url 'calendars:calendar_view' uuid=calendar.uuid %}"
                  class="btn btn-outline-secondary btn-sm"
-                 aria-label="View Calendar">
+                 aria-label="Open full calendar"
+                 title="Open full calendar">
                 <i class="bi bi-arrows-angle-expand"></i>
               </a>
             </div>
@@ -75,7 +77,7 @@
                         class="btn btn-success"
                         data-bs-toggle="modal"
                         data-bs-target="#addToCalendarModal{{ calendar.uuid }}">
-                  <i class="bi bi-calendar-plus"></i> Subscribe to Calendar
+                  <i class="bi bi-calendar-plus"></i> Subscribe
                 </button>
               </div>
             </div>
@@ -215,7 +217,17 @@
                   </div>
                 {% empty %}
                   <tr>
-                    <td colspan="4" class="text-center">No sources added yet.</td>
+                    <td colspan="4" class="text-center py-4">
+                      {% if calendar.can_add_source %}
+                        <p class="mb-3">Add the calendar feeds you want merged into this calendar.</p>
+                        <a href="{% url 'calendars:source_add' uuid=calendar.uuid %}"
+                           class="btn btn-success">
+                          <i class="bi bi-plus-circle"></i> Add your first source
+                        </a>
+                      {% else %}
+                        No sources added yet.
+                      {% endif %}
+                    </td>
                   </tr>
                 {% endfor %}
               </tbody>

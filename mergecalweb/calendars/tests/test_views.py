@@ -105,6 +105,28 @@ class TestCalendarCreate:
         assert response.status_code == HTTPStatus.OK
         assert not user.calendar_set.exists()
 
+    @pytest.mark.parametrize(
+        ("detected", "expected"),
+        [
+            ("Europe/London", "Europe/London"),
+            (-300, "America/New_York"),
+        ],
+    )
+    def test_timezone_defaults_to_the_browsers_zone(
+        self,
+        client: Client,
+        detected: str | int,
+        expected: str,
+    ) -> None:
+        login(client, UserFactory(), User.SubscriptionTier.BUSINESS)
+        session = client.session
+        session["detected_tz"] = detected
+        session.save()
+
+        response = client.get(reverse("calendars:calendar_create"))
+
+        assert response.context["form"]["timezone"].value() == expected
+
 
 class TestCalendarUpdate:
     def test_owner_renames_calendar(self, client: Client) -> None:
@@ -128,6 +150,25 @@ class TestCalendarUpdate:
         assert client.post(url, calendar_data()).status_code == HTTPStatus.NOT_FOUND
         calendar.refresh_from_db()
         assert calendar.name == "Original"
+
+    @pytest.mark.parametrize(
+        ("tier", "prompted"),
+        [(User.SubscriptionTier.BUSINESS, True), (User.SubscriptionTier.FREE, False)],
+    )
+    def test_empty_calendar_prompts_for_a_first_source(
+        self,
+        client: Client,
+        tier: str,
+        *,
+        prompted: bool,
+    ) -> None:
+        calendar = CalendarFactory()
+        login(client, calendar.owner, tier)
+        url = reverse("calendars:calendar_update", kwargs={"uuid": calendar.uuid})
+
+        response = client.get(url)
+
+        assert ("Add your first source" in response.content.decode()) is prompted
 
 
 class TestCalendarDelete:
@@ -368,3 +409,35 @@ class TestCalendarRefresh:
         )
 
         assert response.status_code == HTTPStatus.METHOD_NOT_ALLOWED
+
+
+def page_title(response) -> str:
+    html = response.content.decode()
+    title = html[html.index("<title>") + len("<title>") : html.index("</title>")]
+    return " ".join(title.split())
+
+
+class TestPageTitles:
+    def test_calendar_pages_lead_with_the_calendar_name(self, client: Client) -> None:
+        user = UserFactory()
+        login(client, user, User.SubscriptionTier.BUSINESS)
+        calendar = CalendarFactory(owner=user, name="Team")
+
+        response = client.get(
+            reverse("calendars:calendar_update", kwargs={"uuid": calendar.uuid}),
+        )
+
+        assert page_title(response) == "Team - Edit | MergeCal"
+
+        response = client.get(
+            reverse("calendars:source_add", kwargs={"uuid": calendar.uuid}),
+        )
+
+        assert page_title(response) == "Team - Add Source | MergeCal"
+
+    def test_account_pages_have_their_own_title(self, client: Client) -> None:
+        login(client, UserFactory(), User.SubscriptionTier.BUSINESS)
+
+        response = client.get(reverse("account_change_password"))
+
+        assert page_title(response) == "Change Password | MergeCal"
