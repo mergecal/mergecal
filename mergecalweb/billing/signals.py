@@ -154,9 +154,11 @@ def handle_checkout_session_completed(
     event: Event,
     **kwargs: dict[str, Any],
 ) -> None:
-    customer_id: str = event.data["object"]["customer"]
-    customer: Customer = Customer.objects.get(id=customer_id)
-    user: User | None = customer.subscriber
+    # Payment-only checkouts have no customer, and a new customer may not be
+    # synced yet when this event arrives.
+    customer_id: str | None = event.data["object"]["customer"]
+    customer: Customer | None = Customer.objects.filter(id=customer_id).first()
+    user: User | None = customer.subscriber if customer else None
 
     logger.info(
         "Checkout session completed",

@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 import pytest
 from django.template.loader import render_to_string
 from djstripe.models import Customer
+from djstripe.models import Event
 from djstripe.models import Product
 
 from mergecalweb.users.models import User
@@ -76,3 +77,24 @@ def test_first_login_starts_business_trial_tier_immediately(
 
     user.refresh_from_db()
     assert user.subscription_tier == User.SubscriptionTier.BUSINESS
+
+
+@pytest.mark.django_db
+def test_checkout_without_known_customer_is_acknowledged(
+    http: responses.RequestsMock,
+    send_stripe_webhook: Callable[[dict], HttpResponse],
+    stripe_event: Callable[[str], dict],
+) -> None:
+    event = stripe_event("checkout.session.completed")
+    session = event["data"]["object"]
+    # Objects this test doesn't need; dj-stripe would fetch each from the API.
+    session["payment_intent"] = None
+    http.get(
+        f"https://api.stripe.com/v1/checkout/sessions/{session['id']}",
+        json=session,
+    )
+
+    response = send_stripe_webhook(event)
+
+    assert response.status_code == HTTPStatus.OK
+    assert Event.objects.filter(id=event["id"]).exists()
