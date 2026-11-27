@@ -23,7 +23,7 @@ dependencies = [
     "django-redis==7.0.0",
     "django-extensions==4.1",
     "django-libsass==0.9",
-    "django-htmx==1.21.0",
+    "django-htmx==1.29.0",
     "django-autoslug==1.9.9",
     "django-ckeditor==6.7.1",
     "django-tz-detect==0.5.0",
